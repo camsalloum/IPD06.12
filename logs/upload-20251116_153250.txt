@@ -1,0 +1,56 @@
+**********************
+PowerShell transcript start
+Start time: 20251116153250
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll D:\Projects\IPD26.10\upload-to-github.ps1
+Process ID: 29620
+PSVersion: 7.5.3
+PSEdition: Core
+GitCommitId: 7.5.3
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+[INFO] Working directory: D:\Projects\IPD26.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+ touches it
+warning: in the working copy of 'server/scripts/cleanup-suggestions.js', LF will be replaced by CRLF the next time Git t
+ouches it
+warning: in the working copy of 'server/scripts/create-division-customer-merge-system.sql', LF will be replaced by CRLF
+the next time Git touches it
+warning: in the working copy of 'server/scripts/debug-suggestions.js', LF will be replaced by CRLF the next time Git tou
+ches it
+warning: in the working copy of 'server/scripts/find-customer-tables.js', LF will be replaced by CRLF the next time Git
+touches it
+warning: in the working copy of 'server/scripts/migrate-salesrep-to-division-rules.js', LF will be replaced by CRLF the
+next time Git touches it
+warning: in the working copy of 'server/scripts/setup-division-merge-system.js', LF will be replaced by CRLF the next ti
+me Git touches it
+warning: in the working copy of 'server/scripts/test-ai-matching.js', LF will be replaced by CRLF the next time Git touc
+hes it
+warning: in the working copy of 'server/scripts/test-api-endpoints.js', LF will be replaced by CRLF the next time Git to
+uches it
+warning: in the working copy of 'server/scripts/verify-migration.js', LF will be replaced by CRLF the next time Git touc
+hes it
+warning: in the working copy of 'server/services/CustomerMergingAI.js', LF will be replaced by CRLF the next time Git to
+uches it
+warning: in the working copy of 'src/components/MasterData/CustomerMerging/CustomerMergingPage.css', LF will be replaced
+ by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/MasterData/CustomerMerging/CustomerMergingPage.js', LF will be replaced
+by CRLF the next time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+PowerShell transcript end
+End time: 20251116153322
+**********************

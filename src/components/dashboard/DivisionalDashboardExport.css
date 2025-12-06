@@ -1,0 +1,121 @@
+.divisional-export-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+
+.divisional-export-content {
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  width: 90%;
+  max-width: 480px;
+  overflow: hidden;
+}
+
+.divisional-export-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.divisional-export-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.divisional-export-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #94a3b8;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.divisional-export-close:hover {
+  color: #f1f5f9;
+}
+
+.divisional-export-body {
+  padding: 24px;
+}
+
+.divisional-export-body p {
+  margin: 0 0 12px 0;
+  color: #cbd5e1;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.divisional-export-body p:last-child {
+  margin-bottom: 0;
+}
+
+.divisional-export-note {
+  font-size: 13px !important;
+  color: #64748b !important;
+  font-style: italic;
+}
+
+.divisional-export-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.divisional-export-btn {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.divisional-export-btn.cancel {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+}
+
+.divisional-export-btn.cancel:hover {
+  background: rgba(148, 163, 184, 0.25);
+  color: #f1f5f9;
+}
+
+.divisional-export-btn.export {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.divisional-export-btn.export:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.divisional-export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}

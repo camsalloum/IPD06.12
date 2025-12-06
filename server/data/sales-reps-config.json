@@ -1,0 +1,65 @@
+{
+  "FP": {
+    "defaults": [],
+    "groups": {
+      "Riad & Nidal": [
+        "Nidal Hanan",
+        "Riad Al Zier"
+      ],
+      "Others": [
+        "Ramesh T Rangasamy",
+        "Ramana Swargam",
+        "Ramsheed Aruthundiyil",
+        "Rehanuddin Ahmed",
+        "Roshdy Ezzelarab",
+        "Waseem-Horeca",
+        "Waseem Ahmed Hameed",
+        "Waseem Mazhar",
+        "Waleed Fawzi",
+        "Hari Krishnan M",
+        "Haseeb",
+        "Horeca-Temp",
+        "Hosam Mohamed Selim",
+        "Jamal Abdul Al",
+        "Mary Grace Alarma",
+        "Kailash",
+        "Meguerditch Kaychian",
+        "Prasad-Horeca",
+        "Others",
+        "Realyn Esguerra",
+        "Khalid Abdul Rahman",
+        "Dinah Gantalao Cuevas",
+        "Ara Bayramian",
+        "Mohamed Katbi",
+        "Bashar Tannous"
+      ],
+      "Sofiane & Team": [
+        "Mouhcine Fellah",
+        "Sofiane Salah"
+      ],
+      "James & Rania": [
+        "Rania",
+        "Rania Sleem",
+        "James Kassab(Rania)",
+        "James Kassab"
+      ],
+      "Narek Koroukian": [
+        "Narek Koroukian",
+        "Salil Punnilath"
+      ],
+      "Sojy/ & M. Hisham & Direct Sales": [
+        "Direct Sales",
+        "Direct Sales F&B",
+        "Harwal Company Limited",
+        "Sojy Jose Ukken",
+        "(Blank)",
+        "Tinu Sam",
+        "Mohammed Hisham"
+      ]
+    }
+  },
+  "HC": {
+    "defaults": [],
+    "groups": {}
+  }
+}

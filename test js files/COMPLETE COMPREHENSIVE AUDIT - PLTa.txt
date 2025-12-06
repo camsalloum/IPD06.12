@@ -1,0 +1,900 @@
+COMPLETE COMPREHENSIVE AUDIT - PLTableStyles.css (797 lines)
+📊 FILE STRUCTURE OVERVIEW
+SectionLinesPurposeStatusCSS Variables7-20Root variables for sizing and z-index⚠️ IssuesBase Container22-73Table wrapper and container⚠️ IssuesHeader & Title75-110Title and subtitle styling✅ OKCore Table112-189Main table structure🔴 CriticalCell Styling190-308Cell borders, sticky column🔴 CriticalResponsive Breakpoints310-476Desktop/Tablet/Mobile⚠️ OverlapSpecial Rows478-505Row type styling✅ OKHTML Export506-574Export-specific rules🔴 DuplicateResponsive Design624-681Mobile adjustments🔴 DuplicateBorder Rules683-711Edge borders⚠️ IssuesMobile Adjustments 2714-781More mobile rules🔴 DuplicatePrint Styles785-797Print media query🔴 Duplicate
+
+🔴 SECTION 1: CSS VARIABLES (Lines 7-20)
+Lines 7-20: Root Variables
+css:root {
+  --pl-hdr-h: 28px;
+  --z-corner: 10;
+  --z-hdr4: 9;
+  --z-hdr3: 8;
+  --z-hdr2: 7;
+  --z-hdr1: 6;
+  --z-header: 5;
+  --z-firstcol: 4;
+  --z-separator: 1;
+}
+ISSUES:
+
+Line 9: --pl-hdr-h: 28px
+
+✅ Good use of CSS variable
+❌ OVERRIDDEN at line 733 for mobile: :root { --pl-hdr-h: 24px; }
+PROBLEM: This breaks all calculations that use calc(var(--pl-hdr-h) * 4) at lines 57, 151, 155, 159, 520-521
+IMPACT: Sticky overlay positioned at wrong height (112px desktop vs 96px mobile)
+
+
+Lines 12-19: Z-index values too low
+
+--z-corner: 10 is overridden by hardcoded z-index: 15 at lines 658, 668
+--z-firstcol: 4 conflicts with mobile z-index: 15
+--z-hdr1: 6 is lower than first column (15), causing header to go behind body cells on mobile
+
+
+
+FIX:
+css:root {
+  --pl-hdr-h: 28px; /* DO NOT override this in media queries */
+  --z-corner: 20;    /* Ledger header - highest */
+  --z-hdr4: 16;      /* Year row */
+  --z-hdr3: 15;      /* Month row */
+  --z-hdr2: 14;      /* Type row */
+  --z-hdr1: 13;      /* Metrics row */
+  --z-firstcol: 12;  /* First column body */
+  --z-header: 10;    /* Generic headers */
+  --z-separator: 1;  /* Period separators */
+}
+
+🔴 SECTION 2: BASE CONTAINER (Lines 22-73)
+Lines 26-35: .pl-table-view
+css.pl-table-view {
+  width: 100%;
+  padding: 20px;
+  border: 2px solid #000 !important;
+  margin-top: 20px;
+  max-width: 100%;
+  overflow: visible; /* Line 32 */
+  box-sizing: border-box;
+  background-color: #fff;
+}
+ISSUES:
+
+Line 32: overflow: visible
+
+Comment says "Let child container handle all scrolling"
+PROBLEM: If child content exceeds bounds, it will overflow visibly outside the border
+RISK: Content could escape container on edge cases
+
+
+
+FIX: Change to overflow: hidden or overflow: auto
+Lines 37-52: .pl-table-container
+css.pl-table-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: 2px solid #000 !important;
+  margin: 0 auto !important;
+  position: relative !important;
+  overflow-x: auto !important;
+  overflow-y: scroll !important;        /* Line 44 */
+  -webkit-overflow-scrolling: touch !important;
+  max-height: 80vh !important;
+  min-height: 50vh !important;          /* Line 47 */
+  padding-bottom: 10px !important;
+  background-color: #fff !important;
+  will-change: scroll-position !important; /* Line 50 */
+  contain: layout !important;
+}
+ISSUES:
+
+Line 44: overflow-y: scroll !important
+
+Forces scrollbar even for short tables
+Wastes vertical space
+
+
+Line 47: min-height: 50vh !important
+
+Forces half-screen height even for 3-row tables
+Creates unnecessary white space
+
+
+Line 50: will-change: scroll-position !important
+
+INVALID PROPERTY VALUE: CSS spec doesn't have scroll-position
+Valid values: scroll, transform, contents, auto
+Forces GPU compositing which wastes memory
+
+
+Excessive !important flags (8 times)
+
+Indicates specificity wars
+Makes overriding nearly impossible
+
+
+
+FIX:
+css.pl-table-container {
+  width: 100%;
+  max-width: 100%;
+  border: 2px solid #000;
+  margin: 0 auto;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: auto; /* Only show scrollbar when needed */
+  -webkit-overflow-scrolling: touch;
+  max-height: 80vh;
+  background-color: #fff;
+  /* Remove will-change and contain - let browser optimize */
+}
+Lines 54-68: .pl-sticky-double-line (OVERLAY DIV)
+css.pl-sticky-double-line {
+  position: sticky;
+  top: calc(var(--pl-hdr-h) * 4); /* 112px */
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 0;
+  border-bottom: 4px double #000;
+  z-index: 1000;
+  pointer-events: none;
+  background: #fff;
+  margin: 0;
+  padding: 0;
+}
+CRITICAL ISSUES:
+
+Line 57: top: calc(var(--pl-hdr-h) * 4)
+
+Calculates to 112px on desktop
+But line 733 changes --pl-hdr-h to 24px on mobile = 96px
+16px MISALIGNMENT on mobile!
+
+
+Line 63: z-index: 1000
+
+Absurdly high compared to other elements (4-10)
+Will cover interactive content
+Comment says "(THE ONLY WORKING SOLUTION)" - NOT TRUE
+
+
+Fundamental Design Flaw:
+
+This div is external to the table
+When scrolling horizontally, it doesn't respect table columns
+The double-line appears as a continuous line, not segmented by columns
+
+
+
+FIX: Remove this entirely (lines 54-68) and use sticky cells instead.
+Lines 70-73: .pl-table-container.tall-table
+css.pl-table-container.tall-table {
+  overflow-y: auto !important;
+  max-height: 80vh !important;
+}
+ISSUE: Redundant - already defined at lines 44, 46. This class serves no purpose.
+FIX: Delete lines 70-73
+
+✅ SECTION 3: HEADER & TITLE (Lines 75-110)
+Status: This section is well-structured with no major issues.
+Minor note on line 96-97:
+cssmargin: 0 0 8px 0; /* Could be simplified to: margin-bottom: 8px; */
+
+🔴 SECTION 4: CORE TABLE STYLING (Lines 112-189)
+Lines 116-128: .pl-financial-table
+css.pl-financial-table {
+  width: 100%;
+  min-width: 100%;
+  border-collapse: collapse; /* Line 119 */
+  border-spacing: 0;
+  font-size: clamp(9px, 1.8vw, 12px); /* Line 121 */
+  font-family: Arial, sans-serif;
+  table-layout: fixed;
+  max-width: 100%;
+  background: #fff;
+  border: 2px solid #000 !important;
+  background-color: #fff; /* Line 127 - duplicate */
+}
+CRITICAL ISSUES:
+
+Line 119: border-collapse: collapse
+
+❌ BREAKS STICKY POSITIONING
+With collapse, borders merge unpredictably when sticky elements overlap
+CSS spec: behavior undefined for sticky + collapse
+
+FIX:
+
+css   border-collapse: separate;
+   border-spacing: 0;
+
+Line 121: font-size: clamp(9px, 1.8vw, 12px)
+
+Only 3px range (9-12px)
+1.8vw causes constant font resizing as window resizes
+Jarring user experience
+
+FIX: Use fixed sizes with media queries
+Line 127: background-color: #fff
+
+Already set at line 125 as background: #fff
+Redundant
+
+
+
+Lines 131-143: .pl-financial-table thead th
+css.pl-financial-table thead th {
+  font-size: clamp(11px, 2.1vw, 14px); /* Line 132 */
+  height: var(--pl-hdr-h);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-hdr1); /* Line 136 - WRONG */
+  font-weight: 700;
+  border: 1px solid #e0e0e0 !important;
+  background-clip: padding-box;
+  max-height: var(--pl-hdr-h) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+ISSUES:
+
+Line 132: Same clamp() issue as above
+Line 136: z-index: var(--z-hdr1)
+
+--z-hdr1 = 6, but this is a generic rule for ALL header cells
+Rows 1-4 have specific z-index rules at lines 146-161 that override this
+This line serves no purpose except as a fallback
+
+
+
+FIX: Set to z-index: var(--z-header) (generic fallback)
+Lines 145-161: Four sticky header tiers
+css.pl-financial-table thead tr:nth-child(1) th {
+  top: 0;
+  z-index: var(--z-hdr4); /* 9 */
+}
+.pl-financial-table thead tr:nth-child(2) th {
+  top: calc(var(--pl-hdr-h) * 1); /* 28px */
+  z-index: var(--z-hdr3); /* 8 */
+}
+.pl-financial-table thead tr:nth-child(3) th {
+  top: calc(var(--pl-hdr-h) * 2); /* 56px */
+  z-index: var(--z-hdr2); /* 7 */
+}
+.pl-financial-table thead tr:nth-child(4) th {
+  top: calc(var(--pl-hdr-h) * 3); /* 84px */
+  z-index: var(--z-hdr1); /* 6 */
+}
+STATUS: ✅ Good implementation
+ISSUE: These same rules are duplicated at lines 546-565 in "HTML export section"
+Lines 167-174: Double-line borders
+css.pl-financial-table thead tr:nth-child(4) th {
+  border-bottom: 4px double #000 !important;
+}
+
+.pl-financial-table thead tr:first-child th.pl-ledger-header {
+  border-bottom: 4px double #000 !important;
+}
+ISSUE:
+
+Line 168 applies double-line to entire 4th row (all cells)
+Line 172 applies double-line to Ledger header only
+CONFLICT: Ledger header is in row 1, not row 4
+These rules are duplicated at lines 567-574
+
+PROBLEM: The double-line on individual cells doesn't scroll with the table when using sticky positioning.
+Lines 177-179: Redundant rule
+css.pl-financial-table thead tr:nth-child(4) th {
+  font-size: clamp(9px, 1.6vw, 12px) !important;
+}
+ISSUE: This is the third rule targeting thead tr:nth-child(4) th
+
+Line 158-161: Sets position and z-index
+Line 168-170: Sets border-bottom
+Line 177-179: Sets font-size
+
+FIX: Consolidate into one rule block.
+
+🔴 SECTION 5: TABLE CELL STYLING (Lines 190-308)
+Lines 194-205: Generic cell styling
+css.pl-financial-table th,
+.pl-financial-table td {
+  padding: clamp(2px, 0.5vw, 8px) clamp(3px, 0.7vw, 12px);
+  border: 1px solid #e0e0e0 !important;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 1.15;
+  white-space: normal !important;   /* Line 201 */
+  word-break: normal;
+  overflow-wrap: anywhere;
+  background-clip: padding-box;
+}
+ISSUES:
+
+Line 196: Clamp on padding - same issue, constant resizing
+Line 201: white-space: normal !important
+
+CONFLICTS with line 187: white-space: nowrap !important for non-first columns
+CONFLICTS with line 223: white-space: nowrap !important for first column
+CONFLICTS with line 534: white-space: nowrap !important for headers
+The !important war means unpredictable results
+
+
+
+FIX: Remove !important from the generic rule, let specific rules override naturally.
+Lines 210-229: Sticky first column ⭐ CORE ISSUE
+css.pl-financial-table thead tr:first-child th:first-child,
+.pl-financial-table thead tr th.pl-ledger-header,
+.pl-financial-table tbody tr:not(.pl-separator-row) td:first-child {
+  position: sticky;
+  left: 0;
+  top: auto !important; /* Line 215 - CRITICAL */
+  z-index: var(--z-firstcol); /* 4 */
+  background-color: #fff !important;
+  border-right: 2px solid #000 !important;
+  border-left: 2px solid #000 !important;
+  border-top: 1px solid #e0e0e0 !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  text-align: left;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+  max-width: 28ch;
+  min-width: 120px;
+  box-sizing: border-box !important;
+}
+CRITICAL ISSUES:
+
+Line 215: top: auto !important
+
+❌ THIS IS THE ROOT CAUSE of the double-line sticky issue
+Comment says "Don't inherit top from row rules - only stick horizontally"
+PROBLEM: This prevents the first column from being sticky vertically
+The double-line on these cells scrolls away!
+
+
+Line 216: z-index: var(--z-firstcol) = 4
+
+On mobile, lines 658 and 668 override this to z-index: 15
+Creates inconsistency between desktop (4) and mobile (15)
+Z-index 4 is lower than header rows (6-9), so body cells can show behind headers
+
+
+Line 221: border-bottom: 1px solid #e0e0e0 !important
+
+Conflicts with line 173 which sets border-bottom: 4px double #000 for Ledger
+The 1px rule overrides the double-line!
+
+
+
+FIX:
+css.pl-financial-table thead tr:first-child th:first-child,
+.pl-financial-table thead tr th.pl-ledger-header,
+.pl-financial-table tbody tr:not(.pl-separator-row) td:first-child {
+  position: sticky;
+  left: 0;
+  /* Remove: top: auto !important; */
+  /* Body cells should be: top: calc(var(--pl-hdr-h) * 4); */
+  z-index: var(--z-firstcol);
+  background-color: #fff;
+  border-right: 2px solid #000;
+  border-left: 2px solid #000;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 30ch;
+  min-width: 120px;
+}
+
+/* Separate rule for Ledger header border */
+.pl-financial-table thead tr:first-child th.pl-ledger-header {
+  border-bottom: 4px double #000;
+}
+Line 231: Dead comment
+css/* Ledger header double-line is set at line 145-146 */
+ISSUE: Line 145-146 don't set double-line. This comment is incorrect. The double-line is at line 173.
+Lines 237-250: Pseudo-element background
+css.pl-financial-table thead tr:first-child th:first-child::before,
+.pl-financial-table thead tr th.pl-ledger-header::before,
+.pl-financial-table tbody tr:not(.pl-separator-row) td:first-child::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -4px;  /* Line 244 - PROBLEM */
+  bottom: -1px; /* Line 245 */
+  background-color: #fff !important;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 1 !important;
+}
+ISSUES:
+
+Line 244: right: -4px
+
+Comment says "FIX: bury neighbor column edge"
+PROBLEM: This makes the white background extend 4px into the next column
+Visual artifact: white strip covers left edge of 2nd column when scrolling
+
+
+Line 245: bottom: -1px
+
+Comment says "Don't cover bottom border - let it show through"
+INCONSISTENT: Top is -1px (covers border), but bottom is -1px (tries not to cover?)
+Logic doesn't match comment
+
+
+
+FIX:
+css.pl-financial-table thead tr:first-child th:first-child::before,
+.pl-financial-table thead tr th.pl-ledger-header::before,
+.pl-financial-table tbody tr:not(.pl-separator-row) td:first-child::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0; /* No overlap */
+  bottom: 0;
+  background-color: #fff;
+  z-index: -1;
+  pointer-events: none;
+}
+Lines 253-256: Box-shadow hack
+css.pl-financial-table thead tr th.pl-ledger-header,
+.pl-financial-table tbody td:first-child {
+  box-shadow: inset -2px 0 0 #000;
+}
+ISSUE: Comment says "defeat sub-pixel hairlines"
+
+This is a hack to work around border-collapse issues
+If you fix border-collapse (line 119), this becomes unnecessary
+
+FIX: Remove after fixing border-collapse
+Lines 258-296: Period separator borders
+css/* Each period has 3 columns: nth-child(2), (5), (8), etc. */
+.pl-financial-table thead tr th:nth-child(2),
+.pl-financial-table tbody tr td:nth-child(2),
+/* ... 8 more selectors ... */
+{
+  border-left: 2px solid #000 !important;
+}
+
+/* Right borders: nth-child(4), (7), (10), etc. */
+.pl-financial-table thead tr th:nth-child(4),
+.pl-financial-table tbody tr td:nth-child(4),
+/* ... 7 more selectors ... */
+{
+  border-right: 2px solid #000 !important;
+}
+ISSUES:
+
+Hardcoded column positions
+
+Assumes exactly 3 columns per period
+Assumes maximum 8 periods (up to nth-child(23))
+BREAKS if table structure changes
+
+
+Better approach: Use JavaScript to add a class .period-start and .period-end to the appropriate cells
+
+STATUS: Works but brittle
+Lines 298-303: Corner cell override
+css.pl-financial-table thead tr:first-child th.pl-ledger-header {
+  left: 0;
+  top: 0 !important; /* Line 301 */
+  z-index: var(--z-corner); /* 10 */
+}
+ISSUE:
+
+This rule is redundant - already covered by lines 210-229
+Line 301 correctly sets top: 0, but line 215 earlier set top: auto !important
+SPECIFICITY BATTLE: Which wins?
+
+Line 210 selector: .pl-financial-table thead tr:first-child th:first-child = (0,1,3)
+Line 211 selector: .pl-financial-table thead tr th.pl-ledger-header = (0,2,2)
+Line 299 selector: .pl-financial-table thead tr:first-child th.pl-ledger-header = (0,2,3)
+Winner: Line 299 (highest specificity)
+
+
+So this rule actually rescues the Ledger header by overriding top: auto with top: 0
+
+FIX: Consolidate sticky first column rules properly
+
+⚠️ SECTION 6: RESPONSIVE BREAKPOINTS (Lines 310-476)
+Lines 315-335: Desktop (≥1200px)
+css@media (min-width: 1200px) {
+  .pl-financial-table { font-size: 12px; }
+  .pl-financial-table thead th { font-size: 14px; }
+  .pl-financial-table thead tr:last-child th { font-size: 10px !important; }
+  .pl-financial-table th, .pl-financial-table td { padding: 8px 12px; }
+}
+STATUS: ✅ Good - fixed font sizes
+Lines 338-375: Tablet (768-1199px)
+STATUS: ✅ Good - adjusts column widths appropriately
+Lines 378-456: Mobile (<767px)
+ISSUE: This is the FIRST of THREE mobile blocks
+Compare:
+
+Lines 378-456: @media (max-width: 767px)
+Lines 629-648: @media (max-width: 768px) - 1px difference!
+Lines 652-676: @media (max-width: 768px) - duplicate!
+Lines 719-781: @media (max-width: 767px) - duplicate!
+
+PROBLEM: At exactly 768px, blocks at 629-648 and 652-676 both apply but 378-456 doesn't.
+Lines 458-476: Global column widths (NO MEDIA QUERY)
+css.pl-financial-table colgroup:first-child col {
+  width: 25% !important;
+}
+ISSUE: These rules apply to all screen sizes because there's no media query wrapper.
+
+They get overridden by the media query rules above
+Confusing cascade order
+
+
+✅ SECTION 7: SPECIAL ROWS (Lines 478-505)
+STATUS: Mostly OK
+Lines 482-483:
+css.pl-table-main-label { font-size: 28px !important; }
+.pl-financial-table th.pl-empty-header { font-size: 28px !important; }
+ISSUE: 28px is very large - why? No explanation. Seems arbitrary.
+Lines 488-504: Color definitions are commented out, which is good per the REMOVED comments.
+
+🔴 SECTION 8: HTML EXPORT (Lines 506-574) - DUPLICATE CODE
+Lines 510-524: Ledger header sizing
+css.pl-ledger-header {
+  font-size: 20px !important;
+  height: calc(var(--pl-hdr-h) * 4) !important;
+  max-height: calc(var(--pl-hdr-h) * 4) !important;
+  overflow: hidden !important;
+}
+ISSUES:
+
+Conflicts with mobile line 432-433:
+
+Line 433: font-size: 14px !important; for mobile
+Line 513: font-size: 20px !important; always
+Both have !important - which wins? The later one (line 513 overrides 433)
+BROKEN: Mobile Ledger header shows 20px instead of 14px
+
+
+Lines 520-521: Height calculation breaks on mobile when --pl-hdr-h changes to 24px
+
+Lines 526-544: Generic header styling
+css.pl-financial-table thead tr th {
+  height: var(--pl-hdr-h);
+  line-height: 1.1;
+  vertical-align: middle;
+  font-weight: bold;
+  position: sticky;
+  z-index: 10; /* Line 533 - HARDCODED */
+  white-space: nowrap !important;
+  padding: 3px 6px;
+  font-size: 14px;
+}
+CRITICAL ISSUE:
+Line 533: z-index: 10
+
+This is hardcoded instead of using var(--z-header)
+Conflicts with the carefully layered z-index system (6, 7, 8, 9 for rows 4, 3, 2, 1)
+All header cells now have z-index 10, breaking the layering
+
+Lines 546-565: EXACT DUPLICATE of lines 145-161
+css.pl-financial-table thead tr:nth-child(1) th {
+  top: calc(var(--pl-hdr-h) * 0);
+  z-index: var(--z-hdr4);
+}
+/* ... identical rules for rows 2-4 ... */
+ISSUE: This is a 100% duplicate of the earlier rules. Completely unnecessary.
+Lines 567-574: EXACT DUPLICATE of lines 167-174
+ISSUE: Another duplicate of the double-line border rules.
+FIX: Delete lines 546-574 entirely.
+
+🔴 SECTION 9: MORE STYLING (Lines 576-622)
+Line 578: Dead comment
+css/* 4th row bottom border is removed to allow double-line box-shadow to show */
+ISSUE: There is no box-shadow being used for double-line. This comment is wrong.
+Lines 581-583: Redundant rule
+css.pl-financial-table th {
+  text-align: center;
+}
+ISSUE: Already set at line 199 for all th elements.
+Lines 586-589: Conflicting padding
+css.pl-financial-table td:first-child {
+  text-align: left;
+  padding-left: 12px;
+}
+ISSUE:
+
+Line 196 sets padding with clamp: clamp(3px, 0.7vw, 12px) for horizontal padding
+Line 588 overrides with fixed 12px
+Inconsistent with the responsive approach
+
+Lines 591-592: Dead code
+css/* Preserve inline colors when present (e.g., header bands from period selection)
+  (no-op selector intentionally removed for linter cleanliness) */
+ISSUE: Comment references removed code. Should delete the comment too.
+Lines 594-622: Border styling for headers
+STATUS: ✅ Generally OK
+Lines 615-622:
+css.pl-financial-table thead tr:nth-child(1),
+.pl-financial-table thead tr:nth-child(2),
+.pl-financial-table thead tr:nth-child(3) {
+  margin: 0;
+  padding: 0;
+  border-spacing: 0;
+}
+ISSUE: <tr> elements don't accept margin, padding, or border-spacing properties. These lines do nothing.
+
+🔴 SECTION 10: RESPONSIVE DESIGN #2 (Lines 624-681) - DUPLICATE
+Lines 629-648: @media (max-width: 768px) - Block #1
+css@media (max-width: 768px) {
+  .pl-table-view { padding: 8px; }
+  .pl-table-title { font-size: 1.4rem; }
+  .pl-table-subtitle { font-size: 1rem; }
+  .pl-financial-table-container { /* WRONG CLASS NAME */ }
+}
+ISSUES:
+
+Line 644: .pl-financial-table-container
+
+This class doesn't exist in the file
+The correct class is .pl-table-container (line 37)
+These rules never apply!
+
+
+Conflicts with earlier mobile block at lines 378-456
+
+Line 381 mobile (<767px): min-width: 100%
+Line 441 mobile (<767px): font-size: 1.2rem for title
+Line 636 mobile (≤768px): font-size: 1.4rem for title
+At 768px: which applies? Both blocks target different breakpoints!
+
+
+
+Lines 652-676: @media (max-width: 768px) - Block #2 (SAME BREAKPOINT!)
+css@media (max-width: 768px) {
+  .pl-financial-table thead tr th.pl-ledger-header {
+    z-index: 15; /* Line 658 - CONFLICTS */
+  }
+  .pl-financial-table tbody tr td:first-child {
+    z-index: 15; /* Line 668 - CONFLICTS */
+  }
+}
+CRITICAL ISSUE:
+Lines 658, 668: z-index: 15
+
+This overrides the CSS variable system (var(--z-corner) = 10, var(--z-firstcol) = 4)
+Hardcoded value means the z-index system is broken on mobile
+z-index: 15 for body cells makes them appear above header rows (z-index 6-9)
+
+Lines 679-681: Empty media query
+css@media (min-width: 769px) {
+  /* This media query is now handled by the comprehensive responsive breakpoints above */
+}
+ISSUE: Empty block serves no purpose. Delete it.
+
+⚠️ SECTION 11: EDGE BORDERS (Lines 683-711)
+Lines 691-705: Table edge borders
+STATUS: ✅ Good - ensures 2px black borders on all edges
+Line 706: TODO comment
+css/* Double-line removed - will be implemented properly later */
+ISSUE: This indicates incomplete implementation. Should be addressed or removed.
+Lines 708-711: Remove top border
+css.pl-financial-table tbody tr:first-child td {
+  border-top: none !important;
+}
+ISSUE: Comment says "avoid overlap", but this creates a visual gap between header and body.
+WHY IT EXISTS: Probably because of the double-line on the 4th header row - removing the top border prevents double borders.
+BETTER FIX: If using border-collapse: separate, you can manage borders properly without removing them.
+
+🔴 SECTION 12: MOBILE ADJUSTMENTS #3 (Lines 714-781) - DUPLICATE
+Lines 719-781: @media (max-width: 767px)
+This is the THIRD mobile block targeting the same breakpoint as lines 378-456!
+Line 733: THE SMOKING GUN 🔴
+css:root { --pl-hdr-h: 24px; }
+CRITICAL ISSUE:
+This changes the root CSS variable from 28px to 24px on mobile.
+IMPACT:
+
+Line 57: Overlay div positioned at calc(24px * 4) = 96px instead of 112px
+Line 133: Header height becomes 24px instead of 28px
+Lines 151-159: All sticky row positions shift down by 16px
+Lines 520-521: Ledger header height becomes 96px instead of 112px
+TOTAL BREAKAGE of the sticky positioning system
+
+WHY IT WAS ADDED: Probably to make headers smaller on mobile, but it breaks all calculations
+FIX: DELETE line 733 - do NOT change the root variable in media queries
+Lines 735-759: Sticky rules with !important
+css.pl-financial-table thead tr:first-child th.pl-ledger-header {
+  position: sticky !important;
+  z-index: var(--z-corner) !important;
+  /* ... 8 !important flags ... */
+}
+ISSUES:
+
+Line 737: min-width: 80px
+
+Desktop (line 227): min-width: 120px
+Mobile: 80px
+40px narrower - why? No explanation
+Makes row labels harder to read
+
+
+Excessive !important usage
+
+8 !important flags in this one block
+Indicates fighting with earlier rules
+Makes future overrides nearly impossible
+
+
+
+Lines 761-773: Pseudo-element with -4px hack again
+css.pl-financial-table thead tr:first-child th.pl-ledger-header::before,
+.pl-financial-table tbody tr td:first-child::before {
+  right: -4px;  /* Line 767 - Same hack */
+  bottom: -2px; /* Line 768 - Different from earlier */
+}
+ISSUE:
+
+Line 245 (desktop): bottom: -1px
+Line 768 (mobile): bottom: -2px
+Inconsistent values with no explanation
+
+
+⚠️ SECTION 13: PRINT STYLES (Lines 785-797) - DUPLICATE
+Lines 786-789: @media print - Block #1
+css@media print {
+  .pl-financial-table { font-size: 10px; background:#fff; }
+  .pl-financial-table th, .pl-financial-table td { padding: 4px 6px; }
+}
+Lines 794-797: @media print - Block #2
+css@media print {
+  .pl-financial-table { font-size: 10px; background:#fff; }
+  .pl-financial-table th, .pl-financial-table td { padding: 4px 6px; }
+}
+ISSUE: EXACT DUPLICATE - 100% identical code repeated twice.
+FIX: Delete lines 794-797
+
+📊 SUMMARY OF ALL ISSUES
+🔴 CRITICAL ISSUES (Must Fix)
+#LinesIssueImpact1119border-collapse: collapseBreaks sticky borders254-68Overlay div approach for double-lineDoesn't work properly3215top: auto !important on first columnDouble-line scrolls away4733Changes --pl-hdr-h to 24px on mobileBreaks all positioning (16px misalignment)5658, 668Hardcoded z-index: 15 on mobileBody cells appear above headers6533Hardcoded z-index: 10 for all headersBreaks layered stickiness7513Ledger font 20px overrides mobile 14pxMobile Ledger too large8546-574Complete duplicate of lines 145-174Maintenance nightmare9794-797Complete duplicate of lines 786-789Redundant
+⚠️ MODERATE ISSUES
+#LinesIssueImpact1044, 47Forced scrollbar + min-heightWastes space on short tables1150Invalid will-change: scroll-positionNo effect, wastes GPU12121, 132, 178, 196clamp() font/padding sizingConstant resizing13244, 767right: -4px pseudo-element overlapWhite artifacts14629-781Three separate mobile media query blocksConflicts and confusion15644Wrong class name .pl-financial-table-containerRules never apply16227 vs 737First column: 120px desktop, 80px mobileInconsistent widths
+✅ MINOR ISSUES
+#LinesIssueImpact1770-73Redundant .tall-table classNo effect18127Duplicate background-colorRedundant19231, 578, 706Incorrect/outdated commentsConfusing20591-592Comment about removed codeShould be deleted21615-622Invalid CSS properties on <tr>No effect22679-681Empty media queryUseless23482-483Arbitrary 28px font sizesNo explanation
+
+🎯 COMPLETE FIX STRATEGY
+Step 1: Fix Border Collapse (Line 119)
+css/* CHANGE */
+border-collapse: collapse;
+
+/* TO */
+border-collapse: separate;
+border-spacing: 0;
+Step 2: Remove Overlay Div (Lines 54-68)
+Delete completely - it doesn't work properly.
+Step 3: Fix Sticky First Column (Lines 210-229)
+css/* Ledger header: sticky both horizontally and vertically */
+.pl-financial-table thead tr:first-child th.pl-ledger-header {
+  position: sticky;
+  left: 0;
+  top: 0; /* Keep at top */
+  z-index: var(--z-corner);
+  background-color: #fff;
+  border-right: 2px solid #000;
+  border-left: 2px solid #000;
+  border-bottom: 4px double #000;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 120px;
+  max-width: 30ch;
+}
+
+/* First column body cells: sticky horizontally AND vertically */
+.pl-financial-table tbody tr:not(.pl-separator-row) td:first-child {
+  position: sticky;
+  left: 0;
+  top: calc(var(--pl-hdr-h) * 4); /* Stick below 4 header rows = 112px */
+  z-index: var(--z-firstcol);
+  background-color: #fff;
+  border-right: 2px solid #000;
+  border-left: 2px solid #000;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 120px;
+  max-width: 30ch;
+}
+Step 4: Delete Mobile Variable Override (Line 733)
+Delete: :root { --pl-hdr-h: 24px; }
+Keep: 28px as the only value for all screen sizes.
+Step 5: Consolidate Mobile Media Queries
+Delete:
+
+Lines 652-676 (duplicate mobile block @768px)
+Lines 719-781 (duplicate mobile block @767px)
+
+Keep: Lines 378-456 as the single mobile block and enhance it:
+css@media (max-width: 767px) {
+  .pl-financial-table {
+    font-size: 9px;
+    table-layout: auto;
+  }
+  
+  .pl-financial-table thead th {
+    font-size: 10px;
+    padding: 4px 2px;
+  }
+  
+  /* Mobile sticky - use CSS variables consistently */
+  .pl-financial-table thead tr:first-child th.pl-ledger-header {
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: var(--z-corner); /* Use variable, not hardcoded 15 */
+    min-width: 120px; /* Same as desktop */
+    background-color: #fff;
+    border-right: 2px solid #000;
+    border-bottom: 4px double #000;
+  }
+  
+  .pl-financial-table tbody tr td:first-child {
+    position: sticky;
+    left: 0;
+    top: calc(var(--pl-hdr-h) * 4); /* 112px */
+    z-index: var(--z-firstcol); /* Use variable, not hardcoded 15 */
+    min-width: 120px; /* Same as desktop */
+    background-color: #fff;
+    border-right: 2px solid #000;
+  }
+  
+  /* Fix pseudo-element - no overlap */
+  .pl-financial-table thead tr:first-child th.pl-ledger-header::before,
+  .pl-financial-table tbody tr td:first-child::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0; /* Changed from -4px */
+    bottom: 0;
+    background-color: #fff;
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+Step 6: Delete Duplicate Code Sections
+
+Lines 546-574 (duplicate header positioning)
+Lines 794-797 (duplicate print styles)
+Lines 70-73 (redundant .tall-table class)
+Lines 679-681 (empty media query)
+
+Step 7: Fix Z-Index System
+Update root variables (lines 12-19):
+css:root {
+  --pl-hdr-h: 28px; /* Never override in media queries */
+  --z-corner: 20;    /* Ledger header - always on top */
+  --z-hdr4: 16;      /* 1st row */
+  --z-hdr3: 15;      /* 2nd row */
+  --z-hdr2: 14;      /* 3rd row */
+  --z-hdr1: 13;      /* 4th row */
+  --z-firstcol: 12;  /* Body first column */
+  --z-header: 10;    /* Generic fallback */
+  --z-separator: 1;  /* Period separators */
+}
+Fix line 533:
+css/* CHANGE */
+z-index: 10;
+
+/* TO */
+z-index: var(--z-header);
+Step 8: Simplify Font Sizing
+Replace all clamp() with fixed breakpoint values (already done in media queries 315-456).
+
+📈 FINAL FILE STRUCTURE (After Fixes)
+SectionLinesPurposeStatusCSS Variables7-20Root variables✅ FixedBase Container22-52Wrappers✅ FixedHeader & Title75-110Titles✅ OKCore Table112-189Table structure✅ FixedCell Styling190-308Cells & sticky✅ FixedResponsive310-456All breakpoints✅ ConsolidatedSpecial Rows478-505Row styling✅ OKBorder Rules683-711Edge borders✅ OKPrint Styles785-789Print format✅ OK
