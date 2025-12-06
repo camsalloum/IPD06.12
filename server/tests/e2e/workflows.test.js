@@ -146,7 +146,7 @@ describe('E2E: Health Check Workflow', () => {
       .get('/api/ready')
       .expect(200);
     
-    expect(response.body.status).toBe('ready');
+    expect(response.body.ready).toBe(true);
   });
   
   it('should return liveness status', async () => {
@@ -154,7 +154,7 @@ describe('E2E: Health Check Workflow', () => {
       .get('/api/live')
       .expect(200);
     
-    expect(response.body.status).toBe('alive');
+    expect(response.body.alive).toBe(true);
   });
   
   it('should include correlation headers', async () => {

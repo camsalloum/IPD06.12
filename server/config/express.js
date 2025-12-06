@@ -99,9 +99,11 @@ function mountRoutes(app) {
   const fpPerformanceRoutes = require('../routes/fpPerformance');
   const analyticsRoutes = require('../routes/analytics');
   const monitoringRoutes = require('../routes/monitoring');
+  const metricsRoutes = require('../routes/metrics');
   
   // Mount monitoring routes (public - no auth required)
   app.use('/api', monitoringRoutes);
+  app.use('/api/metrics', metricsRoutes);
   
   // Mount existing routes
   app.use('/api/auth', authRoutes);

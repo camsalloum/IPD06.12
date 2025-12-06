@@ -4,13 +4,13 @@
  - Keeps the window OPEN at the end so you can see output.
  - Writes a transcript log to .\logs\upload-YYYYMMDD_HHMMSS.txt (best effort)
 
- Repo: https://github.com/camsalloum/IPD26.10.git
+ Repo: https://github.com/PPH74/IPD06.12.git
 #>
 
 [CmdletBinding()]
 param(
     [string]$Message = "chore: sync upload",
-    [string]$RepoUrl = "https://github.com/camsalloum/IPD26.10.git",
+    [string]$RepoUrl = "https://github.com/PPH74/IPD06.12.git",
     [switch]$NoPause # if set, do not pause at the end
 )
 
@@ -54,8 +54,8 @@ try {
     # 3) Ensure commit identity exists (set only if missing)
     $haveName  = (git config --get user.name)  2>$null
     $haveEmail = (git config --get user.email) 2>$null
-    if (-not $haveName)  { git config --local user.name  "Cam" | Out-Null }
-    if (-not $haveEmail) { git config --local user.email "camsalloum@gmail.com" | Out-Null }
+    if (-not $haveName)  { git config --local user.name  "PPH74" | Out-Null }
+    if (-not $haveEmail) { git config --local user.email "main@propackhub.com" | Out-Null }
     Write-OK ("Commit identity: {0} <{1}>" -f (git config --get user.name), (git config --get user.email))
 
     # 4) Ensure current branch is 'main'

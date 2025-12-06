@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1765018417210" clover="3.2.0">
-  <project timestamp="1765018417210" name="All files">
-    <metrics statements="5724" coveredstatements="187" conditionals="2473" coveredconditionals="131" methods="791" coveredmethods="26" elements="8988" coveredelements="344" complexity="0" loc="5724" ncloc="5724" packages="5" files="53" classes="53"/>
+<coverage generated="1765020858612" clover="3.2.0">
+  <project timestamp="1765020858612" name="All files">
+    <metrics statements="5854" coveredstatements="263" conditionals="2521" coveredconditionals="146" methods="804" coveredmethods="35" elements="9179" coveredelements="444" complexity="0" loc="5854" ncloc="5854" packages="5" files="55" classes="55"/>
     <package name="middleware">
-      <metrics statements="571" coveredstatements="187" conditionals="375" coveredconditionals="131" methods="109" coveredmethods="26"/>
+      <metrics statements="651" coveredstatements="206" conditionals="391" coveredconditionals="139" methods="119" coveredmethods="33"/>
       <file name="advancedQuery.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/middleware/advancedQuery.js">
         <metrics statements="108" coveredstatements="82" conditionals="104" coveredconditionals="67" methods="16" coveredmethods="12"/>
         <line num="16" count="1" type="stmt"/>
@@ -211,9 +211,9 @@
         <line num="472" count="0" type="stmt"/>
       </file>
       <file name="auth.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/middleware/auth.js">
-        <metrics statements="37" coveredstatements="0" conditionals="23" coveredconditionals="0" methods="5" coveredmethods="0"/>
-        <line num="1" count="0" type="stmt"/>
-        <line num="2" count="0" type="stmt"/>
+        <metrics statements="37" coveredstatements="4" conditionals="23" coveredconditionals="0" methods="5" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
         <line num="8" count="0" type="stmt"/>
         <line num="10" count="0" type="stmt"/>
         <line num="12" count="0" type="cond" truecount="0" falsecount="4"/>
@@ -224,7 +224,7 @@
         <line num="29" count="0" type="stmt"/>
         <line num="31" count="0" type="stmt"/>
         <line num="32" count="0" type="stmt"/>
-        <line num="40" count="0" type="stmt"/>
+        <line num="40" count="5" type="stmt"/>
         <line num="41" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="42" count="0" type="stmt"/>
         <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -248,14 +248,14 @@
         <line num="99" count="0" type="stmt"/>
         <line num="108" count="0" type="stmt"/>
         <line num="111" count="0" type="stmt"/>
-        <line num="114" count="0" type="stmt"/>
+        <line num="114" count="1" type="stmt"/>
       </file>
       <file name="cache.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/middleware/cache.js">
         <metrics statements="76" coveredstatements="8" conditionals="46" coveredconditionals="2" methods="16" coveredmethods="1"/>
-        <line num="7" count="2" type="stmt"/>
-        <line num="8" count="2" type="stmt"/>
-        <line num="11" count="2" type="stmt"/>
-        <line num="12" count="2" type="stmt"/>
+        <line num="7" count="3" type="stmt"/>
+        <line num="8" count="3" type="stmt"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="12" count="3" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
         <line num="19" count="0" type="stmt"/>
         <line num="30" count="0" type="stmt"/>
@@ -316,16 +316,16 @@
         <line num="177" count="0" type="stmt"/>
         <line num="178" count="0" type="stmt"/>
         <line num="180" count="0" type="stmt"/>
-        <line num="188" count="6" type="cond" truecount="2" falsecount="2"/>
-        <line num="189" count="6" type="stmt"/>
+        <line num="188" count="7" type="cond" truecount="2" falsecount="2"/>
+        <line num="189" count="7" type="stmt"/>
         <line num="192" count="0" type="stmt"/>
         <line num="193" count="0" type="stmt"/>
         <line num="194" count="0" type="stmt"/>
         <line num="196" count="0" type="stmt"/>
         <line num="202" count="0" type="stmt"/>
         <line num="203" count="0" type="stmt"/>
-        <line num="208" count="2" type="stmt"/>
-        <line num="215" count="2" type="stmt"/>
+        <line num="208" count="3" type="stmt"/>
+        <line num="215" count="3" type="stmt"/>
         <line num="222" count="0" type="stmt"/>
         <line num="223" count="0" type="stmt"/>
       </file>
@@ -394,11 +394,11 @@
         <line num="35" count="0" type="stmt"/>
       </file>
       <file name="monitoring.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/middleware/monitoring.js">
-        <metrics statements="92" coveredstatements="31" conditionals="45" coveredconditionals="11" methods="15" coveredmethods="3"/>
-        <line num="16" count="1" type="stmt"/>
-        <line num="17" count="1" type="stmt"/>
-        <line num="18" count="1" type="stmt"/>
-        <line num="24" count="1" type="stmt"/>
+        <metrics statements="92" coveredstatements="46" conditionals="45" coveredconditionals="19" methods="15" coveredmethods="9"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
         <line num="42" count="6" type="stmt"/>
         <line num="50" count="6" type="stmt"/>
         <line num="51" count="6" type="stmt"/>
@@ -424,10 +424,10 @@
         <line num="128" count="6" type="stmt"/>
         <line num="141" count="6" type="stmt"/>
         <line num="142" count="6" type="stmt"/>
-        <line num="151" count="0" type="stmt"/>
-        <line num="152" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="154" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="156" count="0" type="stmt"/>
+        <line num="151" count="2" type="stmt"/>
+        <line num="152" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="154" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="156" count="2" type="stmt"/>
         <line num="165" count="0" type="stmt"/>
         <line num="166" count="0" type="stmt"/>
         <line num="167" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -448,28 +448,28 @@
         <line num="207" count="0" type="stmt"/>
         <line num="209" count="0" type="stmt"/>
         <line num="212" count="0" type="stmt"/>
-        <line num="222" count="5" type="stmt"/>
-        <line num="223" count="5" type="stmt"/>
-        <line num="225" count="5" type="stmt"/>
+        <line num="222" count="6" type="stmt"/>
+        <line num="223" count="6" type="stmt"/>
+        <line num="225" count="6" type="stmt"/>
         <line num="238" count="0" type="stmt"/>
         <line num="240" count="0" type="stmt"/>
-        <line num="269" count="0" type="stmt"/>
-        <line num="270" count="0" type="stmt"/>
-        <line num="273" count="0" type="stmt"/>
-        <line num="274" count="0" type="stmt"/>
-        <line num="275" count="0" type="stmt"/>
+        <line num="269" count="1" type="stmt"/>
+        <line num="270" count="1" type="stmt"/>
+        <line num="273" count="1" type="stmt"/>
+        <line num="274" count="1" type="stmt"/>
+        <line num="275" count="1" type="stmt"/>
         <line num="277" count="0" type="stmt"/>
-        <line num="280" count="0" type="stmt"/>
+        <line num="280" count="1" type="stmt"/>
         <line num="282" count="0" type="stmt"/>
         <line num="283" count="0" type="stmt"/>
-        <line num="297" count="0" type="stmt"/>
-        <line num="298" count="0" type="stmt"/>
-        <line num="300" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="297" count="1" type="stmt"/>
+        <line num="298" count="1" type="stmt"/>
+        <line num="300" count="1" type="cond" truecount="3" falsecount="1"/>
         <line num="301" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="302" count="0" type="stmt"/>
-        <line num="305" count="0" type="stmt"/>
+        <line num="305" count="1" type="stmt"/>
         <line num="307" count="0" type="stmt"/>
-        <line num="320" count="0" type="stmt"/>
+        <line num="320" count="1" type="stmt"/>
         <line num="332" count="0" type="stmt"/>
         <line num="333" count="0" type="stmt"/>
         <line num="334" count="0" type="stmt"/>
@@ -486,7 +486,7 @@
         <line num="360" count="15" type="stmt"/>
         <line num="361" count="15" type="stmt"/>
         <line num="362" count="15" type="stmt"/>
-        <line num="365" count="1" type="stmt"/>
+        <line num="365" count="2" type="stmt"/>
       </file>
       <file name="pagination.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/middleware/pagination.js">
         <metrics statements="55" coveredstatements="42" conditionals="56" coveredconditionals="43" methods="9" coveredmethods="5"/>
@@ -545,6 +545,89 @@
         <line num="186" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="188" count="0" type="stmt"/>
         <line num="198" count="1" type="stmt"/>
+      </file>
+      <file name="prometheus.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/middleware/prometheus.js">
+        <metrics statements="80" coveredstatements="0" conditionals="16" coveredconditionals="0" methods="10" coveredmethods="0"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="53" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="59" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="61" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="74" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="78" count="0" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="102" count="0" type="stmt"/>
+        <line num="105" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="108" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="120" count="0" type="stmt"/>
+        <line num="123" count="0" type="stmt"/>
+        <line num="124" count="0" type="stmt"/>
+        <line num="125" count="0" type="stmt"/>
+        <line num="128" count="0" type="stmt"/>
+        <line num="129" count="0" type="stmt"/>
+        <line num="130" count="0" type="stmt"/>
+        <line num="133" count="0" type="stmt"/>
+        <line num="134" count="0" type="stmt"/>
+        <line num="135" count="0" type="stmt"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="140" count="0" type="stmt"/>
+        <line num="141" count="0" type="stmt"/>
+        <line num="142" count="0" type="stmt"/>
+        <line num="143" count="0" type="stmt"/>
+        <line num="147" count="0" type="stmt"/>
+        <line num="148" count="0" type="stmt"/>
+        <line num="149" count="0" type="stmt"/>
+        <line num="150" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="151" count="0" type="stmt"/>
+        <line num="153" count="0" type="stmt"/>
+        <line num="154" count="0" type="stmt"/>
+        <line num="157" count="0" type="stmt"/>
+        <line num="158" count="0" type="stmt"/>
+        <line num="159" count="0" type="stmt"/>
+        <line num="161" count="0" type="stmt"/>
+        <line num="162" count="0" type="stmt"/>
+        <line num="163" count="0" type="stmt"/>
+        <line num="166" count="0" type="stmt"/>
+        <line num="167" count="0" type="stmt"/>
+        <line num="168" count="0" type="stmt"/>
+        <line num="170" count="0" type="stmt"/>
+        <line num="171" count="0" type="stmt"/>
+        <line num="172" count="0" type="stmt"/>
+        <line num="174" count="0" type="stmt"/>
+        <line num="181" count="0" type="stmt"/>
+        <line num="183" count="0" type="stmt"/>
+        <line num="184" count="0" type="stmt"/>
+        <line num="185" count="0" type="stmt"/>
+        <line num="188" count="0" type="stmt"/>
+        <line num="195" count="0" type="stmt"/>
+        <line num="196" count="0" type="stmt"/>
+        <line num="203" count="0" type="stmt"/>
+        <line num="204" count="0" type="stmt"/>
+        <line num="205" count="0" type="stmt"/>
+        <line num="206" count="0" type="stmt"/>
+        <line num="209" count="0" type="stmt"/>
       </file>
       <file name="rateLimiter.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/middleware/rateLimiter.js">
         <metrics statements="10" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="0"/>
@@ -613,7 +696,7 @@
       </file>
     </package>
     <package name="routes">
-      <metrics statements="1974" coveredstatements="0" conditionals="586" coveredconditionals="0" methods="190" coveredmethods="0"/>
+      <metrics statements="2024" coveredstatements="51" conditionals="618" coveredconditionals="7" methods="193" coveredmethods="2"/>
       <file name="admin.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/routes/admin.js">
         <metrics statements="19" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="6" count="0" type="stmt"/>
@@ -730,26 +813,26 @@
         <line num="270" count="0" type="stmt"/>
       </file>
       <file name="auth.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/routes/auth.js">
-        <metrics statements="118" coveredstatements="0" conditionals="26" coveredconditionals="0" methods="14" coveredmethods="0"/>
-        <line num="1" count="0" type="stmt"/>
-        <line num="2" count="0" type="stmt"/>
-        <line num="3" count="0" type="stmt"/>
-        <line num="4" count="0" type="stmt"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="124" count="0" type="stmt"/>
-        <line num="125" count="0" type="stmt"/>
-        <line num="126" count="0" type="stmt"/>
-        <line num="128" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="129" count="0" type="stmt"/>
-        <line num="132" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="133" count="0" type="stmt"/>
-        <line num="135" count="0" type="stmt"/>
-        <line num="138" count="0" type="stmt"/>
-        <line num="147" count="0" type="stmt"/>
-        <line num="154" count="0" type="stmt"/>
-        <line num="155" count="0" type="stmt"/>
-        <line num="193" count="0" type="stmt"/>
+        <metrics statements="118" coveredstatements="38" conditionals="26" coveredconditionals="7" methods="14" coveredmethods="2"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="124" count="1" type="stmt"/>
+        <line num="125" count="4" type="stmt"/>
+        <line num="126" count="4" type="stmt"/>
+        <line num="128" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="129" count="1" type="stmt"/>
+        <line num="132" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="133" count="3" type="stmt"/>
+        <line num="135" count="3" type="stmt"/>
+        <line num="138" count="2" type="stmt"/>
+        <line num="147" count="2" type="stmt"/>
+        <line num="154" count="1" type="stmt"/>
+        <line num="155" count="1" type="stmt"/>
+        <line num="193" count="1" type="stmt"/>
         <line num="194" count="0" type="stmt"/>
         <line num="195" count="0" type="stmt"/>
         <line num="197" count="0" type="cond" truecount="0" falsecount="6"/>
@@ -758,14 +841,14 @@
         <line num="212" count="0" type="stmt"/>
         <line num="214" count="0" type="stmt"/>
         <line num="215" count="0" type="stmt"/>
-        <line num="245" count="0" type="stmt"/>
+        <line num="245" count="1" type="stmt"/>
         <line num="246" count="0" type="stmt"/>
         <line num="247" count="0" type="stmt"/>
         <line num="250" count="0" type="stmt"/>
         <line num="257" count="0" type="stmt"/>
         <line num="259" count="0" type="stmt"/>
         <line num="260" count="0" type="stmt"/>
-        <line num="298" count="0" type="stmt"/>
+        <line num="298" count="1" type="stmt"/>
         <line num="299" count="0" type="stmt"/>
         <line num="300" count="0" type="stmt"/>
         <line num="302" count="0" type="cond" truecount="0" falsecount="4"/>
@@ -774,23 +857,23 @@
         <line num="310" count="0" type="stmt"/>
         <line num="315" count="0" type="stmt"/>
         <line num="316" count="0" type="stmt"/>
-        <line num="346" count="0" type="stmt"/>
+        <line num="346" count="1" type="stmt"/>
         <line num="347" count="0" type="stmt"/>
         <line num="348" count="0" type="stmt"/>
         <line num="349" count="0" type="stmt"/>
         <line num="351" count="0" type="stmt"/>
         <line num="352" count="0" type="stmt"/>
-        <line num="380" count="0" type="stmt"/>
-        <line num="381" count="0" type="stmt"/>
-        <line num="382" count="0" type="stmt"/>
-        <line num="384" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="385" count="0" type="stmt"/>
-        <line num="391" count="0" type="stmt"/>
-        <line num="392" count="0" type="stmt"/>
+        <line num="380" count="1" type="stmt"/>
+        <line num="381" count="2" type="stmt"/>
+        <line num="382" count="2" type="stmt"/>
+        <line num="384" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="385" count="1" type="stmt"/>
+        <line num="391" count="1" type="stmt"/>
+        <line num="392" count="1" type="stmt"/>
         <line num="394" count="0" type="stmt"/>
         <line num="397" count="0" type="stmt"/>
         <line num="404" count="0" type="stmt"/>
-        <line num="416" count="0" type="stmt"/>
+        <line num="416" count="1" type="stmt"/>
         <line num="417" count="0" type="stmt"/>
         <line num="418" count="0" type="stmt"/>
         <line num="420" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -798,20 +881,20 @@
         <line num="424" count="0" type="stmt"/>
         <line num="425" count="0" type="stmt"/>
         <line num="427" count="0" type="stmt"/>
-        <line num="435" count="0" type="stmt"/>
+        <line num="435" count="1" type="stmt"/>
         <line num="436" count="0" type="stmt"/>
         <line num="437" count="0" type="stmt"/>
         <line num="438" count="0" type="stmt"/>
         <line num="440" count="0" type="stmt"/>
         <line num="441" count="0" type="stmt"/>
-        <line num="449" count="0" type="stmt"/>
+        <line num="449" count="1" type="stmt"/>
         <line num="450" count="0" type="stmt"/>
         <line num="451" count="0" type="stmt"/>
         <line num="452" count="0" type="stmt"/>
         <line num="453" count="0" type="stmt"/>
         <line num="455" count="0" type="stmt"/>
         <line num="456" count="0" type="stmt"/>
-        <line num="464" count="0" type="stmt"/>
+        <line num="464" count="1" type="stmt"/>
         <line num="465" count="0" type="stmt"/>
         <line num="466" count="0" type="stmt"/>
         <line num="467" count="0" type="stmt"/>
@@ -819,7 +902,7 @@
         <line num="470" count="0" type="stmt"/>
         <line num="472" count="0" type="stmt"/>
         <line num="473" count="0" type="stmt"/>
-        <line num="481" count="0" type="stmt"/>
+        <line num="481" count="1" type="stmt"/>
         <line num="482" count="0" type="stmt"/>
         <line num="483" count="0" type="stmt"/>
         <line num="486" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -828,27 +911,27 @@
         <line num="491" count="0" type="stmt"/>
         <line num="493" count="0" type="stmt"/>
         <line num="494" count="0" type="stmt"/>
-        <line num="502" count="0" type="stmt"/>
+        <line num="502" count="1" type="stmt"/>
         <line num="503" count="0" type="stmt"/>
         <line num="504" count="0" type="stmt"/>
         <line num="505" count="0" type="stmt"/>
         <line num="506" count="0" type="stmt"/>
         <line num="508" count="0" type="stmt"/>
         <line num="509" count="0" type="stmt"/>
-        <line num="517" count="0" type="stmt"/>
+        <line num="517" count="1" type="stmt"/>
         <line num="518" count="0" type="stmt"/>
         <line num="519" count="0" type="stmt"/>
         <line num="520" count="0" type="stmt"/>
         <line num="522" count="0" type="stmt"/>
         <line num="523" count="0" type="stmt"/>
-        <line num="531" count="0" type="stmt"/>
+        <line num="531" count="1" type="stmt"/>
         <line num="532" count="0" type="stmt"/>
         <line num="533" count="0" type="stmt"/>
         <line num="534" count="0" type="stmt"/>
         <line num="535" count="0" type="stmt"/>
         <line num="537" count="0" type="stmt"/>
         <line num="538" count="0" type="stmt"/>
-        <line num="542" count="0" type="stmt"/>
+        <line num="542" count="1" type="stmt"/>
       </file>
       <file name="budget-draft.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/routes/budget-draft.js">
         <metrics statements="234" coveredstatements="0" conditionals="102" coveredconditionals="0" methods="11" coveredmethods="0"/>
@@ -2106,25 +2189,78 @@
         <line num="135" count="0" type="stmt"/>
         <line num="139" count="0" type="stmt"/>
       </file>
-      <file name="monitoring.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/routes/monitoring.js">
-        <metrics statements="25" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="2" coveredmethods="0"/>
-        <line num="17" count="0" type="stmt"/>
+      <file name="metrics.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/routes/metrics.js">
+        <metrics statements="50" coveredstatements="0" conditionals="32" coveredconditionals="0" methods="3" coveredmethods="0"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
-        <line num="25" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
         <line num="26" count="0" type="stmt"/>
-        <line num="27" count="0" type="stmt"/>
-        <line num="45" count="0" type="stmt"/>
-        <line num="67" count="0" type="stmt"/>
-        <line num="85" count="0" type="stmt"/>
-        <line num="101" count="0" type="stmt"/>
-        <line num="115" count="0" type="stmt"/>
-        <line num="134" count="0" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="54" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="88" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="105" count="0" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="117" count="0" type="stmt"/>
+        <line num="148" count="0" type="stmt"/>
+        <line num="149" count="0" type="stmt"/>
+        <line num="159" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="160" count="0" type="stmt"/>
+        <line num="161" count="0" type="stmt"/>
+        <line num="163" count="0" type="stmt"/>
+        <line num="164" count="0" type="stmt"/>
+        <line num="169" count="0" type="stmt"/>
+        <line num="170" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="171" count="0" type="stmt"/>
+        <line num="172" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="173" count="0" type="stmt"/>
+        <line num="176" count="0" type="stmt"/>
+        <line num="195" count="0" type="stmt"/>
+        <line num="196" count="0" type="stmt"/>
+        <line num="197" count="0" type="stmt"/>
+        <line num="217" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="218" count="0" type="stmt"/>
+        <line num="222" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="223" count="0" type="stmt"/>
+        <line num="224" count="0" type="stmt"/>
+        <line num="226" count="0" type="stmt"/>
+        <line num="230" count="0" type="stmt"/>
+        <line num="232" count="0" type="stmt"/>
+        <line num="236" count="0" type="stmt"/>
+      </file>
+      <file name="monitoring.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/routes/monitoring.js">
+        <metrics statements="25" coveredstatements="13" conditionals="6" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="67" count="1" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="101" count="1" type="stmt"/>
+        <line num="115" count="1" type="stmt"/>
+        <line num="134" count="1" type="stmt"/>
         <line num="135" count="0" type="stmt"/>
         <line num="136" count="0" type="stmt"/>
         <line num="137" count="0" type="stmt"/>
         <line num="142" count="0" type="stmt"/>
         <line num="143" count="0" type="stmt"/>
-        <line num="158" count="0" type="stmt"/>
+        <line num="158" count="1" type="stmt"/>
         <line num="159" count="0" type="stmt"/>
         <line num="160" count="0" type="stmt"/>
         <line num="161" count="0" type="stmt"/>
@@ -2132,7 +2268,7 @@
         <line num="169" count="0" type="stmt"/>
         <line num="175" count="0" type="stmt"/>
         <line num="176" count="0" type="stmt"/>
-        <line num="183" count="0" type="stmt"/>
+        <line num="183" count="1" type="stmt"/>
       </file>
       <file name="productGroups.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/routes/productGroups.js">
         <metrics statements="32" coveredstatements="0" conditionals="23" coveredconditionals="0" methods="5" coveredmethods="0"/>
@@ -3326,14 +3462,14 @@
         <line num="9" count="0" type="stmt"/>
         <line num="10" count="0" type="stmt"/>
         <line num="11" count="0" type="stmt"/>
-        <line num="43" count="0" type="stmt"/>
-        <line num="44" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="45" count="0" type="stmt"/>
-        <line num="46" count="0" type="stmt"/>
-        <line num="49" count="0" type="stmt"/>
-        <line num="52" count="0" type="stmt"/>
-        <line num="61" count="0" type="stmt"/>
-        <line num="76" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="96" count="0" type="stmt"/>
       </file>
       <file name="helpers.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/routes/aebf/helpers.js">
         <metrics statements="17" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="4" coveredmethods="0"/>
@@ -3591,7 +3727,7 @@
       </file>
     </package>
     <package name="services">
-      <metrics statements="1021" coveredstatements="0" conditionals="549" coveredconditionals="0" methods="146" coveredmethods="0"/>
+      <metrics statements="1021" coveredstatements="6" conditionals="549" coveredconditionals="0" methods="146" coveredmethods="0"/>
       <file name="CustomerMergingAI.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/services/CustomerMergingAI.js">
         <metrics statements="365" coveredstatements="0" conditionals="176" coveredconditionals="0" methods="62" coveredmethods="0"/>
         <line num="16" count="0" type="stmt"/>
@@ -4242,11 +4378,11 @@
         <line num="395" count="0" type="stmt"/>
       </file>
       <file name="errorTracking.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/services/errorTracking.js">
-        <metrics statements="99" coveredstatements="0" conditionals="96" coveredconditionals="0" methods="20" coveredmethods="0"/>
-        <line num="16" count="0" type="stmt"/>
-        <line num="21" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="45" count="0" type="stmt"/>
+        <metrics statements="99" coveredstatements="6" conditionals="96" coveredconditionals="0" methods="20" coveredmethods="0"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
         <line num="66" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="67" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="69" count="0" type="cond" truecount="0" falsecount="5"/>
@@ -4340,8 +4476,8 @@
         <line num="340" count="0" type="stmt"/>
         <line num="350" count="0" type="stmt"/>
         <line num="351" count="0" type="stmt"/>
-        <line num="355" count="0" type="stmt"/>
-        <line num="357" count="0" type="stmt"/>
+        <line num="355" count="1" type="stmt"/>
+        <line num="357" count="1" type="stmt"/>
       </file>
       <file name="salesRepBudgetService.js" path="/Users/mac/Library/CloudStorage/OneDrive-Personal/Website/IPD06.12/server/services/salesRepBudgetService.js">
         <metrics statements="141" coveredstatements="0" conditionals="84" coveredconditionals="0" methods="16" coveredmethods="0"/>

@@ -139,7 +139,27 @@
 <a name='L74'></a><a href='#L74'>74</a>
 <a name='L75'></a><a href='#L75'>75</a>
 <a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -150,6 +170,26 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -228,34 +268,54 @@ const { asyncHandler, successResponse } = <span class="cstat-no" title="statemen
 const validationRules = <span class="cstat-no" title="statement not covered" >require('../../middleware/aebfValidation');</span>
 &nbsp;
 /**
- * GET /health
- * Health check endpoint to verify AEBF API and database connectivity
- * 
- * @route GET /api/aebf/health
- * @query {string} division - Division to check (FP or HC)
- * @returns {object} 200 - Health status with database information
- * @returns {object} 500 - Database connection error
- * 
- * @example
- * GET /api/aebf/health?division=FP
- * Response:
- * {
- *   "success": true,
- *   "message": "System healthy",
- *   "data": {
- *     "status": "healthy",
- *     "timestamp": "2025-12-06T10:30:00.000Z",
- *     "database": {
- *       "connected": true,
- *       "version": "PostgreSQL 14.5...",
- *       "division": "FP",
- *       "table": "fp_data_excel",
- *       "totalRecords": 125000,
- *       "divisions": 2,
- *       "yearRange": "2020-2025"
- *     }
- *   }
- * }
+ * @swagger
+ * /api/aebf/health:
+ *   get:
+ *     summary: AEBF system health check
+ *     description: Verify AEBF API and database connectivity for a specific division
+ *     tags: [AEBF]
+ *     parameters:
+ *       - in: query
+ *         name: division
+ *         schema:
+ *           type: string
+ *           enum: [FP, HC]
+ *           default: FP
+ *         description: Division to check connectivity for
+ *     responses:
+ *       200:
+ *         description: System health status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       enum: [healthy, degraded, unhealthy]
+ *                     timestamp:
+ *                       type: string
+ *                       format: date-time
+ *                     database:
+ *                       type: object
+ *                       properties:
+ *                         connected:
+ *                           type: boolean
+ *                         version:
+ *                           type: string
+ *                         division:
+ *                           type: string
+ *                         totalRecords:
+ *                           type: integer
+ *       500:
+ *         description: Database connection error
  */
 <span class="cstat-no" title="statement not covered" >router.get('/health', validationRules.health, asyncHandler(<span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
   const division = <span class="cstat-no" title="statement not covered" >req.query.division || 'FP';</span>
@@ -298,7 +358,7 @@ const validationRules = <span class="cstat-no" title="statement not covered" >re
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-06T10:53:37.004Z
+                at 2025-12-06T11:34:18.410Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
