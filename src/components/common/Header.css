@@ -1,12 +1,13 @@
-/* Modern Header Styles */
+/* Modern Header Styles - Theme-aware */
 .modern-header {
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 1000;
   height: 64px;
+  transition: all var(--transition-normal);
 }
 
 .header-container {
@@ -41,7 +42,7 @@
 .logo-placeholder {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-gradient);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -53,7 +54,7 @@
   margin: 0;
   font-size: 24px;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--color-text);
   letter-spacing: -0.5px;
 }
 
@@ -69,7 +70,7 @@
 .header-division-display {
   font-size: 20px;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--color-primary);
   white-space: nowrap;
 }
 
@@ -89,16 +90,16 @@
   align-items: center;
   gap: 12px;
   padding: 6px 12px 6px 6px;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .user-menu-button:hover {
-  background: #f7fafc;
-  border-color: #cbd5e0;
+  background: var(--color-surfaceHover);
+  border-color: var(--color-primary);
 }
 
 .user-avatar {
@@ -106,7 +107,7 @@
   height: 40px;
   border-radius: 10px;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -135,7 +136,7 @@
 .user-name {
   font-size: 14px;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -144,11 +145,11 @@
 
 .user-role {
   font-size: 12px;
-  color: #718096;
+  color: var(--color-textSecondary);
 }
 
 .dropdown-icon {
-  color: #718096;
+  color: var(--color-textSecondary);
   transition: transform 0.2s;
   flex-shrink: 0;
 }
@@ -163,10 +164,10 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 280px;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   padding: 8px;
   animation: dropdownFadeIn 0.2s ease-out;
 }
@@ -195,12 +196,12 @@
 .dropdown-user-name {
   font-size: 15px;
   font-weight: 600;
-  color: #1a202c;
+  color: var(--color-text);
 }
 
 .dropdown-user-email {
   font-size: 13px;
-  color: #718096;
+  color: var(--color-textSecondary);
   word-break: break-all;
 }
 
@@ -221,7 +222,7 @@
 
 .dropdown-divider {
   height: 1px;
-  background: #e2e8f0;
+  background: var(--color-border);
   margin: 8px 0;
 }
 
@@ -235,13 +236,13 @@
   gap: 10px;
   padding: 8px 12px;
   font-size: 13px;
-  color: #4a5568;
+  color: var(--color-textSecondary);
   border-radius: 6px;
-  background: #f7fafc;
+  background: var(--color-surfaceHover);
 }
 
 .dropdown-info-item svg {
-  color: #718096;
+  color: var(--color-textMuted);
   flex-shrink: 0;
 }
 
@@ -256,15 +257,15 @@
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--color-textSecondary);
   cursor: pointer;
   transition: all 0.15s;
   text-align: left;
 }
 
 .dropdown-item:hover {
-  background: #f7fafc;
-  color: #1a202c;
+  background: var(--color-surfaceHover);
+  color: var(--color-text);
 }
 
 .dropdown-item svg {
@@ -272,12 +273,12 @@
 }
 
 .logout-item {
-  color: #e53e3e;
+  color: var(--color-error);
 }
 
 .logout-item:hover {
-  background: #fff5f5;
-  color: #c53030;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-error);
 }
 
 /* Division Badges in Dropdown */
@@ -307,23 +308,23 @@
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid #e2e8f0;
-  background: white;
-  color: #4a5568;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-textSecondary);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .division-badge:hover {
-  background: #edf2f7;
-  border-color: #cbd5e0;
-  color: #2d3748;
+  background: var(--color-surfaceHover);
+  border-color: var(--color-primary);
+  color: var(--color-text);
 }
 
 .division-badge.active {
-  background: #ebf8ff;
-  border-color: #4299e1;
-  color: #2b6cb0;
+  background: var(--color-primaryLight);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* Responsive */

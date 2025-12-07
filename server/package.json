@@ -4,8 +4,8 @@
   "description": "Backend server for Dashboard application",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
+    "start": "node index.js",
+    "dev": "node --watch index.js",
     "test": "jest --coverage --verbose",
     "test:watch": "jest --watch",
     "test:unit": "jest tests/middleware --coverage",
@@ -20,7 +20,6 @@
     "test:load:report": "artillery run tests/load/config.yml --output load-results.json && artillery report load-results.json"
   },
   "dependencies": {
-    "@sentry/node": "^10.29.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "compromise": "^14.14.4",

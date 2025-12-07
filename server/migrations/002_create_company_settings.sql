@@ -18,9 +18,7 @@ INSERT INTO company_settings (setting_key, setting_value) VALUES
 ('company_logo_url', 'null'::jsonb),
 ('divisions', '[
     {"code": "FP", "name": "Food Packaging"},
-    {"code": "SB", "name": "Shrink Bags"},
-    {"code": "TF", "name": "Thermoforming"},
-    {"code": "HCM", "name": "HCM Division"}
+    {"code": "HC", "name": "Home Care"}
 ]'::jsonb)
 ON CONFLICT (setting_key) DO NOTHING;
 

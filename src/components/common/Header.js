@@ -111,18 +111,12 @@ const Header = () => {
       <div className="header-container">
         <div className="header-left">
           <div className="header-brand">
-            {companySettings.logoUrl ? (
+            {companySettings.logoUrl && (
               <img 
                 src={companySettings.logoUrl} 
                 alt={companySettings.companyName}
                 className="company-logo-header"
               />
-            ) : (
-              <div className="logo-placeholder">
-                <svg width="56" height="56" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                </svg>
-              </div>
             )}
             <h1 className="brand-title">{companySettings.companyName}</h1>
           </div>

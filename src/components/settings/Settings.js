@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 import PeriodConfiguration from './PeriodConfiguration';
 import MasterDataSettings from './MasterDataSettings';
+import ThemeSelector from './ThemeSelector';
 import './Settings.css';
 
 const Settings = () => {
@@ -397,6 +398,15 @@ const Settings = () => {
           </svg>
           Master Data
         </button>
+        <button 
+          className={`tab-button ${activeTab === 'appearance' ? 'active' : ''}`}
+          onClick={() => setActiveTab('appearance')}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clipRule="evenodd" />
+          </svg>
+          Appearance
+        </button>
       </div>
 
       {message.text && (
@@ -623,6 +633,19 @@ const Settings = () => {
         {activeTab === 'masterdata' && (
           <div className="settings-section master-data-section">
             <MasterDataSettings />
+          </div>
+        )}
+
+        {/* Appearance Tab */}
+        {activeTab === 'appearance' && (
+          <div className="settings-section">
+            <div className="section-header">
+              <h2>Appearance Settings</h2>
+              <p className="section-description">
+                Customize the look and feel of your dashboard. Choose from 4 beautiful themes.
+              </p>
+            </div>
+            <ThemeSelector />
           </div>
         )}
       </div>

@@ -1,34 +1,57 @@
+/* ========================================
+   MAIN APP STYLES - USING THEME VARIABLES
+   ======================================== */
+
 .App {
   text-align: center;
-  font-family: Arial, sans-serif;
-  color: black;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  color: var(--color-text);
   line-height: 1.6;
+  background: var(--color-background);
+  min-height: 100vh;
+  transition: background var(--transition-normal), color var(--transition-normal);
 }
 
 /* Global button styling */
 button {
-  background-color: white;
-  color: black;
-  border: 1px solid black;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   padding: 8px 16px;
   cursor: pointer;
   font-size: 14px;
-  font-family: Arial, sans-serif;
+  font-family: inherit;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
 }
 
 button:hover {
-  background-color: #f0f0f0;
+  background-color: var(--color-surfaceHover);
+  border-color: var(--color-primary);
 }
 
 button:active {
-  background-color: #e0e0e0;
+  background-color: var(--color-primaryLight);
 }
 
 button:disabled {
-  background-color: #f5f5f5;
-  color: #999;
+  background-color: var(--color-borderLight);
+  color: var(--color-textMuted);
   cursor: not-allowed;
-  border-color: #ccc;
+  border-color: var(--color-border);
+}
+
+/* Primary Button Style */
+button.primary, .ant-btn-primary {
+  background: var(--color-gradient) !important;
+  border-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+button.primary:hover, .ant-btn-primary:hover {
+  background: var(--color-primaryHover) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .App-logo {
@@ -43,9 +66,9 @@ button:disabled {
 }
 
 .App-header {
-  background-color: white;
+  background-color: var(--color-surface);
   padding: 20px;
-  color: black;
+  color: var(--color-text);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -55,7 +78,7 @@ button:disabled {
 }
 
 .App-link {
-  color: black;
+  color: var(--color-primary);
 }
 
 @keyframes App-logo-spin {
@@ -65,4 +88,182 @@ button:disabled {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ========================================
+   ANTD OVERRIDES FOR THEME SUPPORT
+   ======================================== */
+
+/* Cards */
+.ant-card {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  transition: all var(--transition-normal);
+}
+
+.ant-card:hover {
+  border-color: var(--color-primary) !important;
+  box-shadow: var(--shadow-md);
+}
+
+.ant-card-head {
+  background: var(--color-surfaceHover) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+.ant-card-body {
+  color: var(--color-text) !important;
+}
+
+/* Tables */
+.ant-table {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+
+.ant-table-thead > tr > th {
+  background: var(--color-surfaceHover) !important;
+  color: var(--color-text) !important;
+  border-color: var(--color-border) !important;
+}
+
+.ant-table-tbody > tr > td {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border-color: var(--color-border) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: var(--color-surfaceHover) !important;
+}
+
+/* Inputs */
+.ant-input, .ant-select-selector, .ant-picker {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+.ant-input:hover, .ant-select-selector:hover, .ant-picker:hover {
+  border-color: var(--color-primary) !important;
+}
+
+.ant-input:focus, .ant-select-focused .ant-select-selector {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px var(--color-primaryLight) !important;
+}
+
+/* Modals */
+.ant-modal-content {
+  background: var(--color-surface) !important;
+}
+
+.ant-modal-header {
+  background: var(--color-surfaceHover) !important;
+  border-color: var(--color-border) !important;
+}
+
+.ant-modal-title {
+  color: var(--color-text) !important;
+}
+
+.ant-modal-body {
+  color: var(--color-text) !important;
+}
+
+/* Dropdowns */
+.ant-dropdown-menu {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.ant-dropdown-menu-item {
+  color: var(--color-text) !important;
+}
+
+.ant-dropdown-menu-item:hover {
+  background: var(--color-surfaceHover) !important;
+}
+
+/* Select dropdown */
+.ant-select-dropdown {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.ant-select-item {
+  color: var(--color-text) !important;
+}
+
+.ant-select-item-option-selected {
+  background: var(--color-primaryLight) !important;
+}
+
+.ant-select-item-option-active {
+  background: var(--color-surfaceHover) !important;
+}
+
+/* Tabs */
+.ant-tabs-tab {
+  color: var(--color-textSecondary) !important;
+}
+
+.ant-tabs-tab:hover {
+  color: var(--color-primary) !important;
+}
+
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-primary) !important;
+}
+
+.ant-tabs-ink-bar {
+  background: var(--color-primary) !important;
+}
+
+/* Menu */
+.ant-menu {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+.ant-menu-item {
+  color: var(--color-text) !important;
+}
+
+.ant-menu-item:hover {
+  background: var(--color-surfaceHover) !important;
+  color: var(--color-primary) !important;
+}
+
+.ant-menu-item-selected {
+  background: var(--color-primaryLight) !important;
+  color: var(--color-primary) !important;
+}
+
+/* ========================================
+   THEME-SPECIFIC GLOBAL STYLES
+   ======================================== */
+
+/* Dark theme body */
+.theme-dark {
+  color-scheme: dark;
+}
+
+.theme-dark .ant-card,
+.theme-dark .ant-table,
+.theme-dark .ant-modal-content,
+.theme-dark .ant-dropdown-menu {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Colorful theme accents */
+.theme-colorful .ant-btn-primary {
+  background: var(--color-gradient) !important;
+}
+
+.theme-colorful .ant-tabs-ink-bar {
+  background: var(--color-gradient) !important;
 }
