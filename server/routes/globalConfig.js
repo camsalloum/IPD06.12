@@ -13,7 +13,7 @@ const globalConfigService = new GlobalConfigService();
 // GET / - Get all configuration
 router.get('/', async (req, res) => {
   try {
-    const config = await globalConfigService.getAllConfig();
+    const config = await globalConfigService.getAllConfigs();
     res.json({ success: true, data: config });
   } catch (error) {
     logger.error('Error fetching all config', { error: error.message });

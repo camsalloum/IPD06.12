@@ -1,10 +1,30 @@
 const { Pool } = require('pg');
 const logger = require('../utils/logger');
-const { fpPool } = require('./fp_database_config');
+const { pool } = require('./config');
+const { getDivisionPool } = require('../utils/divisionDatabaseManager');
 
 class WorldCountriesService {
-  constructor() {
-    this.pool = fpPool;
+  constructor(division = 'FP') {
+    this.division = division;
+  }
+
+  /**
+   * Get the appropriate database pool for a division
+   */
+  getPool(division) {
+    const div = division || this.division || 'FP';
+    if (div.toUpperCase() === 'FP') {
+      return pool;
+    }
+    return getDivisionPool(div.toUpperCase());
+  }
+
+  /**
+   * Get table name for a division
+   */
+  getTableName(division) {
+    const div = (division || this.division || 'FP').toUpperCase();
+    return `${div.toLowerCase()}_data_excel`;
   }
 
   /**
@@ -508,15 +528,18 @@ class WorldCountriesService {
    */
   async getUnassignedCountries(division = 'FP') {
     try {
+      const divisionPool = await this.getPool(division);
+      const tableName = this.getTableName(division);
+      
       const query = `
         SELECT DISTINCT countryname
-        FROM fp_data_excel
+        FROM ${tableName}
         WHERE countryname IS NOT NULL
           AND TRIM(countryname) != ''
         ORDER BY countryname
       `;
       
-      const result = await this.pool.query(query);
+      const result = await divisionPool.query(query);
       const countries = result.rows.map(row => row.countryname);
       
       const unassignedCountries = [];
@@ -639,6 +662,39 @@ class WorldCountriesService {
   }`;
     
     return mappingCode;
+  }
+
+  /**
+   * Get all distinct countries from division data
+   */
+  async getCountries() {
+    try {
+      const divisionPool = await this.getPool(this.division);
+      const tableName = this.getTableName(this.division);
+      
+      const query = `
+        SELECT DISTINCT INITCAP(LOWER(countryname)) as country
+        FROM ${tableName}
+        WHERE countryname IS NOT NULL
+          AND TRIM(countryname) != ''
+        ORDER BY country
+      `;
+      
+      const result = await divisionPool.query(query);
+      
+      // Enrich with region information
+      return result.rows.map(row => {
+        const assignment = this.smartCountryAssignment(row.country);
+        return {
+          country: row.country,
+          region: assignment.region,
+          marketType: assignment.marketType
+        };
+      });
+    } catch (error) {
+      logger.error('Error getting countries:', error);
+      throw error;
+    }
   }
 }
 

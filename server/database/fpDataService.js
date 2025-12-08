@@ -610,6 +610,182 @@ class FPDataService {
       throw error;
     }
   }
+
+  /**
+   * Get all distinct countries from fp_data_excel
+   */
+  async getCountries() {
+    try {
+      const result = await this.pool.query(
+        'SELECT DISTINCT INITCAP(LOWER(country)) as country FROM fp_data_excel WHERE country IS NOT NULL AND TRIM(country) != \'\' ORDER BY country'
+      );
+      return result.rows.map(row => row.country);
+    } catch (error) {
+      logger.error('Error fetching countries:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get countries from database (for compatibility)
+   */
+  async getCountriesFromDatabase() {
+    return this.getCountries();
+  }
+
+  /**
+   * Get countries by sales rep
+   */
+  async getCountriesBySalesRep(salesRep, groupMembers = null) {
+    try {
+      let query;
+      let params;
+
+      if (groupMembers && Array.isArray(groupMembers)) {
+        const placeholders = groupMembers.map((_, index) => `$${index + 1}`).join(', ');
+        query = `
+          SELECT DISTINCT INITCAP(LOWER(country)) as country 
+          FROM fp_data_excel 
+          WHERE TRIM(UPPER(salesrepname)) IN (${placeholders}) 
+          AND country IS NOT NULL 
+          AND TRIM(country) != '' 
+          ORDER BY country
+        `;
+        params = groupMembers.map(n => String(n).trim().toUpperCase());
+      } else {
+        query = `
+          SELECT DISTINCT INITCAP(LOWER(country)) as country 
+          FROM fp_data_excel 
+          WHERE TRIM(UPPER(salesrepname)) = TRIM(UPPER($1)) 
+          AND country IS NOT NULL 
+          AND TRIM(country) != '' 
+          ORDER BY country
+        `;
+        params = [salesRep];
+      }
+
+      const result = await this.pool.query(query, params);
+      return result.rows.map(row => row.country);
+    } catch (error) {
+      logger.error('Error fetching countries by sales rep:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all distinct customers from fp_data_excel
+   */
+  async getAllCustomers() {
+    try {
+      const result = await this.pool.query(
+        'SELECT DISTINCT INITCAP(LOWER(customername)) as customername FROM fp_data_excel WHERE customername IS NOT NULL AND TRIM(customername) != \'\' ORDER BY customername'
+      );
+      return result.rows.map(row => row.customername);
+    } catch (error) {
+      logger.error('Error fetching all customers:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all distinct sales reps from fp_data_excel
+   */
+  async getSalesReps() {
+    try {
+      const result = await this.pool.query(
+        'SELECT DISTINCT INITCAP(LOWER(salesrepname)) as salesrepname FROM fp_data_excel WHERE salesrepname IS NOT NULL AND TRIM(salesrepname) != \'\' ORDER BY salesrepname'
+      );
+      return result.rows.map(row => row.salesrepname);
+    } catch (error) {
+      logger.error('Error fetching sales reps:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Test master data connection
+   */
+  async testMasterDataConnection() {
+    try {
+      const result = await this.pool.query('SELECT COUNT(*) as count FROM fp_data_excel');
+      return { connected: true, recordCount: parseInt(result.rows[0].count) };
+    } catch (error) {
+      logger.error('Error testing master data connection:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get sales by country
+   */
+  async getSalesByCountry(salesRep, year, months, dataType = 'Actual', groupMembers = null) {
+    try {
+      const normalizedDataType = dataType.toUpperCase();
+      const isEstimateType = normalizedDataType.includes('ESTIMATE');
+      
+      let query;
+      let params;
+
+      if (groupMembers && Array.isArray(groupMembers)) {
+        const repPlaceholders = groupMembers.map((_, index) => `$${index + 1}`).join(', ');
+        const monthPlaceholders = months.map((_, index) => `$${groupMembers.length + 3 + index}`).join(', ');
+        
+        const typeCondition = isEstimateType 
+          ? `AND UPPER(type) IN ('ACTUAL', 'ESTIMATE')`
+          : `AND UPPER(type) = UPPER($${groupMembers.length + 3 + months.length})`;
+        
+        query = `
+          SELECT 
+            INITCAP(LOWER(country)) as country,
+            SUM(CASE WHEN UPPER(values_type) = 'AMOUNT' THEN values ELSE 0 END) as total_amount,
+            SUM(CASE WHEN UPPER(values_type) = 'KGS' THEN values ELSE 0 END) as total_kgs
+          FROM fp_data_excel
+          WHERE TRIM(UPPER(salesrepname)) IN (${repPlaceholders})
+          AND year = $${groupMembers.length + 1}
+          AND month IN (${monthPlaceholders})
+          ${typeCondition}
+          AND country IS NOT NULL
+          GROUP BY country
+          ORDER BY total_amount DESC
+        `;
+        
+        params = isEstimateType
+          ? [...groupMembers.map(n => String(n).trim().toUpperCase()), year, ...months]
+          : [...groupMembers.map(n => String(n).trim().toUpperCase()), year, ...months, dataType];
+      } else {
+        const monthPlaceholders = months.map((_, index) => `$${4 + index}`).join(', ');
+        
+        const typeCondition = isEstimateType 
+          ? `AND UPPER(type) IN ('ACTUAL', 'ESTIMATE')`
+          : `AND UPPER(type) = UPPER($${4 + months.length})`;
+        
+        query = `
+          SELECT 
+            INITCAP(LOWER(country)) as country,
+            SUM(CASE WHEN UPPER(values_type) = 'AMOUNT' THEN values ELSE 0 END) as total_amount,
+            SUM(CASE WHEN UPPER(values_type) = 'KGS' THEN values ELSE 0 END) as total_kgs
+          FROM fp_data_excel
+          WHERE TRIM(UPPER(salesrepname)) = TRIM(UPPER($1))
+          AND year = $2
+          AND month IN (${monthPlaceholders})
+          ${typeCondition}
+          AND country IS NOT NULL
+          GROUP BY country
+          ORDER BY total_amount DESC
+        `;
+        
+        params = isEstimateType
+          ? [salesRep, year, ...months]
+          : [salesRep, year, ...months, dataType];
+      }
+
+      const result = await this.pool.query(query, params);
+      return result.rows;
+    } catch (error) {
+      logger.error('Error fetching sales by country:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new FPDataService();

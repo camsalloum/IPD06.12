@@ -732,11 +732,11 @@ const CountryReference = () => {
         
         if (result.success && result.data) {
           setUnassignedCountries(result.data.unassigned || []);
-          setNotificationMessage(result.meta.notificationMessage);
-          setShowNotification(result.meta.hasUnassignedCountries);
+          setNotificationMessage(result.meta?.notificationMessage || '');
+          setShowNotification(result.meta?.hasUnassignedCountries || false);
           
           // Show notification for 5 seconds if there are unassigned countries
-          if (result.meta.hasUnassignedCountries) {
+          if (result.meta?.hasUnassignedCountries) {
             setTimeout(() => setShowNotification(false), 5000);
           }
         }

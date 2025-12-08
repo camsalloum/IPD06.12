@@ -13,49 +13,78 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setTokenState] = useState(() => localStorage.getItem('auth_token'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Configure axios defaults
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-  // Get token from localStorage
-  const getToken = () => {
-    return localStorage.getItem('auth_token');
-  };
+  // Get token - returns state value which is always in sync
+  const getToken = useCallback(() => {
+    return token;
+  }, [token]);
 
-  // Set token in localStorage and axios headers
-  const setToken = (token) => {
-    if (token) {
-      localStorage.setItem('auth_token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  // Set token in localStorage, state, and axios headers
+  const setToken = useCallback((newToken) => {
+    console.log('setToken called with:', newToken ? 'token exists' : 'null/undefined');
+    if (newToken) {
+      localStorage.setItem('auth_token', newToken);
+      console.log('Token stored in localStorage, verify:', localStorage.getItem('auth_token') ? 'SUCCESS' : 'FAILED');
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      setTokenState(newToken);
     } else {
       localStorage.removeItem('auth_token');
       delete axios.defaults.headers.common['Authorization'];
+      setTokenState(null);
     }
-  };
+  }, []);
 
   // Load user from token on mount
   useEffect(() => {
     const initAuth = async () => {
-      const token = getToken();
-      if (token) {
+      // Read token directly from localStorage to avoid stale closure
+      const existingToken = localStorage.getItem('auth_token');
+      console.log('initAuth - checking localStorage token:', existingToken ? 'exists' : 'null');
+      if (existingToken) {
         try {
-          setToken(token);
+          // Ensure axios headers are set
+          axios.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
+          // Also update state if needed
+          setTokenState(existingToken);
           const response = await axios.get(`${API_BASE_URL}/api/auth/me`);
           if (response.data.success) {
+            console.log('initAuth - user loaded successfully');
             setUser(response.data.user);
+          } else {
+            console.log('initAuth - /api/auth/me returned failure');
+            // Clear invalid token
+            localStorage.removeItem('auth_token');
+            delete axios.defaults.headers.common['Authorization'];
+            setTokenState(null);
           }
         } catch (error) {
-          console.error('Failed to load user:', error);
-          setToken(null);
+          console.error('initAuth - Failed to load user:', error);
+          // Clear invalid token
+          localStorage.removeItem('auth_token');
+          delete axios.defaults.headers.common['Authorization'];
+          setTokenState(null);
         }
       }
       setLoading(false);
     };
 
     initAuth();
-  }, [API_BASE_URL]);
+  }, [API_BASE_URL]); // Only run on mount - reads from localStorage directly
+
+  // Keep localStorage in sync with token state (belt and suspenders)
+  useEffect(() => {
+    if (token && !localStorage.getItem('auth_token')) {
+      console.log('Token exists in state but not localStorage - syncing...');
+      localStorage.setItem('auth_token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+  }, [token]);
 
   // Login function
   const login = useCallback(async (email, password) => {
@@ -69,7 +98,10 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (response.data.success) {
-        setToken(response.data.token);
+        // Server returns "accessToken", not "token"
+        const receivedToken = response.data.accessToken || response.data.token;
+        console.log('Login successful - received token:', receivedToken ? 'exists' : 'undefined');
+        setToken(receivedToken);
         setUser(response.data.user);
         return { success: true, user: response.data.user };
       }
@@ -82,7 +114,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL]);
+  }, [API_BASE_URL, setToken]);
 
   // Logout function
   const logout = useCallback(async () => {
@@ -94,7 +126,7 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setUser(null);
     }
-  }, [API_BASE_URL]);
+  }, [API_BASE_URL, setToken]);
 
   // Change password function
   const changePassword = useCallback(async (oldPassword, newPassword) => {
@@ -123,7 +155,14 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = useCallback(async (updates) => {
     try {
       setError(null);
-      const response = await axios.put(`${API_BASE_URL}/api/auth/profile`, updates);
+      // Read token directly from localStorage to avoid stale closure issues
+      const currentToken = localStorage.getItem('auth_token');
+      if (!currentToken) {
+        return { success: false, error: 'No authentication token' };
+      }
+      const response = await axios.put(`${API_BASE_URL}/api/auth/profile`, updates, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
 
       if (response.data.success) {
         setUser(prevUser => ({ ...prevUser, ...response.data.user }));
@@ -141,7 +180,25 @@ export const AuthProvider = ({ children }) => {
   // Get preferences function
   const getPreferences = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/auth/preferences`);
+      // First try localStorage, then fall back to axios header
+      let currentToken = localStorage.getItem('auth_token');
+      
+      // Fallback: if localStorage is empty but axios has the token, use that
+      if (!currentToken) {
+        const axiosToken = axios.defaults.headers.common['Authorization'];
+        if (axiosToken && axiosToken.startsWith('Bearer ')) {
+          currentToken = axiosToken.substring(7);
+          // Re-save to localStorage
+          localStorage.setItem('auth_token', currentToken);
+        }
+      }
+      
+      if (!currentToken) {
+        return { success: false, error: 'No authentication token' };
+      }
+      const response = await axios.get(`${API_BASE_URL}/api/auth/preferences`, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
       if (response.data.success) {
         return { success: true, preferences: response.data.preferences };
       }
@@ -156,7 +213,29 @@ export const AuthProvider = ({ children }) => {
   const updatePreferences = useCallback(async (preferences) => {
     try {
       setError(null);
-      const response = await axios.put(`${API_BASE_URL}/api/auth/preferences`, preferences);
+      // First try localStorage, then fall back to axios header (which was set during login)
+      let currentToken = localStorage.getItem('auth_token');
+      console.log('updatePreferences - localStorage auth_token:', currentToken ? 'exists' : 'NULL');
+      
+      // Fallback: if localStorage is empty but axios has the token, use that
+      if (!currentToken) {
+        const axiosToken = axios.defaults.headers.common['Authorization'];
+        if (axiosToken && axiosToken.startsWith('Bearer ')) {
+          currentToken = axiosToken.substring(7);
+          console.log('updatePreferences - Using token from axios headers instead');
+          // Re-save to localStorage
+          localStorage.setItem('auth_token', currentToken);
+          console.log('updatePreferences - Token re-saved to localStorage');
+        }
+      }
+      
+      if (!currentToken) {
+        console.log('updatePreferences - All localStorage keys:', Object.keys(localStorage));
+        return { success: false, error: 'No authentication token' };
+      }
+      const response = await axios.put(`${API_BASE_URL}/api/auth/preferences`, preferences, {
+        headers: { Authorization: `Bearer ${currentToken}` }
+      });
 
       if (response.data.success) {
         // Update user object with new preferences
@@ -214,6 +293,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    token,
     loading,
     error,
     login,
@@ -226,7 +306,8 @@ export const AuthProvider = ({ children }) => {
     hasAccessToDivision,
     hasRole,
     isAuthenticated,
-    setError
+    setError,
+    getToken
   };
 
   return (

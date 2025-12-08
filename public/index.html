@@ -27,6 +27,17 @@
     <title>Interplast Dashboard</title>
   </head>
   <body>
+    <!-- Apply saved theme immediately to prevent flash -->
+    <script>
+      (function() {
+        var savedTheme = localStorage.getItem('app-theme') || 'light';
+        if (document.body) {
+          document.body.className = 'theme-' + savedTheme;
+        } else {
+          document.documentElement.className = 'theme-' + savedTheme;
+        }
+      })();
+    </script>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <!--

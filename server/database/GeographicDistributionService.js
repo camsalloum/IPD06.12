@@ -1,11 +1,31 @@
 const { Pool } = require('pg');
 const logger = require('../utils/logger');
-const { fpPool } = require('./fp_database_config');
+const { getDivisionPool } = require('../utils/divisionDatabaseManager');
+const { pool } = require('./config');
 const WorldCountriesService = require('./WorldCountriesService');
 
 class GeographicDistributionService {
   constructor() {
-    this.pool = fpPool;
+    // Default pool for FP, will be overridden per-query for other divisions
+    this.pool = pool;
+  }
+
+  /**
+   * Get the appropriate database pool for a division
+   */
+  getPool(division) {
+    if (!division || division.toUpperCase() === 'FP') {
+      return pool;
+    }
+    return getDivisionPool(division.toUpperCase());
+  }
+
+  /**
+   * Get table name for a division
+   */
+  getTableName(division) {
+    const div = (division || 'FP').toUpperCase();
+    return `${div.toLowerCase()}_data_excel`;
   }
 
   /**
@@ -29,10 +49,9 @@ class GeographicDistributionService {
         throw new Error('No valid months provided. Please use month names (January, February) or numbers (1-12)');
       }
 
-      // For now, only FP division is supported
-      if (division !== 'FP') {
-        throw new Error(`Division ${division} not yet supported. Only FP division is available.`);
-      }
+      // Get division-specific pool and table name
+      const divisionPool = this.getPool(division);
+      const tableName = this.getTableName(division);
 
       // Handle "Estimate" or "Forecast" type - query both Actual and Estimate/Forecast
       const normalizedType = type.toUpperCase();
@@ -45,7 +64,7 @@ class GeographicDistributionService {
           SELECT 
             countryname,
             SUM(CASE WHEN UPPER(values_type) = 'AMOUNT' THEN values ELSE 0 END) as total_sales
-          FROM fp_data_excel
+          FROM ${tableName}
           WHERE year = $1
             AND month = ANY($2)
             AND UPPER(type) IN ('ACTUAL', 'ESTIMATE', 'FORECAST')
@@ -62,7 +81,7 @@ class GeographicDistributionService {
           SELECT 
             countryname,
             SUM(CASE WHEN UPPER(values_type) = 'AMOUNT' THEN values ELSE 0 END) as total_sales
-          FROM fp_data_excel
+          FROM ${tableName}
           WHERE year = $1
             AND month = ANY($2)
             AND UPPER(type) = UPPER($3)
@@ -77,11 +96,11 @@ class GeographicDistributionService {
       }
       
       logger.info('🔍 Fetching geographic distribution data:', { 
-        division, year, months, monthIntegers, type, isEstimateType
+        division, year, months, monthIntegers, type, isEstimateType, tableName
       });
       logger.info('🔍 Query params:', { params, query: query.substring(0, 200) });
       
-      const result = await this.pool.query(query, params);
+      const result = await divisionPool.query(query, params);
       
       logger.info(`✅ Retrieved ${result.rows.length} countries for geographic distribution`);
       
@@ -138,7 +157,7 @@ class GeographicDistributionService {
           previousParams = [previousYear, monthIntegers, type];
         }
         
-        const previousResult = await this.pool.query(query, previousParams);
+        const previousResult = await divisionPool.query(query, previousParams);
         
         const previousCountrySales = previousResult.rows.map(row => ({
           name: row.countryname,

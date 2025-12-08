@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 
 const ThemeContext = createContext();
 
@@ -28,6 +29,8 @@ export const themes = {
       gradient: 'linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%)',
       tabActive: '#3b82f6',
       tabBg: '#f1f5f9',
+      overlay: 'rgba(255, 255, 255, 0.15)',
+      cardGradient: 'linear-gradient(145deg, #ffffff 0%, #f7fafc 100%)',
     }
   },
   dark: {
@@ -55,6 +58,8 @@ export const themes = {
       gradient: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
       tabActive: '#60a5fa',
       tabBg: '#334155',
+      overlay: 'rgba(255, 255, 255, 0.08)',
+      cardGradient: 'linear-gradient(145deg, #1e293b 0%, #0f172a 100%)',
     }
   },
   colorful: {
@@ -82,6 +87,8 @@ export const themes = {
       gradient: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #14b8a6 100%)',
       tabActive: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)',
       tabBg: '#f3e8ff',
+      overlay: 'rgba(139, 92, 246, 0.15)',
+      cardGradient: 'linear-gradient(145deg, #ffffff 0%, #faf5ff 100%)',
     }
   },
   classic: {
@@ -109,24 +116,29 @@ export const themes = {
       gradient: 'linear-gradient(135deg, #374151 0%, #4b5563 100%)',
       tabActive: '#374151',
       tabBg: '#e5e7eb',
+      overlay: 'rgba(0, 0, 0, 0.05)',
+      cardGradient: 'linear-gradient(145deg, #ffffff 0%, #f9fafb 100%)',
     }
   }
 };
 
 export const ThemeProvider = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState(() => {
+    // First try localStorage for quick initial load
     const saved = localStorage.getItem('app-theme');
     return saved || 'light';
   });
+  const [isLoadedFromServer, setIsLoadedFromServer] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem('app-theme', currentTheme);
-    applyTheme(currentTheme);
-  }, [currentTheme]);
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-  const applyTheme = (themeName) => {
+  // Apply theme to DOM
+  const applyTheme = useCallback((themeName) => {
     const theme = themes[themeName];
-    if (!theme) return;
+    if (!theme) {
+      console.warn('Theme not found:', themeName);
+      return;
+    }
 
     const root = document.documentElement;
     
@@ -137,18 +149,75 @@ export const ThemeProvider = ({ children }) => {
 
     // Apply theme class to body
     document.body.className = `theme-${themeName}`;
-  };
+    
+    // Also save to localStorage for quick load on next visit
+    localStorage.setItem('app-theme', themeName);
+  }, []);
 
-  const changeTheme = (themeName) => {
+  // Load theme from server when user is logged in
+  const loadThemeFromServer = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+
+      const response = await axios.get(`${API_BASE_URL}/api/auth/preferences`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.data.success && response.data.preferences?.theme) {
+        const serverTheme = response.data.preferences.theme;
+        if (themes[serverTheme]) {
+          setCurrentTheme(serverTheme);
+          applyTheme(serverTheme);
+          setIsLoadedFromServer(true);
+          console.log('Theme loaded from server:', serverTheme);
+        }
+      }
+    } catch (error) {
+      console.log('Could not load theme from server, using local:', error.message);
+    }
+  }, [API_BASE_URL, applyTheme]);
+
+  // Save theme to server
+  const saveThemeToServer = useCallback(async (themeName) => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+
+      await axios.put(`${API_BASE_URL}/api/auth/preferences`, 
+        { theme: themeName },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log('Theme saved to server:', themeName);
+    } catch (error) {
+      console.error('Failed to save theme to server:', error.message);
+    }
+  }, [API_BASE_URL]);
+
+  // Apply theme on initial load and whenever it changes
+  useEffect(() => {
+    applyTheme(currentTheme);
+  }, [currentTheme, applyTheme]);
+
+  // Load theme from server on mount
+  useEffect(() => {
+    loadThemeFromServer();
+  }, [loadThemeFromServer]);
+
+  // Change theme (saves to both localStorage and server)
+  const changeTheme = useCallback((themeName) => {
     if (themes[themeName]) {
       setCurrentTheme(themeName);
+      applyTheme(themeName);
+      saveThemeToServer(themeName);
     }
-  };
+  }, [applyTheme, saveThemeToServer]);
 
   return (
     <ThemeContext.Provider value={{ 
       currentTheme, 
       changeTheme, 
+      loadThemeFromServer,
       theme: themes[currentTheme],
       themes 
     }}>

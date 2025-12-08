@@ -8,7 +8,7 @@ import ThemeSelector from './ThemeSelector';
 import './Settings.css';
 
 const Settings = () => {
-  const { user, updatePreferences, refreshUser } = useAuth();
+  const { user, token, updatePreferences, refreshUser } = useAuth();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('company');
   
@@ -27,6 +27,12 @@ const Settings = () => {
   
   // Division settings
   const [divisions, setDivisions] = useState([]);
+  const [divisionBackups, setDivisionBackups] = useState([]);
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [selectedBackup, setSelectedBackup] = useState(null);
+  const [restoreNewCode, setRestoreNewCode] = useState('');
+  const [restoreNewName, setRestoreNewName] = useState('');
+  const [restoring, setRestoring] = useState(false);
   
   // User preferences
   const [userDivisions, setUserDivisions] = useState([]);
@@ -40,17 +46,22 @@ const Settings = () => {
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
   useEffect(() => {
-    loadAllData();
-  }, []);
+    // Only load data if user AND token are available (auth fully initialized)
+    if (user && token) {
+      loadAllData();
+    }
+  }, [user, token]);
 
   const loadAllData = async () => {
-    await loadSettings();
-    await loadUserPreferences();
+    const loadedDivisions = await loadSettings();
+    await loadUserPreferences(loadedDivisions);
   };
 
   const loadSettings = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/settings/company`);
+      const response = await axios.get(`${API_BASE_URL}/api/settings/company`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       if (response.data.success) {
         const settings = response.data.settings;
         setCompanyName(settings.companyName || '');
@@ -74,27 +85,100 @@ const Settings = () => {
     }
   };
 
-  const loadUserPreferences = async () => {
+  const loadUserPreferences = async (loadedDivisions = []) => {
+    // ALWAYS set user divisions first, regardless of auth status
+    if (user?.role === 'admin') {
+      // For admin, use all divisions from loaded settings
+      const divCodes = loadedDivisions.map(d => d.code).filter(code => code);
+      setUserDivisions(divCodes);
+    } else {
+      // For regular users, use their assigned divisions
+      setUserDivisions(user?.divisions || []);
+    }
+    
+    // Now try to load preferences (requires auth)
+    // Token is now from React state, guaranteed to be in sync
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/auth/preferences`);
+      if (!token) {
+        console.log('No auth token, skipping preferences load');
+        return;
+      }
+      
+      const response = await axios.get(`${API_BASE_URL}/api/auth/preferences`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (response.data.success) {
         setDefaultDivision(response.data.preferences.default_division || '');
       }
       
-      // Get user's accessible divisions from current divisions state
+      // Load backups for admin (only if we have a valid token)
       if (user?.role === 'admin') {
-        // For admin, get divisions from company settings (already loaded)
-        const settingsResponse = await axios.get(`${API_BASE_URL}/api/settings/company`);
-        if (settingsResponse.data.success) {
-          const divCodes = (settingsResponse.data.settings.divisions || []).map(d => d.code).filter(code => code);
-          setUserDivisions(divCodes);
-        }
-      } else {
-        setUserDivisions(user?.divisions || []);
+        await loadDivisionBackups();
       }
     } catch (error) {
       console.error('Error loading user preferences:', error);
     }
+  };
+
+  const loadDivisionBackups = async () => {
+    try {
+      if (!token) {
+        console.log('No token for backup loading');
+        return;
+      }
+      const response = await axios.get(`${API_BASE_URL}/api/settings/division-backups`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setDivisionBackups(response.data.backups || []);
+      }
+    } catch (error) {
+      console.error('Error loading division backups:', error);
+    }
+  };
+
+  const handleRestoreDivision = async () => {
+    if (!selectedBackup) return;
+    
+    setRestoring(true);
+    setMessage({ type: '', text: '' });
+    
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/settings/restore-division`, {
+        backupFolder: selectedBackup.folderName,
+        newCode: restoreNewCode || null,
+        newName: restoreNewName || null
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        setMessage({ 
+          type: 'success', 
+          text: `Division ${response.data.result.divisionCode} restored! ${response.data.result.tablesRestored} tables, ${response.data.result.rowsRestored} rows.` 
+        });
+        setShowRestoreModal(false);
+        setSelectedBackup(null);
+        setRestoreNewCode('');
+        setRestoreNewName('');
+        // Reload settings to show new division
+        await loadAllData();
+      }
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error.response?.data?.error || 'Failed to restore division' 
+      });
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  const openRestoreModal = (backup) => {
+    setSelectedBackup(backup);
+    setRestoreNewCode('');
+    setRestoreNewName('');
+    setShowRestoreModal(true);
   };
 
   const handleFileSelect = (e) => {
@@ -132,7 +216,10 @@ const Settings = () => {
         `${API_BASE_URL}/api/settings/company`,
         formData,
         {
-          headers: { 'Content-Type': 'multipart/form-data' }
+          headers: { 
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          }
         }
       );
 
@@ -160,7 +247,10 @@ const Settings = () => {
     try {
       const response = await axios.post(
         `${API_BASE_URL}/api/settings/divisions`,
-        { divisions }
+        { divisions },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
       );
 
       if (response.data.success) {
@@ -315,20 +405,31 @@ const Settings = () => {
     }
   };
 
-  const handleSaveDefaultDivision = async () => {
+  const handleSaveDefaultDivision = async (divisionCode = null) => {
+    const codeToSave = divisionCode || defaultDivision;
+    console.log('handleSaveDefaultDivision called, saving:', codeToSave);
     setLoading(true);
     setMessage({ type: '', text: '' });
 
     try {
+      console.log('Calling updatePreferences...');
       const result = await updatePreferences({
-        default_division: defaultDivision
+        default_division: codeToSave
       });
+      console.log('updatePreferences result:', result);
 
       if (result.success) {
-        setMessage({ type: 'success', text: 'Default division saved successfully!' });
+        if (divisionCode) {
+          setDefaultDivision(divisionCode);
+        }
+        setMessage({ type: 'success', text: `Default division set to ${codeToSave}!` });
         setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      } else {
+        console.error('updatePreferences failed:', result.error);
+        setMessage({ type: 'error', text: result.error || 'Failed to save default division' });
       }
     } catch (error) {
+      console.error('handleSaveDefaultDivision error:', error);
       setMessage({ 
         type: 'error', 
         text: 'Failed to save default division' 
@@ -502,46 +603,63 @@ const Settings = () => {
 
               {/* Right Column - Division Management */}
               {user?.role === 'admin' && (
-                <div className="company-info-card">
+                <div className="company-info-card division-management-card">
                   <div className="section-header">
                     <h2>Division Management</h2>
                     <p className="section-description">
-                      Manage your company's divisions. Each division needs a code and full name.
+                      Manage your company's divisions. Click the star to set your default division.
                     </p>
                   </div>
 
                   <div className="divisions-list">
                     {divisions.map((division, index) => (
-                      <div key={index} className="division-item">
-                        <div className="division-inputs">
-                          <div className="form-group">
-                            <label>Code</label>
-                            <input
-                              type="text"
-                              value={division.code}
-                              onChange={(e) => updateDivision(index, 'code', e.target.value.toUpperCase())}
-                              placeholder="FP"
-                              maxLength="10"
-                              className="form-input code-input"
-                            />
-                          </div>
-                          <div className="form-group flex-grow">
-                            <label>Division Name</label>
-                            <input
-                              type="text"
-                              value={division.name}
-                              onChange={(e) => updateDivision(index, 'name', e.target.value)}
-                              placeholder="Food Packaging"
-                              className="form-input"
-                            />
-                          </div>
+                      <div key={index} className={`division-item ${defaultDivision === division.code ? 'is-default' : ''}`}>
+                        <button
+                          type="button"
+                          className={`btn-set-default ${defaultDivision === division.code ? 'is-selected' : ''}`}
+                          onClick={() => {
+                            setDefaultDivision(division.code);
+                            handleSaveDefaultDivision(division.code);
+                          }}
+                          title={defaultDivision === division.code ? 'Current default' : 'Set as default'}
+                        >
+                          {defaultDivision === division.code ? (
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          )}
+                        </button>
+                        <div className="division-code-group">
+                          <label>Code</label>
+                          <input
+                            type="text"
+                            value={division.code}
+                            onChange={(e) => updateDivision(index, 'code', e.target.value.toUpperCase())}
+                            placeholder="FP"
+                            maxLength="10"
+                            className="form-input code-input"
+                          />
+                        </div>
+                        <div className="division-name-group">
+                          <label>Division Name</label>
+                          <input
+                            type="text"
+                            value={division.name}
+                            onChange={(e) => updateDivision(index, 'name', e.target.value)}
+                            placeholder="Food Packaging"
+                            className="form-input name-input"
+                          />
                         </div>
                         <button
                           onClick={() => removeDivision(index)}
-                          className="btn-remove"
+                          className="btn-remove-division"
                           title="Remove division"
                         >
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                          <svg width="28" height="28" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
                         </button>
@@ -549,8 +667,8 @@ const Settings = () => {
                     ))}
                   </div>
 
-                  <button onClick={addDivision} className="btn-add">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                  <button onClick={addDivision} className="btn-add-division">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
                     </svg>
                     Add Division
@@ -565,52 +683,38 @@ const Settings = () => {
                       {loading ? 'Saving...' : 'Save Divisions'}
                     </button>
                   </div>
+
+                  {/* Import from Backup Section */}
+                  {divisionBackups.length > 0 && (
+                    <div className="backup-restore-section">
+                      <div className="section-divider-line"></div>
+                      <h3>Restore from Backup</h3>
+                      <div className="backup-list">
+                        {divisionBackups.slice(0, 3).map((backup, index) => (
+                          <div key={index} className="backup-item">
+                            <div className="backup-info">
+                              <span className="backup-code">{backup.divisionCode}</span>
+                              <span className="backup-date">
+                                {new Date(backup.completedAt || backup.timestamp).toLocaleDateString()}
+                              </span>
+                              <span className="backup-stats">
+                                {backup.totalTables} tables
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => openRestoreModal(backup)}
+                              className="btn-restore-small"
+                              title="Restore this backup"
+                            >
+                              Restore
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-
-            {/* Bottom Row - Default Division (Centered) */}
-            <div className="default-division-container">
-              <div className="company-info-card default-division-card">
-                <div className="section-header">
-                  <h2>Default Division</h2>
-                  <p className="section-description">
-                    Set your default division. This will be automatically selected when you login.
-                  </p>
-                </div>
-
-                <div className="form-grid">
-                  <div className="form-group full-width">
-                    <label htmlFor="defaultDivision">Select Division</label>
-                    <select
-                      id="defaultDivision"
-                      value={defaultDivision}
-                      onChange={(e) => setDefaultDivision(e.target.value)}
-                      className="form-input"
-                    >
-                      <option value="">-- Select a default division --</option>
-                      {userDivisions.map(code => (
-                        <option key={code} value={code}>
-                          {getDivisionLabel(code)}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="help-text">
-                      Choose which division you want to see by default when you open the dashboard.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="form-actions">
-                  <button
-                    onClick={handleSaveDefaultDivision}
-                    disabled={loading || !defaultDivision}
-                    className="btn-primary"
-                  >
-                    {loading ? 'Saving...' : 'Save Default Division'}
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         )}
@@ -649,6 +753,87 @@ const Settings = () => {
           </div>
         )}
       </div>
+
+      {/* Restore Division Modal */}
+      {showRestoreModal && selectedBackup && (
+        <div className="modal-overlay" onClick={() => setShowRestoreModal(false)}>
+          <div className="modal-content restore-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Restore Division</h2>
+              <button className="modal-close" onClick={() => setShowRestoreModal(false)}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="backup-details">
+                <h3>Backup Details</h3>
+                <p><strong>Original Code:</strong> {selectedBackup.divisionCode}</p>
+                <p><strong>Backup Date:</strong> {new Date(selectedBackup.completedAt || selectedBackup.timestamp).toLocaleString()}</p>
+                <p><strong>Data:</strong> {selectedBackup.totalTables} tables, {selectedBackup.totalRows} rows</p>
+                <p><strong>User Access:</strong> {selectedBackup.userAccess} users</p>
+              </div>
+              
+              <div className="restore-options">
+                <h3>Restore Options</h3>
+                <p className="help-text">
+                  Leave blank to use original values, or enter new code/name.
+                </p>
+                
+                <div className="form-group">
+                  <label>New Division Code (optional)</label>
+                  <input
+                    type="text"
+                    value={restoreNewCode}
+                    onChange={(e) => setRestoreNewCode(e.target.value.toUpperCase())}
+                    placeholder={selectedBackup.divisionCode}
+                    maxLength="4"
+                    className="form-input"
+                  />
+                  <p className="field-hint">2-4 uppercase letters</p>
+                </div>
+                
+                <div className="form-group">
+                  <label>New Division Name (optional)</label>
+                  <input
+                    type="text"
+                    value={restoreNewName}
+                    onChange={(e) => setRestoreNewName(e.target.value)}
+                    placeholder="Original name will be used"
+                    className="form-input"
+                  />
+                </div>
+              </div>
+              
+              <div className="warning-box">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <span>
+                  {restoreNewCode && restoreNewCode !== selectedBackup.divisionCode 
+                    ? 'User permissions will NOT be restored when using a different code.'
+                    : 'This will create a new division with all the backed up data.'}
+                </span>
+              </div>
+            </div>
+            
+            <div className="modal-footer">
+              <button 
+                className="btn-secondary" 
+                onClick={() => setShowRestoreModal(false)}
+                disabled={restoring}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-primary" 
+                onClick={handleRestoreDivision}
+                disabled={restoring}
+              >
+                {restoring ? 'Restoring...' : 'Restore Division'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

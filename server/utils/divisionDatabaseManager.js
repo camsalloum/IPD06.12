@@ -1,6 +1,8 @@
 const { Pool } = require('pg');
 const { authPool } = require('../database/config');
 const { createDivisionExcelTemplate, deleteDivisionExcel } = require('./excelTemplateGenerator');
+const fs = require('fs');
+const path = require('path');
 
 // Cache for division database pools
 const divisionPools = new Map();
@@ -240,6 +242,558 @@ async function createDivisionDatabase(divisionCode, divisionName) {
   } catch (error) {
     console.error(`❌ Error creating division database:`, error);
     throw error;
+  }
+}
+
+/**
+ * Backup a division before deletion
+ * Creates a comprehensive backup of all division data including:
+ * - All tables from division database
+ * - User access permissions
+ * - User sales rep access
+ * - Division metadata
+ * 
+ * @param {string} divisionCode - Division code (e.g., 'HC')
+ * @returns {Object} Backup result with path and statistics
+ */
+async function backupDivisionBeforeDelete(divisionCode) {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const backupDir = path.join(__dirname, '../../backups', `division-${divisionCode.toLowerCase()}-${timestamp}`);
+  const dbName = `${divisionCode.toLowerCase()}_database`;
+  
+  console.log(`\n📦 Creating backup for division ${divisionCode}...`);
+  
+  // Create backup directory
+  if (!fs.existsSync(backupDir)) {
+    fs.mkdirSync(backupDir, { recursive: true });
+  }
+  
+  const backupResult = {
+    divisionCode,
+    timestamp,
+    backupPath: backupDir,
+    tables: [],
+    userAccess: { count: 0 },
+    salesRepAccess: { count: 0 },
+    userPreferences: { count: 0 },
+    metadata: null,
+    success: true,
+    errors: []
+  };
+  
+  try {
+    // 1. Backup division database tables
+    console.log(`   📊 Backing up ${dbName} tables...`);
+    
+    try {
+      const divisionPool = getDivisionPool(divisionCode);
+      
+      // Get all tables in the division database
+      const tablesResult = await divisionPool.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_type = 'BASE TABLE'
+        ORDER BY table_name
+      `);
+      
+      for (const tableRow of tablesResult.rows) {
+        const tableName = tableRow.table_name;
+        
+        try {
+          // Get all data from the table
+          const dataResult = await divisionPool.query(`SELECT * FROM "${tableName}"`);
+          
+          // Get table structure
+          const structureResult = await divisionPool.query(`
+            SELECT column_name, data_type, is_nullable, column_default
+            FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = $1
+            ORDER BY ordinal_position
+          `, [tableName]);
+          
+          const tableBackup = {
+            tableName,
+            rowCount: dataResult.rows.length,
+            structure: structureResult.rows,
+            data: dataResult.rows
+          };
+          
+          // Save to file
+          const tableFile = path.join(backupDir, `table-${tableName}.json`);
+          fs.writeFileSync(tableFile, JSON.stringify(tableBackup, null, 2));
+          
+          backupResult.tables.push({
+            name: tableName,
+            rows: dataResult.rows.length,
+            file: `table-${tableName}.json`
+          });
+          
+          console.log(`      ✅ ${tableName}: ${dataResult.rows.length} rows`);
+        } catch (tableError) {
+          console.log(`      ⚠️ ${tableName}: ${tableError.message}`);
+          backupResult.errors.push({ table: tableName, error: tableError.message });
+        }
+      }
+    } catch (dbError) {
+      console.log(`   ⚠️ Could not connect to ${dbName}: ${dbError.message}`);
+      backupResult.errors.push({ phase: 'database', error: dbError.message });
+    }
+    
+    // 2. Backup user access from ip_auth_database
+    console.log(`   👥 Backing up user access permissions...`);
+    
+    try {
+      // User divisions
+      const userDivisionsResult = await authPool.query(`
+        SELECT ud.*, u.username, u.email, u.full_name
+        FROM user_divisions ud
+        LEFT JOIN users u ON ud.user_id = u.id
+        WHERE ud.division = $1
+      `, [divisionCode]);
+      
+      const userAccessBackup = {
+        division: divisionCode,
+        userDivisions: userDivisionsResult.rows
+      };
+      
+      fs.writeFileSync(
+        path.join(backupDir, 'user-divisions.json'),
+        JSON.stringify(userAccessBackup, null, 2)
+      );
+      
+      backupResult.userAccess.count = userDivisionsResult.rows.length;
+      console.log(`      ✅ User divisions: ${userDivisionsResult.rows.length} records`);
+    } catch (userError) {
+      console.log(`      ⚠️ User divisions: ${userError.message}`);
+      backupResult.errors.push({ phase: 'user_divisions', error: userError.message });
+    }
+    
+    // 3. Backup sales rep access
+    console.log(`   📋 Backing up sales rep access...`);
+    
+    try {
+      const salesRepAccessResult = await authPool.query(`
+        SELECT usra.*, u.username, u.email
+        FROM user_sales_rep_access usra
+        LEFT JOIN users u ON usra.user_id = u.id
+        WHERE usra.division = $1
+      `, [divisionCode]);
+      
+      fs.writeFileSync(
+        path.join(backupDir, 'sales-rep-access.json'),
+        JSON.stringify({ division: divisionCode, records: salesRepAccessResult.rows }, null, 2)
+      );
+      
+      backupResult.salesRepAccess.count = salesRepAccessResult.rows.length;
+      console.log(`      ✅ Sales rep access: ${salesRepAccessResult.rows.length} records`);
+    } catch (sraError) {
+      console.log(`      ⚠️ Sales rep access: ${sraError.message}`);
+      backupResult.errors.push({ phase: 'sales_rep_access', error: sraError.message });
+    }
+    
+    // 4. Backup user preferences with this division as default
+    console.log(`   ⚙️ Backing up user preferences...`);
+    
+    try {
+      const prefsResult = await authPool.query(`
+        SELECT up.*, u.username, u.email
+        FROM user_preferences up
+        LEFT JOIN users u ON up.user_id = u.id
+        WHERE up.default_division = $1
+      `, [divisionCode]);
+      
+      fs.writeFileSync(
+        path.join(backupDir, 'user-preferences.json'),
+        JSON.stringify({ division: divisionCode, records: prefsResult.rows }, null, 2)
+      );
+      
+      backupResult.userPreferences.count = prefsResult.rows.length;
+      console.log(`      ✅ User preferences: ${prefsResult.rows.length} records`);
+    } catch (prefError) {
+      console.log(`      ⚠️ User preferences: ${prefError.message}`);
+      backupResult.errors.push({ phase: 'user_preferences', error: prefError.message });
+    }
+    
+    // 5. Backup division metadata from company_settings
+    console.log(`   📄 Backing up division metadata...`);
+    
+    try {
+      const settingsResult = await authPool.query(`
+        SELECT setting_value FROM company_settings WHERE setting_key = 'divisions'
+      `);
+      
+      if (settingsResult.rows.length > 0) {
+        const allDivisions = settingsResult.rows[0].setting_value;
+        const divisionMeta = Array.isArray(allDivisions) 
+          ? allDivisions.find(d => d.code === divisionCode)
+          : null;
+        
+        backupResult.metadata = divisionMeta;
+        
+        fs.writeFileSync(
+          path.join(backupDir, 'division-metadata.json'),
+          JSON.stringify({ 
+            division: divisionCode, 
+            metadata: divisionMeta,
+            allDivisionsAtBackupTime: allDivisions
+          }, null, 2)
+        );
+        
+        console.log(`      ✅ Division metadata saved`);
+      }
+    } catch (metaError) {
+      console.log(`      ⚠️ Metadata: ${metaError.message}`);
+      backupResult.errors.push({ phase: 'metadata', error: metaError.message });
+    }
+    
+    // 6. Copy Excel template if exists
+    console.log(`   📁 Backing up Excel template...`);
+    
+    try {
+      const excelSource = path.join(__dirname, '../../public', `financials-${divisionCode.toLowerCase()}.xlsx`);
+      if (fs.existsSync(excelSource)) {
+        const excelDest = path.join(backupDir, `financials-${divisionCode.toLowerCase()}.xlsx`);
+        fs.copyFileSync(excelSource, excelDest);
+        console.log(`      ✅ Excel template copied`);
+      } else {
+        console.log(`      ℹ️ No Excel template found`);
+      }
+    } catch (excelError) {
+      console.log(`      ⚠️ Excel template: ${excelError.message}`);
+      backupResult.errors.push({ phase: 'excel_template', error: excelError.message });
+    }
+    
+    // 7. Write backup summary
+    const summary = {
+      ...backupResult,
+      completedAt: new Date().toISOString(),
+      totalTables: backupResult.tables.length,
+      totalRows: backupResult.tables.reduce((sum, t) => sum + t.rows, 0)
+    };
+    
+    fs.writeFileSync(
+      path.join(backupDir, 'BACKUP-SUMMARY.json'),
+      JSON.stringify(summary, null, 2)
+    );
+    
+    // Write a README for easy understanding
+    const readme = `# Division Backup: ${divisionCode}
+
+Created: ${new Date().toISOString()}
+
+## Contents
+
+### Database Tables (${backupResult.tables.length} tables, ${summary.totalRows} total rows)
+${backupResult.tables.map(t => `- ${t.name}: ${t.rows} rows`).join('\n')}
+
+### User Access
+- User Divisions: ${backupResult.userAccess.count} users had access
+- Sales Rep Access: ${backupResult.salesRepAccess.count} permissions
+- User Preferences: ${backupResult.userPreferences.count} users had this as default
+
+### Files
+- table-*.json: Individual table data with structure
+- user-divisions.json: User access permissions
+- sales-rep-access.json: Sales rep permissions
+- user-preferences.json: User preference settings
+- division-metadata.json: Division configuration
+- financials-${divisionCode.toLowerCase()}.xlsx: Excel template (if existed)
+- BACKUP-SUMMARY.json: Complete backup metadata
+
+### Errors During Backup
+${backupResult.errors.length === 0 ? 'None' : backupResult.errors.map(e => `- ${e.phase || e.table}: ${e.error}`).join('\n')}
+
+## Restore Instructions
+
+To restore this division, you would need to:
+1. Re-create the division from Master Data page
+2. Import the table data using SQL or a restore script
+3. Re-assign user permissions manually or via SQL
+
+Contact your system administrator for assistance.
+`;
+    
+    fs.writeFileSync(path.join(backupDir, 'README.md'), readme);
+    
+    console.log(`\n✅ Backup complete: ${backupDir}`);
+    console.log(`   📊 ${backupResult.tables.length} tables, ${summary.totalRows} rows`);
+    console.log(`   👥 ${backupResult.userAccess.count} user access records`);
+    console.log(`   📋 ${backupResult.salesRepAccess.count} sales rep access records\n`);
+    
+    return backupResult;
+    
+  } catch (error) {
+    console.error(`❌ Backup failed:`, error);
+    backupResult.success = false;
+    backupResult.errors.push({ phase: 'general', error: error.message });
+    
+    // Still write what we have
+    fs.writeFileSync(
+      path.join(backupDir, 'BACKUP-SUMMARY.json'),
+      JSON.stringify(backupResult, null, 2)
+    );
+    
+    return backupResult;
+  }
+}
+
+/**
+ * List available division backups
+ * @returns {Array} List of backup summaries
+ */
+async function listDivisionBackups() {
+  const backupsDir = path.join(__dirname, '../../backups');
+  const backups = [];
+  
+  try {
+    if (!fs.existsSync(backupsDir)) {
+      return backups;
+    }
+    
+    const entries = fs.readdirSync(backupsDir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      // Only look at division backup folders
+      if (entry.isDirectory() && entry.name.startsWith('division-')) {
+        const summaryPath = path.join(backupsDir, entry.name, 'BACKUP-SUMMARY.json');
+        
+        if (fs.existsSync(summaryPath)) {
+          try {
+            const summaryData = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
+            backups.push({
+              folderName: entry.name,
+              divisionCode: summaryData.divisionCode,
+              timestamp: summaryData.timestamp,
+              completedAt: summaryData.completedAt,
+              totalTables: summaryData.totalTables || summaryData.tables?.length || 0,
+              totalRows: summaryData.totalRows || 0,
+              userAccess: summaryData.userAccess?.count || 0,
+              salesRepAccess: summaryData.salesRepAccess?.count || 0,
+              success: summaryData.success,
+              path: path.join(backupsDir, entry.name)
+            });
+          } catch (parseError) {
+            console.log(`⚠️ Could not parse backup summary: ${entry.name}`);
+          }
+        }
+      }
+    }
+    
+    // Sort by timestamp descending (newest first)
+    backups.sort((a, b) => new Date(b.completedAt || b.timestamp) - new Date(a.completedAt || a.timestamp));
+    
+    return backups;
+  } catch (error) {
+    console.error('Error listing backups:', error);
+    return backups;
+  }
+}
+
+/**
+ * Restore a division from a backup
+ * @param {string} backupFolderName - Name of the backup folder
+ * @param {string} newDivisionCode - Optional new code (defaults to original)
+ * @param {string} newDivisionName - Optional new name (defaults to original)
+ * @returns {Object} Restore result
+ */
+async function restoreDivisionFromBackup(backupFolderName, newDivisionCode = null, newDivisionName = null) {
+  const backupsDir = path.join(__dirname, '../../backups');
+  const backupPath = path.join(backupsDir, backupFolderName);
+  
+  console.log(`\n🔄 Restoring division from backup: ${backupFolderName}`);
+  
+  const result = {
+    success: false,
+    divisionCode: null,
+    divisionName: null,
+    tablesRestored: 0,
+    rowsRestored: 0,
+    userAccessRestored: 0,
+    salesRepAccessRestored: 0,
+    errors: []
+  };
+  
+  try {
+    // 1. Read backup summary
+    const summaryPath = path.join(backupPath, 'BACKUP-SUMMARY.json');
+    if (!fs.existsSync(summaryPath)) {
+      throw new Error('Backup summary not found. Invalid backup folder.');
+    }
+    
+    const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
+    const divisionCode = newDivisionCode || summary.divisionCode;
+    
+    // 2. Read metadata for name
+    let divisionName = newDivisionName;
+    if (!divisionName) {
+      const metadataPath = path.join(backupPath, 'division-metadata.json');
+      if (fs.existsSync(metadataPath)) {
+        const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+        divisionName = metadata.metadata?.name || divisionCode;
+      } else {
+        divisionName = divisionCode;
+      }
+    }
+    
+    result.divisionCode = divisionCode;
+    result.divisionName = divisionName;
+    
+    console.log(`   📋 Restoring as: ${divisionCode} (${divisionName})`);
+    
+    // 3. Create the division database (empty structure from FP)
+    console.log(`   🏗️ Creating division database...`);
+    try {
+      await createDivisionDatabase(divisionCode, divisionName);
+      console.log(`      ✅ Database created`);
+    } catch (dbError) {
+      if (dbError.message.includes('already exists')) {
+        throw new Error(`Division ${divisionCode} already exists. Delete it first or use a different code.`);
+      }
+      throw dbError;
+    }
+    
+    // 4. Get division pool for restoring data
+    const divisionPool = getDivisionPool(divisionCode);
+    
+    // 5. Restore each table's data
+    console.log(`   📊 Restoring table data...`);
+    
+    for (const tableInfo of summary.tables || []) {
+      const tableFile = path.join(backupPath, tableInfo.file);
+      
+      if (!fs.existsSync(tableFile)) {
+        console.log(`      ⚠️ ${tableInfo.name}: file not found`);
+        result.errors.push({ table: tableInfo.name, error: 'Backup file not found' });
+        continue;
+      }
+      
+      try {
+        const tableBackup = JSON.parse(fs.readFileSync(tableFile, 'utf8'));
+        const rows = tableBackup.data || [];
+        
+        if (rows.length === 0) {
+          console.log(`      ℹ️ ${tableInfo.name}: empty, skipping`);
+          continue;
+        }
+        
+        // Clear existing data first
+        await divisionPool.query(`DELETE FROM "${tableInfo.name}"`);
+        
+        // Insert rows in batches
+        const batchSize = 100;
+        let insertedCount = 0;
+        
+        for (let i = 0; i < rows.length; i += batchSize) {
+          const batch = rows.slice(i, i + batchSize);
+          
+          for (const row of batch) {
+            const columns = Object.keys(row);
+            const values = Object.values(row);
+            const placeholders = columns.map((_, idx) => `$${idx + 1}`);
+            
+            try {
+              await divisionPool.query(
+                `INSERT INTO "${tableInfo.name}" (${columns.map(c => `"${c}"`).join(', ')}) 
+                 VALUES (${placeholders.join(', ')})
+                 ON CONFLICT DO NOTHING`,
+                values
+              );
+              insertedCount++;
+            } catch (rowError) {
+              // Log but continue - some rows may fail due to constraints
+              if (insertedCount === 0) {
+                console.log(`      ⚠️ ${tableInfo.name}: ${rowError.message}`);
+              }
+            }
+          }
+        }
+        
+        result.tablesRestored++;
+        result.rowsRestored += insertedCount;
+        console.log(`      ✅ ${tableInfo.name}: ${insertedCount}/${rows.length} rows`);
+        
+      } catch (tableError) {
+        console.log(`      ⚠️ ${tableInfo.name}: ${tableError.message}`);
+        result.errors.push({ table: tableInfo.name, error: tableError.message });
+      }
+    }
+    
+    // 6. Restore user access (optional - only if division code matches original)
+    if (divisionCode === summary.divisionCode) {
+      console.log(`   👥 Restoring user access...`);
+      
+      const userDivisionsPath = path.join(backupPath, 'user-divisions.json');
+      if (fs.existsSync(userDivisionsPath)) {
+        try {
+          const userDivisions = JSON.parse(fs.readFileSync(userDivisionsPath, 'utf8'));
+          
+          for (const record of userDivisions.userDivisions || []) {
+            try {
+              await authPool.query(
+                `INSERT INTO user_divisions (user_id, division) 
+                 VALUES ($1, $2) 
+                 ON CONFLICT (user_id, division) DO NOTHING`,
+                [record.user_id, divisionCode]
+              );
+              result.userAccessRestored++;
+            } catch (e) {
+              // User may not exist anymore
+            }
+          }
+          console.log(`      ✅ ${result.userAccessRestored} user access records`);
+        } catch (e) {
+          console.log(`      ⚠️ User access: ${e.message}`);
+        }
+      }
+      
+      // Restore sales rep access
+      const salesRepPath = path.join(backupPath, 'sales-rep-access.json');
+      if (fs.existsSync(salesRepPath)) {
+        try {
+          const salesRepData = JSON.parse(fs.readFileSync(salesRepPath, 'utf8'));
+          
+          for (const record of salesRepData.records || []) {
+            try {
+              await authPool.query(
+                `INSERT INTO user_sales_rep_access (user_id, division, sales_rep_name, created_by) 
+                 VALUES ($1, $2, $3, $4) 
+                 ON CONFLICT DO NOTHING`,
+                [record.user_id, divisionCode, record.sales_rep_name, record.created_by]
+              );
+              result.salesRepAccessRestored++;
+            } catch (e) {
+              // May fail if user doesn't exist
+            }
+          }
+          console.log(`      ✅ ${result.salesRepAccessRestored} sales rep access records`);
+        } catch (e) {
+          console.log(`      ⚠️ Sales rep access: ${e.message}`);
+        }
+      }
+    } else {
+      console.log(`   ℹ️ Skipping user access restore (code changed from ${summary.divisionCode} to ${divisionCode})`);
+    }
+    
+    // 7. Copy Excel template if it was backed up
+    const excelBackup = path.join(backupPath, `financials-${summary.divisionCode.toLowerCase()}.xlsx`);
+    if (fs.existsSync(excelBackup)) {
+      const excelDest = path.join(__dirname, '../../public', `financials-${divisionCode.toLowerCase()}.xlsx`);
+      fs.copyFileSync(excelBackup, excelDest);
+      console.log(`   📁 Excel template restored`);
+    }
+    
+    result.success = true;
+    console.log(`\n✅ Division ${divisionCode} restored successfully!`);
+    console.log(`   📊 ${result.tablesRestored} tables, ${result.rowsRestored} rows`);
+    console.log(`   👥 ${result.userAccessRestored} user access, ${result.salesRepAccessRestored} sales rep access`);
+    
+    return result;
+    
+  } catch (error) {
+    console.error(`❌ Restore failed:`, error.message);
+    result.errors.push({ phase: 'general', error: error.message });
+    return result;
   }
 }
 
@@ -555,6 +1109,9 @@ module.exports = {
   closeDivisionPool,
   createDivisionDatabase,
   deleteDivisionDatabase,
+  backupDivisionBeforeDelete,
+  listDivisionBackups,
+  restoreDivisionFromBackup,
   divisionDatabaseExists,
   getActiveDivisions,
   syncTableToAllDivisions,

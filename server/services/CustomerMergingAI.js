@@ -45,7 +45,8 @@ function getTableNames(division) {
   return {
     dataExcel: `${code}_data_excel`,
     divisionMergeRules: `${code}_division_customer_merge_rules`,
-    mergeRuleSuggestions: `${code}_merge_rule_suggestions`
+    mergeRuleSuggestions: `${code}_merge_rule_suggestions`,
+    mergeRuleRejections: `${code}_merge_rule_rejections`
   };
 }
 
@@ -1007,23 +1008,64 @@ class CustomerMergingAI {
   }
 
   /**
-   * Get all unique customers from database
+   * Get all unique customers from ALL relevant tables in the division database
+   * This includes: data_excel, sales_rep_budget, sales_rep_budget_draft
    */
   async getAllCustomers(division) {
-    const tableName = getDataExcelTable(division);
-    const divisionPool = getDivisionPool(extractDivisionCode(division).toUpperCase());
+    const code = extractDivisionCode(division);
+    const divisionPool = getDivisionPool(code.toUpperCase());
     
-    const query = `
-      SELECT DISTINCT customername
-      FROM ${tableName}
-      WHERE division = $1
-      AND customername IS NOT NULL
-      AND customername != ''
-      ORDER BY customername
-    `;
-
-    const result = await divisionPool.query(query, [division]);
-    return result.rows.map(row => row.customername);
+    // All tables that contain customer names
+    const tables = [
+      { name: `${code}_data_excel`, column: 'customername', divisionFilter: true },
+      { name: `${code}_sales_rep_budget`, column: 'customername', divisionFilter: true },
+      { name: `${code}_sales_rep_budget_draft`, column: 'customername', divisionFilter: true }
+    ];
+    
+    const allCustomers = new Set();
+    
+    for (const table of tables) {
+      try {
+        let query;
+        let params;
+        
+        if (table.divisionFilter) {
+          query = `
+            SELECT DISTINCT ${table.column}
+            FROM ${table.name}
+            WHERE division = $1
+            AND ${table.column} IS NOT NULL
+            AND TRIM(${table.column}) != ''
+          `;
+          params = [division];
+        } else {
+          query = `
+            SELECT DISTINCT ${table.column}
+            FROM ${table.name}
+            WHERE ${table.column} IS NOT NULL
+            AND TRIM(${table.column}) != ''
+          `;
+          params = [];
+        }
+        
+        const result = await divisionPool.query(query, params);
+        result.rows.forEach(row => {
+          if (row[table.column]) {
+            allCustomers.add(row[table.column]);
+          }
+        });
+        
+        logger.info(`   📊 Found ${result.rows.length} customers in ${table.name}`);
+      } catch (tableError) {
+        // Table might not exist, skip it
+        logger.warn(`   ⚠️ Could not query ${table.name}: ${tableError.message}`);
+      }
+    }
+    
+    const customerArray = Array.from(allCustomers).sort();
+    logger.info(`   📊 Total unique customers from all tables: ${customerArray.length}`);
+    
+    return customerArray;
   }
 
   /**
@@ -1032,13 +1074,16 @@ class CustomerMergingAI {
    */
   async getRejectedPairs(division) {
     try {
+      const divisionPool = getDivisionPool(extractDivisionCode(division).toUpperCase());
+      const tables = getTableNames(division);
+      
       const query = `
         SELECT LOWER(customer1) as c1, LOWER(customer2) as c2
-        FROM merge_rule_rejections
+        FROM ${tables.mergeRuleRejections}
         WHERE division = $1
       `;
 
-      const result = await this.pool.query(query, [division]);
+      const result = await divisionPool.query(query, [division]);
       const rejectedSet = new Set();
 
       result.rows.forEach(row => {

@@ -19,6 +19,9 @@ const ProtectedRoute = ({
 }) => {
   const { isAuthenticated, user, loading, hasRole, hasAccessToDivision } = useAuth();
 
+  // Debug logging
+  console.log('ProtectedRoute - loading:', loading, 'isAuthenticated:', isAuthenticated, 'user:', user ? user.email : 'null');
+
   // Show loading state while checking authentication
   if (loading) {
     return (

@@ -76,6 +76,7 @@ const validatePagination = [
  */
 const validateValuesType = query('values_type')
   .optional()
+  .customSanitizer(value => value ? value.toUpperCase() : value)
   .isIn(validValuesTypes).withMessage(`Values type must be one of: ${validValuesTypes.join(', ')}`);
 
 /**
@@ -83,6 +84,7 @@ const validateValuesType = query('values_type')
  */
 const validateType = query('type')
   .optional()
+  .customSanitizer(value => value ? value.toUpperCase() : value)
   .isIn(validTypes).withMessage(`Type must be one of: ${validTypes.join(', ')}`);
 
 /**

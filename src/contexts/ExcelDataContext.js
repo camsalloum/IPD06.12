@@ -15,34 +15,64 @@ export const ExcelDataProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const loadingRef = useRef(false);
+  const divisionsLoadedRef = useRef(false);
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-  // Load divisions from Settings API instead of Excel sheets
+  // Load divisions from Settings API AND user's default division preference
   useEffect(() => {
-    const loadDivisions = async () => {
+    const loadDivisionsAndDefault = async () => {
+      // Prevent duplicate loading
+      if (divisionsLoadedRef.current) return;
+      divisionsLoadedRef.current = true;
+      
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/settings/company`);
-        if (response.data.success && response.data.settings.divisions) {
-          const providedDivisions = response.data.settings.divisions;
-          const divisionCodes = providedDivisions
-            .map(d => d.code)
-            .filter(Boolean);
+        // 1. Load available divisions from company settings
+        const settingsResponse = await axios.get(`${API_BASE_URL}/api/settings/company`);
+        if (!settingsResponse.data.success || !settingsResponse.data.settings.divisions) {
+          console.error('Failed to load divisions from settings');
+          return;
+        }
+        
+        const providedDivisions = settingsResponse.data.settings.divisions;
+        const divisionCodes = providedDivisions
+          .map(d => d.code)
+          .filter(Boolean);
 
-          setDivisions(divisionCodes);
-          setDivisionMetadata(providedDivisions);
-          
-          // Set default division if none selected
-          if (!selectedDivision && divisionCodes.length > 0) {
-            setSelectedDivision(divisionCodes[0]);
+        setDivisions(divisionCodes);
+        setDivisionMetadata(providedDivisions);
+        
+        // 2. Try to load user's default division preference
+        let userDefaultDivision = null;
+        const token = localStorage.getItem('auth_token');
+        
+        if (token) {
+          try {
+            const prefsResponse = await axios.get(`${API_BASE_URL}/api/auth/preferences`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            if (prefsResponse.data.success && prefsResponse.data.preferences?.default_division) {
+              userDefaultDivision = prefsResponse.data.preferences.default_division;
+            }
+          } catch (prefError) {
+            console.log('Could not load user preferences, using first division');
           }
         }
+        
+        // 3. Set division: user's preference if valid, otherwise first available
+        if (userDefaultDivision && divisionCodes.includes(userDefaultDivision)) {
+          setSelectedDivision(userDefaultDivision);
+          console.log(`✅ Loaded user's default division: ${userDefaultDivision}`);
+        } else if (divisionCodes.length > 0) {
+          setSelectedDivision(divisionCodes[0]);
+          console.log(`✅ Using first available division: ${divisionCodes[0]}`);
+        }
       } catch (error) {
-        console.error('Error loading divisions from settings:', error);
+        console.error('Error loading divisions:', error);
       }
     };
     
-    loadDivisions();
-  }, []);
+    loadDivisionsAndDefault();
+  }, [API_BASE_URL]);
   
   // Function to load Excel file for a specific division
   const loadExcelData = useCallback(async (division = null) => {

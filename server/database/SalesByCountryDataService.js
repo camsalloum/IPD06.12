@@ -1,8 +1,27 @@
 const { pool } = require('./config');
+const { getDivisionPool } = require('../utils/divisionDatabaseManager');
 const logger = require('../utils/logger');
 
 class SalesByCountryDataService {
   
+  /**
+   * Get the appropriate database pool for a division
+   */
+  static getPool(division) {
+    if (!division || division.toUpperCase() === 'FP') {
+      return pool;
+    }
+    return getDivisionPool(division.toUpperCase());
+  }
+
+  /**
+   * Get table name for a division
+   */
+  static getTableName(division) {
+    const div = (division || 'FP').toUpperCase();
+    return `${div.toLowerCase()}_data_excel`;
+  }
+
   // Month mapping for period handling
   static monthMapping = {
     'January': 1, 'February': 2, 'March': 3, 'April': 4,
@@ -49,12 +68,15 @@ class SalesByCountryDataService {
    */
   static async getCountriesByDivision(division) {
     try {
+      const divisionPool = this.getPool(division);
+      const tableName = this.getTableName(division);
+      
       const query = `
         SELECT DISTINCT countryname, 
                COUNT(*) as record_count,
                SUM(CASE WHEN values_type = 'KGS' THEN values ELSE 0 END) as total_kgs,
                SUM(CASE WHEN values_type = 'Amount' THEN values ELSE 0 END) as total_amount
-        FROM fp_data_excel 
+        FROM ${tableName} 
         WHERE countryname IS NOT NULL 
         AND TRIM(countryname) != '' 
         AND countryname != '(blank)'
@@ -62,7 +84,7 @@ class SalesByCountryDataService {
         ORDER BY total_kgs DESC, countryname ASC
       `;
       
-      const result = await pool.query(query);
+      const result = await divisionPool.query(query);
       return result.rows.map(row => ({
         country: row.countryname,
         recordCount: parseInt(row.record_count),
@@ -80,6 +102,9 @@ class SalesByCountryDataService {
    */
   static async getSalesByCountry(division, salesRep, year, months, dataType = 'Actual', groupMembers = null) {
     try {
+      const divisionPool = this.getPool(division);
+      const tableName = this.getTableName(division);
+      
       let query, params;
       // Support both string and array for months
       const monthsArray = Array.isArray(months) ? months : [months];
@@ -99,7 +124,7 @@ class SalesByCountryDataService {
         
         query = `
           SELECT countryname, SUM(values) as total_value 
-          FROM fp_data_excel 
+          FROM ${tableName} 
           WHERE salesrepname IN (${placeholders}) 
           AND year = $${groupMembers.length + 1}
           AND month IN (${monthPlaceholders})
@@ -122,7 +147,7 @@ class SalesByCountryDataService {
         
         query = `
           SELECT countryname, SUM(values) as total_value 
-          FROM fp_data_excel 
+          FROM ${tableName} 
           WHERE salesrepname = $1 
           AND year = $2
           AND month IN (${monthPlaceholders})
@@ -137,7 +162,7 @@ class SalesByCountryDataService {
           : [salesRep, year, ...monthsArray, dataType];
       }
       
-      const result = await pool.query(query, params);
+      const result = await divisionPool.query(query, params);
       return result.rows.map(row => ({
         country: row.countryname,
         value: parseFloat(row.total_value || 0)
@@ -153,6 +178,9 @@ class SalesByCountryDataService {
    */
   static async getCountriesBySalesRep(division, salesRep, groupMembers = null) {
     try {
+      const divisionPool = this.getPool(division);
+      const tableName = this.getTableName(division);
+      
       let query, params;
       
       if (groupMembers && groupMembers.length > 0) {
@@ -164,7 +192,7 @@ class SalesByCountryDataService {
                  SUM(CASE WHEN values_type = 'KGS' THEN values ELSE 0 END) as total_kgs,
                  SUM(CASE WHEN values_type = 'Amount' THEN values ELSE 0 END) as total_amount,
                  COUNT(*) as record_count
-          FROM fp_data_excel 
+          FROM ${tableName} 
           WHERE salesrepname IN (${placeholders}) 
           AND countryname IS NOT NULL 
           AND TRIM(countryname) != '' 
@@ -181,7 +209,7 @@ class SalesByCountryDataService {
                  SUM(CASE WHEN values_type = 'KGS' THEN values ELSE 0 END) as total_kgs,
                  SUM(CASE WHEN values_type = 'Amount' THEN values ELSE 0 END) as total_amount,
                  COUNT(*) as record_count
-          FROM fp_data_excel 
+          FROM ${tableName} 
           WHERE salesrepname = $1 
           AND countryname IS NOT NULL 
           AND TRIM(countryname) != '' 
@@ -193,7 +221,7 @@ class SalesByCountryDataService {
         params = [salesRep];
       }
       
-      const result = await pool.query(query, params);
+      const result = await divisionPool.query(query, params);
       return result.rows.map(row => ({
         country: row.countryname,
         totalKgs: parseFloat(row.total_kgs || 0),
@@ -211,12 +239,15 @@ class SalesByCountryDataService {
    */
   static async getCountrySalesData(division, country, year, months, dataType = 'Actual', valueType = 'KGS') {
     try {
+      const divisionPool = this.getPool(division);
+      const tableName = this.getTableName(division);
+      
       const monthsArray = Array.isArray(months) ? months : [months];
       const monthPlaceholders = monthsArray.map((_, idx) => `$${4 + idx}`).join(', ');
       
       const query = `
         SELECT SUM(values) as total_value 
-        FROM fp_data_excel 
+        FROM ${tableName} 
         WHERE countryname = $1 
         AND year = $2
         AND month IN (${monthPlaceholders})
@@ -227,7 +258,7 @@ class SalesByCountryDataService {
       `;
       
       const params = [country, year, ...monthsArray, dataType, valueType];
-      const result = await pool.query(query, params);
+      const result = await divisionPool.query(query, params);
       
       return parseFloat(result.rows[0]?.total_value || 0);
     } catch (error) {
@@ -239,18 +270,21 @@ class SalesByCountryDataService {
   /**
    * Get all unique countries from database
    */
-  static async getAllCountries() {
+  static async getAllCountries(division = 'FP') {
     try {
+      const divisionPool = this.getPool(division);
+      const tableName = this.getTableName(division);
+      
       const query = `
         SELECT DISTINCT countryname 
-        FROM fp_data_excel 
+        FROM ${tableName} 
         WHERE countryname IS NOT NULL 
         AND TRIM(countryname) != ''
         AND countryname != '(blank)'
         ORDER BY countryname
       `;
       
-      const result = await pool.query(query);
+      const result = await divisionPool.query(query);
       return result.rows.map(row => row.countryname);
     } catch (error) {
       logger.error('Error fetching all countries:', error);

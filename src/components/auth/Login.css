@@ -128,7 +128,7 @@
   background: rgba(255, 255, 255, 0.95);
   border-radius: 24px;
   box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 25px 50px -12px var(--color-shadow),
     0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   overflow: hidden;
@@ -146,7 +146,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background: var(--color-surface);
 }
 
 .form-container form {
@@ -182,7 +182,7 @@
 .logo-container h1 {
   font-size: 24px;
   font-weight: 700;
-  background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, var(--color-text) 0%, var(--color-primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -193,12 +193,12 @@
 .form-container h2 {
   font-size: 28px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--color-text);
   margin: 0 0 8px 0;
 }
 
 .form-container .subtitle {
-  color: #64748b;
+  color: var(--color-textSecondary);
   font-size: 14px;
   margin: 0 0 24px 0;
 }
@@ -208,12 +208,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-  border: 1px solid #fecaca;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.15) 100%);
+  border: 1px solid var(--color-error);
   border-radius: 12px;
   padding: 12px 16px;
   margin-bottom: 20px;
-  color: #dc2626;
+  color: var(--color-error);
   font-size: 14px;
   font-weight: 500;
 }
@@ -235,24 +235,24 @@
   width: 100%;
   padding: 16px 16px 16px 48px;
   font-size: 15px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--color-border);
   border-radius: 12px;
-  background: #f8fafc;
-  color: #1e293b;
+  background: var(--color-background);
+  color: var(--color-text);
   outline: none;
   transition: all 0.3s ease;
 }
 
 .input-group input:focus {
-  border-color: #3b82f6;
-  background: white;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .input-group.focused input,
 .input-group.has-value input {
-  border-color: #3b82f6;
-  background: white;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
 }
 
 /* Floating Label */
@@ -261,7 +261,7 @@
   left: 48px;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: var(--color-textMuted);
   font-size: 15px;
   pointer-events: none;
   transition: all 0.3s ease;
@@ -274,9 +274,9 @@
   top: 0;
   left: 12px;
   font-size: 12px;
-  color: #3b82f6;
+  color: var(--color-primary);
   font-weight: 600;
-  background: white;
+  background: var(--color-surface);
 }
 
 /* Input Icon */
@@ -285,7 +285,7 @@
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: var(--color-textMuted);
   transition: color 0.3s ease;
   z-index: 1;
 }
@@ -297,7 +297,7 @@
 
 .input-group.focused .input-icon,
 .input-group.has-value .input-icon {
-  color: #3b82f6;
+  color: var(--color-primary);
 }
 
 /* Password Toggle */
@@ -308,7 +308,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #94a3b8;
+  color: var(--color-textMuted);
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -318,7 +318,7 @@
 }
 
 .toggle-password:hover {
-  color: #3b82f6;
+  color: var(--color-primary);
 }
 
 .toggle-password svg {
@@ -353,7 +353,7 @@
   font-size: 16px;
   font-weight: 600;
   color: white;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--color-gradient);
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -362,7 +362,7 @@
   justify-content: center;
   gap: 10px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 15px var(--color-shadow);
   position: relative;
   overflow: hidden;
 }
@@ -428,19 +428,19 @@
 .contact-admin {
   text-align: center;
   margin-top: 24px;
-  color: #64748b;
+  color: var(--color-textSecondary);
   font-size: 14px;
 }
 
 .contact-admin span {
-  color: #3b82f6;
+  color: var(--color-primary);
   font-weight: 500;
   cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .contact-admin span:hover {
-  color: #2563eb;
+  color: var(--color-primaryHover);
   text-decoration: underline;
 }
 
@@ -645,41 +645,4 @@
   }
 }
 
-/* ========================================
-   DARK MODE SUPPORT
-   ======================================== */
-
-@media (prefers-color-scheme: dark) {
-  .form-container {
-    background: #1e293b;
-  }
-
-  .form-container h2 {
-    color: #f1f5f9;
-  }
-
-  .form-container .subtitle {
-    color: #94a3b8;
-  }
-
-  .input-group input {
-    background: #0f172a;
-    border-color: #334155;
-    color: #f1f5f9;
-  }
-
-  .input-group input:focus {
-    background: #1e293b;
-    border-color: #60a5fa;
-  }
-
-  .input-group.focused label,
-  .input-group.has-value label {
-    background: #1e293b;
-    color: #60a5fa;
-  }
-
-  .login-container-new {
-    background: rgba(30, 41, 59, 0.95);
-  }
-}
+/* Theme support is handled by CSS variables from ThemeContext */

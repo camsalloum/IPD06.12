@@ -42,7 +42,7 @@ router.post('/geographic-distribution', async (req, res) => {
       });
     }
     
-    const geographicService = new GeographicDistributionService();
+    const geographicService = new GeographicDistributionService(division);
     const data = await geographicService.getGeographicDistributionData({
       division,
       year: yearNumber,

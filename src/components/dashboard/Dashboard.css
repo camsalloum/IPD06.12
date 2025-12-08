@@ -115,13 +115,7 @@
 
 /* New Bottom Report Section Styles */
 .report-bottom-section {
-  background: linear-gradient(135deg, 
-    #0066cc 0%,     /* Logo blue */
-    #3399ff 25%,    /* Bright blue */
-    #66c2ff 50%,    /* Medium blue */
-    #99d6ff 75%,    /* Light blue */
-    #cce6ff 100%    /* Very light blue */
-  );
+  background: var(--color-gradient);
   margin-top: 60px;
   padding: 80px 20px;
   position: relative;
@@ -137,7 +131,7 @@
   height: 2px;
   background: linear-gradient(90deg, 
     transparent 0%,
-    rgba(255, 255, 255, 0.5) 50%,
+    var(--color-overlay) 50%,
     transparent 100%
   );
 }
@@ -164,14 +158,14 @@
 .report-logo-svg {
   width: 90px;
   height: 45px;
-  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 8px 24px var(--color-shadow));
 }
 
 .report-title {
   font-size: 2.2rem;
   font-weight: 300;
   margin-bottom: 10px;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 4px 12px var(--color-shadow);
   letter-spacing: 2px;
   color: white;
 }
@@ -191,22 +185,22 @@
 }
 
 .report-feature-card {
-  background: rgba(255,255,255,0.13);
+  background: var(--color-overlay);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid var(--color-overlay);
   border-radius: 12px;
   padding: 18px 10px;
   text-align: center;
   transition: box-shadow 0.2s, transform 0.2s;
   color: white;
   font-size: 0.92rem;
-  box-shadow: 0 2px 12px rgba(0, 102, 204, 0.10), 0 1.5px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 12px var(--color-shadow);
 }
 
 .report-feature-card:hover {
   transform: translateY(-3px) scale(1.03);
-  background: rgba(255,255,255,0.18);
-  box-shadow: 0 8px 32px rgba(0, 102, 204, 0.18), 0 2px 8px rgba(0,0,0,0.10);
+  background: var(--color-overlay);
+  box-shadow: 0 8px 32px var(--color-shadow);
 }
 
 .report-feature-card .feature-icon {
@@ -253,37 +247,37 @@
   width: 100%;
   min-height: 120px;
   padding: 5px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 2px var(--color-shadow);
 }
 
 .dashboard-tabs {
   margin-top: 20px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   overflow: hidden;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px var(--color-shadow);
 }
 
 .loading, .error {
   padding: 40px 20px;
   text-align: center;
   font-size: 18px;
-  background: white;
+  background: var(--color-surface);
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--color-shadow);
 }
 
 .error {
-  color: #d32f2f;
-  border-left: 4px solid #d32f2f;
+  color: var(--color-error);
+  border-left: 4px solid var(--color-error);
 }
 
 .loading {
-  color: #1976d2;
-  border-left: 4px solid #1976d2;
+  color: var(--color-primary);
+  border-left: 4px solid var(--color-primary);
 }
 /* Responsive Dashboard Header */
 @media (max-width: 768px) {
@@ -316,13 +310,13 @@
 .dashboard-home-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--color-text);
   margin: 0 0 8px 0;
 }
 
 .dashboard-home-subtitle {
   font-size: 1.1rem;
-  color: #718096;
+  color: var(--color-textSecondary);
   margin: 0 0 40px 0;
 }
 
@@ -335,26 +329,26 @@
 }
 
 .dashboard-home-card {
-  background: linear-gradient(145deg, #ffffff 0%, #f7fafc 100%);
+  background: var(--color-cardGradient);
   border-radius: 16px;
   padding: 32px 24px;
   text-align: center;
   cursor: pointer;
-  border: 2px solid #e2e8f0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 2px solid var(--color-border);
+  box-shadow: 0 4px 20px var(--color-shadow);
   transition: all 0.3s ease;
 }
 
 .dashboard-home-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  border-color: #4a7fc7;
+  box-shadow: 0 12px 40px var(--color-shadow);
+  border-color: var(--color-primary);
 }
 
 .dashboard-home-card:focus {
   outline: none;
-  border-color: #4a7fc7;
-  box-shadow: 0 0 0 4px rgba(74, 127, 199, 0.2);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primaryLight);
 }
 
 .dashboard-home-card-icon {
@@ -366,13 +360,13 @@
 .dashboard-home-card-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--color-text);
   margin: 0 0 12px 0;
 }
 
 .dashboard-home-card-description {
   font-size: 0.9rem;
-  color: #718096;
+  color: var(--color-textSecondary);
   line-height: 1.5;
   margin: 0;
 }
@@ -394,21 +388,21 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #0d1f3d 0%, #1a3a6e 50%, #2d5a9e 100%);
+  background: var(--color-gradient);
   color: white;
   border: none;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(13, 31, 61, 0.4);
+  box-shadow: 0 4px 20px var(--color-shadow);
   transition: all 0.2s ease;
   margin-bottom: 16px;
 }
 
 .dashboard-floating-back-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(13, 31, 61, 0.5);
+  box-shadow: 0 6px 25px var(--color-shadow);
 }
 
 .dashboard-floating-back-btn:active {

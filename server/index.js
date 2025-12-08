@@ -15,6 +15,7 @@ const GlobalConfigService = require('./database/GlobalConfigService');
 const { testConnection } = require('./config/database');
 const { syncAllTablesToAllDivisions } = require('./utils/divisionDatabaseManager');
 const { initRedis } = require('./middleware/cache');
+const { migrateUserSessions } = require('./migrations/add-last-activity-to-sessions');
 
 // Environment configuration
 const PORT = process.env.PORT || 3001;
@@ -52,8 +53,8 @@ const startServer = async () => {
     // Initialize global configuration
     logger.info('Loading global configuration...');
     try {
-      await GlobalConfigService.initialize();
-      const standardConfig = await GlobalConfigService.getAll();
+      const globalConfigService = new GlobalConfigService();
+      const standardConfig = await globalConfigService.getAllConfigs();
       logger.info('✅ Global configuration loaded', { 
         configKeys: Object.keys(standardConfig).length 
       });
@@ -67,6 +68,15 @@ const startServer = async () => {
     
     if (dbConnected) {
       logger.database('✅ Database connection successful');
+      
+      // Run auth database migrations
+      logger.info('Running auth database migrations...');
+      try {
+        await migrateUserSessions();
+        logger.info('✅ Auth database migrations complete');
+      } catch (migrationError) {
+        logger.warn('Auth migration warning', { error: migrationError.message });
+      }
       
       // Sync tables across all divisions (ensures HC has same tables as FP)
       logger.database('Synchronizing division tables...');

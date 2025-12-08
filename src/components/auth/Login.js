@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, loading, error, isAuthenticated } = useAuth();
+  const { loadThemeFromServer } = useTheme();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -43,6 +45,8 @@ const Login = () => {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
+      // Load user's theme preference from server after login
+      await loadThemeFromServer();
       navigate('/dashboard', { replace: true });
     } else {
       setLocalError(result.error);

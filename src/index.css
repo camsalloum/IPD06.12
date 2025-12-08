@@ -1,14 +1,41 @@
+/* Default theme CSS variables - will be overridden by ThemeContext */
+:root {
+  --color-primary: #3b82f6;
+  --color-primaryHover: #2563eb;
+  --color-primaryLight: #dbeafe;
+  --color-secondary: #64748b;
+  --color-accent: #0ea5e9;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surfaceHover: #f1f5f9;
+  --color-text: #1e293b;
+  --color-textSecondary: #64748b;
+  --color-textMuted: #94a3b8;
+  --color-border: #e2e8f0;
+  --color-borderLight: #f1f5f9;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-gradient: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  --color-tabActive: #3b82f6;
+  --color-tabBg: #f1f5f9;
+  --color-overlay: rgba(255, 255, 255, 0.15);
+  --color-cardGradient: linear-gradient(145deg, #ffffff 0%, #f7fafc 100%);
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  color: black;
-  background-color: white;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 code {
   font-family: 'Courier New', monospace;
-  color: black;
-  background-color: #f5f5f5;
+  color: var(--color-text);
+  background-color: var(--color-surfaceHover);
   padding: 2px 4px;
   border-radius: 3px;
 }

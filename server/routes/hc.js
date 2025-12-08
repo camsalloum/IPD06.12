@@ -47,7 +47,7 @@ router.get('/master-data/product-pricing', async (req, res) => {
 router.get('/master-data/product-pricing-rounded', async (req, res) => {
   try {
     const { year } = req.query;
-    const roundedPricing = await productPricingRoundingService.getRoundedPricing('HC', year);
+    const roundedPricing = await productPricingRoundingService.getRoundedPrices('HC', year);
     res.json({ success: true, data: roundedPricing });
   } catch (error) {
     logger.error('Error fetching HC rounded pricing', { error: error.message });
@@ -64,7 +64,7 @@ router.post('/master-data/product-pricing-rounded', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Year and rounded data are required' });
     }
     
-    await productPricingRoundingService.saveRoundedPricing('HC', year, roundedData);
+    await productPricingRoundingService.saveRoundedPrices('HC', year, roundedData);
     logger.info('HC rounded pricing saved', { year });
     
     res.json({ success: true, message: 'Rounded pricing saved successfully' });

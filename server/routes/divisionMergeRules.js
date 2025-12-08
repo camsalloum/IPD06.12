@@ -37,6 +37,7 @@ function getTableNames(division) {
     divisionMergeRules: `${code}_division_customer_merge_rules`,
     mergeRuleSuggestions: `${code}_merge_rule_suggestions`,
     mergeRuleNotifications: `${code}_merge_rule_notifications`,
+    mergeRuleRejections: `${code}_merge_rule_rejections`,
     dataExcel: `${code}_data_excel`
   };
 }
@@ -285,24 +286,81 @@ router.post('/suggestions/:id/reject', async (req, res) => {
 
     const divisionPool = getPoolForDivision(division);
     const tables = getTableNames(division);
+    const client = await divisionPool.connect();
 
-    await divisionPool.query(`
-      UPDATE ${tables.mergeRuleSuggestions}
-      SET
-        admin_action = 'REJECTED',
-        reviewed_at = CURRENT_TIMESTAMP,
-        reviewed_by = $1,
-        feedback_notes = $2,
-        was_correct = false
-      WHERE id = $3
-    `, [rejectedBy || 'Admin', reason || '', id]);
+    try {
+      await client.query('BEGIN');
 
-    logger.info(`❌ Suggestion #${id} rejected`);
+      // Get the suggestion to extract customer pairs for feedback loop
+      const suggestionResult = await client.query(
+        `SELECT * FROM ${tables.mergeRuleSuggestions} WHERE id = $1`,
+        [id]
+      );
 
-    res.json({
-      success: true,
-      message: 'Suggestion rejected'
-    });
+      if (suggestionResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({
+          success: false,
+          error: 'Suggestion not found'
+        });
+      }
+
+      const suggestion = suggestionResult.rows[0];
+      const customers = suggestion.customer_group;
+
+      // Update suggestion status
+      await client.query(`
+        UPDATE ${tables.mergeRuleSuggestions}
+        SET
+          admin_action = 'REJECTED',
+          reviewed_at = CURRENT_TIMESTAMP,
+          reviewed_by = $1,
+          feedback_notes = $2,
+          was_correct = false
+        WHERE id = $3
+      `, [rejectedBy || 'Admin', reason || '', id]);
+
+      // Save rejected customer pairs to feedback loop table
+      // This prevents the AI from suggesting these pairs again
+      if (Array.isArray(customers) && customers.length >= 2) {
+        for (let i = 0; i < customers.length; i++) {
+          for (let j = i + 1; j < customers.length; j++) {
+            try {
+              await client.query(`
+                INSERT INTO ${tables.mergeRuleRejections} (
+                  division, customer1, customer2, confidence_score, rejection_reason, rejected_by
+                ) VALUES ($1, $2, $3, $4, $5, $6)
+                ON CONFLICT DO NOTHING
+              `, [
+                division,
+                customers[i].toLowerCase(),
+                customers[j].toLowerCase(),
+                suggestion.confidence_score || 0,
+                reason || '',
+                rejectedBy || 'Admin'
+              ]);
+            } catch (insertError) {
+              // Table might not exist, log but continue
+              logger.warn('Could not save rejection pair:', insertError.message);
+            }
+          }
+        }
+      }
+
+      await client.query('COMMIT');
+
+      logger.info(`❌ Suggestion #${id} rejected (${customers.length} customers, feedback saved)`);
+
+      res.json({
+        success: true,
+        message: 'Suggestion rejected'
+      });
+    } catch (innerError) {
+      await client.query('ROLLBACK');
+      throw innerError;
+    } finally {
+      client.release();
+    }
 
   } catch (error) {
     logger.error('Error rejecting suggestion:', error);

@@ -24,6 +24,8 @@
   --color-gradient: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
   --color-tabActive: #3b82f6;
   --color-tabBg: #f1f5f9;
+  --color-overlay: rgba(255, 255, 255, 0.15);
+  --color-cardGradient: linear-gradient(145deg, #ffffff 0%, #f7fafc 100%);
   
   /* Animation & Transition */
   --transition-fast: 0.15s ease;

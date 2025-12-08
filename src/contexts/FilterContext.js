@@ -259,7 +259,7 @@ export const FilterProvider = ({ children }) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               key: 'standardColumnSelection',
-              data: columnOrder
+              value: columnOrder
             })
           }),
           // Only save base period if it's set
@@ -268,7 +268,7 @@ export const FilterProvider = ({ children }) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               key: 'basePeriodIndex',
-              data: basePeriodIndex
+              value: basePeriodIndex
             })
           }) : Promise.resolve({ ok: true })
         ]);
@@ -348,7 +348,7 @@ export const FilterProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           key: 'basePeriodIndex',
-          data: index
+          value: index
         })
       });
       // console.log('Base period saved to backend');
@@ -529,7 +529,7 @@ export const FilterProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           key: 'chartVisibleColumns',
-          data: visibility
+          value: visibility
         })
       });
     } catch (error) {

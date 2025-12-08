@@ -45,7 +45,7 @@ router.get('/master-data/product-groups', async (req, res) => {
 // GET /master-data/product-pricing-years - Get available pricing years
 router.get('/master-data/product-pricing-years', async (req, res) => {
   try {
-    const years = await fpDataService.getProductPricingYears();
+    const years = await fpDataService.getProductGroupPricingYears();
     res.json({ success: true, data: years });
   } catch (error) {
     logger.error('Error fetching FP pricing years', { error: error.message });
@@ -57,7 +57,7 @@ router.get('/master-data/product-pricing-years', async (req, res) => {
 router.get('/master-data/product-pricing', async (req, res) => {
   try {
     const { year } = req.query;
-    const pricing = await fpDataService.getProductPricing(year);
+    const pricing = await fpDataService.getProductGroupPricingAverages(year);
     res.json({ success: true, data: pricing });
   } catch (error) {
     logger.error('Error fetching FP product pricing', { error: error.message });
@@ -69,7 +69,7 @@ router.get('/master-data/product-pricing', async (req, res) => {
 router.get('/master-data/product-pricing-rounded', async (req, res) => {
   try {
     const { year } = req.query;
-    const roundedPricing = await productPricingRoundingService.getRoundedPricing('FP', year);
+    const roundedPricing = await productPricingRoundingService.getRoundedPrices('FP', year);
     res.json({ success: true, data: roundedPricing });
   } catch (error) {
     logger.error('Error fetching FP rounded pricing', { error: error.message });
@@ -86,7 +86,7 @@ router.post('/master-data/product-pricing-rounded', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Year and rounded data are required' });
     }
     
-    await productPricingRoundingService.saveRoundedPricing('FP', year, roundedData);
+    await productPricingRoundingService.saveRoundedPrices('FP', year, roundedData);
     logger.info('FP rounded pricing saved', { year });
     
     res.json({ success: true, message: 'Rounded pricing saved successfully' });

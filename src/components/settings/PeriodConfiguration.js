@@ -84,22 +84,61 @@ const PeriodConfiguration = () => {
     }
   };
 
-  // Move a column left in the order
-  const moveLeft = (index) => {
-    if (index > 0) {
-      const newOrder = [...columnOrder];
-      [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
-      updateColumnOrder(newOrder);
+  // Native HTML5 drag-and-drop state
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
+
+  // Native HTML5 drag-and-drop handlers
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', index);
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
     }
   };
-  
-  // Move a column right in the order
-  const moveRight = (index) => {
-    if (index < columnOrder.length - 1) {
-      const newOrder = [...columnOrder];
-      [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
-      updateColumnOrder(newOrder);
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
+    const sourceIndex = draggedIndex;
+    if (sourceIndex === null || sourceIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
     }
+    
+    const newOrder = Array.from(columnOrder);
+    const [removed] = newOrder.splice(sourceIndex, 1);
+    newOrder.splice(dropIndex, 0, removed);
+    updateColumnOrder(newOrder);
+    
+    // Update selectedColumnIndex if needed
+    if (selectedColumnIndex !== null) {
+      if (sourceIndex === selectedColumnIndex) {
+        setSelectedColumnIndex(dropIndex);
+      } else if (sourceIndex < selectedColumnIndex && dropIndex >= selectedColumnIndex) {
+        setSelectedColumnIndex(selectedColumnIndex - 1);
+      } else if (sourceIndex > selectedColumnIndex && dropIndex <= selectedColumnIndex) {
+        setSelectedColumnIndex(selectedColumnIndex + 1);
+      }
+    }
+    
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
   
   const selectedColumn = useMemo(() => (
@@ -308,12 +347,6 @@ const PeriodConfiguration = () => {
           
           {selectedColumnIndex !== null && (
             <div className="column-actions">
-              <button onClick={() => moveLeft(selectedColumnIndex)} disabled={selectedColumnIndex === 0}>
-                ← Move Left
-              </button>
-              <button onClick={() => moveRight(selectedColumnIndex)} disabled={selectedColumnIndex === columnOrder.length - 1}>
-                Move Right →
-              </button>
               <button onClick={handleRemoveColumn} className="remove-btn">
                 Remove
               </button>
@@ -362,14 +395,27 @@ const PeriodConfiguration = () => {
         <div className="config-grid">
           {columnOrder.length > 0 ? (
             <>
-              {/* Columns Display */}
-              <div className="columns-display-section">
+              <div
+                className="columns-display-section"
+                style={{ display: 'flex', flexDirection: 'column', gap: 0 }}
+              >
                 <div className="config-row year-row">
                   {columnOrder.map((column, index) => (
-                    <div 
-                      key={`year-${index}`} 
-                      className={`config-column ${selectedColumnIndex === index ? 'selected' : ''}`}
-                      style={getColumnStyle(column, selectedColumnIndex === index)}
+                    <div
+                      key={column.id || index}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      className={`config-column ${selectedColumnIndex === index ? 'selected' : ''} ${dragOverIndex === index ? 'drag-over' : ''} ${draggedIndex === index ? 'dragging' : ''}`}
+                      style={{
+                        ...getColumnStyle(column, selectedColumnIndex === index),
+                        cursor: 'grab',
+                        opacity: draggedIndex === index ? 0.5 : 1,
+                        border: dragOverIndex === index ? '2px dashed #007bff' : undefined
+                      }}
                       onClick={() => handleColumnClick(index)}
                     >
                       {column.year}
@@ -378,8 +424,8 @@ const PeriodConfiguration = () => {
                 </div>
                 <div className="config-row period-row">
                   {columnOrder.map((column, index) => (
-                    <div 
-                      key={`period-${index}`} 
+                    <div
+                      key={`period-${index}`}
                       className={`config-column ${selectedColumnIndex === index ? 'selected' : ''}`}
                       style={getColumnStyle(column, selectedColumnIndex === index)}
                       onClick={() => handleColumnClick(index)}
@@ -390,8 +436,8 @@ const PeriodConfiguration = () => {
                 </div>
                 <div className="config-row type-row">
                   {columnOrder.map((column, index) => (
-                    <div 
-                      key={`type-${index}`} 
+                    <div
+                      key={`type-${index}`}
                       className={`config-column ${selectedColumnIndex === index ? 'selected' : ''}`}
                       style={getColumnStyle(column, selectedColumnIndex === index)}
                       onClick={() => handleColumnClick(index)}

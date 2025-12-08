@@ -9,7 +9,10 @@ const { authPool, pool } = require('../database/config');
 const { 
   createDivisionDatabase, 
   deleteDivisionDatabase, 
-  divisionDatabaseExists 
+  divisionDatabaseExists,
+  backupDivisionBeforeDelete,
+  listDivisionBackups,
+  restoreDivisionFromBackup
 } = require('../utils/divisionDatabaseManager');
 
 // Configure multer for logo upload
@@ -258,9 +261,34 @@ router.post('/divisions', authenticate, requireRole('admin'), async (req, res) =
 
     await client.query('BEGIN');
 
-    // Handle deleted divisions - CASCADE DELETE
+    // Track backup results
+    const backupResults = [];
+
+    // Handle deleted divisions - BACKUP FIRST, then CASCADE DELETE
     for (const code of deletedCodes) {
-      logger.info(`Cascading delete for division: ${code}`);
+      logger.info(`Processing deletion for division: ${code}`);
+      
+      // 0. BACKUP EVERYTHING BEFORE DELETE
+      try {
+        logger.info(`📦 Creating backup for division ${code} before deletion...`);
+        const backupResult = await backupDivisionBeforeDelete(code);
+        backupResults.push({
+          division: code,
+          success: true,
+          backupPath: backupResult.backupPath,
+          tables: backupResult.tables,
+          permissions: backupResult.permissions
+        });
+        logger.info(`✅ Backup complete for ${code}: ${backupResult.backupPath}`);
+      } catch (backupError) {
+        logger.error(`⚠️ Backup failed for ${code}: ${backupError.message}`);
+        backupResults.push({
+          division: code,
+          success: false,
+          error: backupError.message
+        });
+        // Continue with deletion even if backup fails (but log the warning)
+      }
       
       // 1. Remove from user_divisions
       await client.query(
@@ -320,13 +348,22 @@ router.post('/divisions', authenticate, requireRole('admin'), async (req, res) =
 
     await client.query('COMMIT');
 
-    res.json({
+    // Build response with backup information
+    const response = {
       success: true,
       message: 'Divisions updated successfully',
       divisions,
       deleted: deletedCodes,
       added: addedDivisions.map(d => d.code)
-    });
+    };
+
+    // Include backup info if any divisions were deleted
+    if (backupResults.length > 0) {
+      response.backups = backupResults;
+      response.message = `Divisions updated. ${backupResults.filter(b => b.success).length} backup(s) created before deletion.`;
+    }
+
+    res.json(response);
   } catch (error) {
     await client.query('ROLLBACK');
     logger.error('Update divisions error:', error);
@@ -403,6 +440,99 @@ router.get('/company-logo', async (req, res) => {
     });
   } catch (error) {
     logger.error('Get logo error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/settings/division-backups
+ * List available division backups (Admin only)
+ */
+router.get('/division-backups', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const backups = await listDivisionBackups();
+    
+    res.json({
+      success: true,
+      backups,
+      count: backups.length
+    });
+  } catch (error) {
+    logger.error('List backups error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/settings/restore-division
+ * Restore a division from backup (Admin only)
+ */
+router.post('/restore-division', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const { backupFolder, newCode, newName } = req.body;
+    
+    if (!backupFolder) {
+      return res.status(400).json({ error: 'Backup folder is required' });
+    }
+    
+    // Validate new code if provided
+    if (newCode && !/^[A-Z]{2,4}$/.test(newCode)) {
+      return res.status(400).json({ 
+        error: 'Invalid division code. Must be 2-4 uppercase letters.' 
+      });
+    }
+    
+    logger.info(`Restoring division from backup: ${backupFolder}`);
+    
+    const result = await restoreDivisionFromBackup(backupFolder, newCode, newName);
+    
+    if (!result.success) {
+      return res.status(400).json({
+        error: result.errors[0]?.error || 'Restore failed',
+        errors: result.errors
+      });
+    }
+    
+    // Add to company_settings divisions list
+    const client = await authPool.connect();
+    try {
+      const settingsResult = await client.query(
+        'SELECT setting_value FROM company_settings WHERE setting_key = $1',
+        ['divisions']
+      );
+      
+      let divisions = [];
+      if (settingsResult.rows.length > 0 && settingsResult.rows[0].setting_value) {
+        divisions = settingsResult.rows[0].setting_value;
+      }
+      
+      // Check if division already in list
+      const existingIdx = divisions.findIndex(d => d.code === result.divisionCode);
+      if (existingIdx === -1) {
+        divisions.push({
+          code: result.divisionCode,
+          name: result.divisionName
+        });
+        
+        await client.query(
+          `INSERT INTO company_settings (setting_key, setting_value, updated_by)
+           VALUES ('divisions', $1, $2)
+           ON CONFLICT (setting_key)
+           DO UPDATE SET setting_value = $1, updated_by = $2, updated_at = NOW()`,
+          [JSON.stringify(divisions), req.user.userId]
+        );
+      }
+    } finally {
+      client.release();
+    }
+    
+    res.json({
+      success: true,
+      message: `Division ${result.divisionCode} restored successfully`,
+      result
+    });
+  } catch (error) {
+    logger.error('Restore division error:', error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -99,7 +99,9 @@ router.get('/sales-reps-universal', async (req, res) => {
       ORDER BY salesrepname
     `);
     
-    res.json({ success: true, data: result.rows });
+    // Return just the names as an array of strings
+    const salesRepNames = result.rows.map(row => row.salesrepname);
+    res.json({ success: true, data: salesRepNames });
   } catch (error) {
     logger.error('Error fetching universal sales reps', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to fetch sales reps' });

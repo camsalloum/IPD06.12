@@ -1,7 +1,19 @@
 const { pool } = require('./config');
+const { getDivisionPool } = require('../utils/divisionDatabaseManager');
 const logger = require('../utils/logger');
 
 class UniversalSalesByCountryService {
+  
+  /**
+   * Get the appropriate database pool for a division
+   * Uses division-specific pool for HC, TF, etc., and default pool for FP
+   */
+  static getPool(division) {
+    if (!division || division.toUpperCase() === 'FP') {
+      return pool; // Use default FP pool for backwards compatibility
+    }
+    return getDivisionPool(division.toUpperCase());
+  }
   
   // Utility function to convert names to proper case
   static toProperCase(str) {
@@ -93,7 +105,8 @@ class UniversalSalesByCountryService {
         
         logger.info(`🚀 Querying ${column.columnKey}: year=${year}, months=${monthsArray}, type=${dataType}${isEstimateType ? ' (including ACTUAL + ESTIMATE)' : ''}`);
         
-        const result = await pool.query(query, params);
+        const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
         
         logger.info(`⚡ Got ${result.rows.length} sales reps with data for ${column.columnKey}`);
         
@@ -163,7 +176,8 @@ class UniversalSalesByCountryService {
         
         logger.info(`🚀 Querying Sales by Customer for ${columnKey}: year=${year}, months=${monthsArray}, type=${dataType}`);
         
-        const result = await pool.query(query, params);
+        const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
         
         logger.info(`⚡ Got ${result.rows.length} customers with data for ${columnKey}`);
         
@@ -254,7 +268,8 @@ class UniversalSalesByCountryService {
         
         logger.info(`🚀 Querying ALL sales rep reports for ${columnKey}: year=${year}, months=${monthsArray}, type=${dataType}`);
         
-        const result = await pool.query(query, params);
+        const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
         
         logger.info(`⚡ Got ${result.rows.length} rows for ${columnKey}`);
         
@@ -450,7 +465,8 @@ class UniversalSalesByCountryService {
       `;
       
       logger.info(`🔍 Executing query: ${query}`);
-      const result = await pool.query(query);
+      const divisionPool = this.getPool(division);
+      const result = await divisionPool.query(query);
       logger.info(`📊 Found ${result.rows.length} countries in database`);
       logger.info(`📋 Countries:`, result.rows.map(row => row.country));
       
@@ -479,7 +495,8 @@ class UniversalSalesByCountryService {
       `;
       
       logger.info(`🔍 Executing sales reps query: ${query}`);
-      const result = await pool.query(query);
+      const divisionPool = this.getPool(division);
+      const result = await divisionPool.query(query);
       logger.info(`📊 Found ${result.rows.length} sales reps in database`);
       
       return result.rows.map(row => this.toProperCase(row.salesrepname));
@@ -576,7 +593,8 @@ class UniversalSalesByCountryService {
           : [year, ...monthsArray, dataType];
       }
       
-      const result = await pool.query(query, params);
+      const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
       return result.rows.map(row => ({
         country: row.countryname,
         value: parseFloat(row.total_value || 0)
@@ -602,7 +620,8 @@ class UniversalSalesByCountryService {
       ORDER BY total_value DESC
     `;
     const params = [year];
-    const result = await pool.query(query, params);
+    const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
     return result.rows.map(r => ({ country: r.countryname, value: parseFloat(r.total_value || 0) }));
   }
 
@@ -639,7 +658,8 @@ class UniversalSalesByCountryService {
         params = [salesRep];
       }
       
-      const result = await pool.query(query, params);
+      const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
       return result.rows.map(row => ({
         country: row.country
       }));
@@ -677,7 +697,8 @@ class UniversalSalesByCountryService {
       `;
       
       const params = [country, year, dataType, ...monthsArray, valueType];
-      const result = await pool.query(query, params);
+      const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
       
       return result.rows.map(row => ({
         salesRep: row.salesrepname,
@@ -709,7 +730,8 @@ class UniversalSalesByCountryService {
         ORDER BY countryname
       `;
       
-      const result = await pool.query(query);
+      const divisionPool = this.getPool(division);
+      const result = await divisionPool.query(query);
       return result.rows.map(row => row.countryname);
     } catch (error) {
       logger.error(`Error fetching all countries for division ${division}:`, error);
@@ -732,7 +754,8 @@ class UniversalSalesByCountryService {
         ORDER BY salesrepname
       `;
       
-      const result = await pool.query(query);
+      const divisionPool = this.getPool(division);
+      const result = await divisionPool.query(query);
       return result.rows.map(row => row.salesrepname);
     } catch (error) {
       logger.error(`Error fetching sales reps for division ${division}:`, error);
@@ -760,7 +783,8 @@ class UniversalSalesByCountryService {
         FROM ${tableName}
       `;
       
-      const result = await pool.query(query);
+      const divisionPool = this.getPool(division);
+      const result = await divisionPool.query(query);
       return result.rows[0];
     } catch (error) {
       logger.error(`Error fetching division summary for ${division}:`, error);
@@ -783,7 +807,8 @@ class UniversalSalesByCountryService {
         ORDER BY customername
       `;
       
-      const result = await pool.query(query);
+      const divisionPool = this.getPool(division);
+      const result = await divisionPool.query(query);
       return result.rows.map(row => row.customer);
     } catch (error) {
       logger.error(`Error fetching customers for division ${division}:`, error);
@@ -824,7 +849,8 @@ class UniversalSalesByCountryService {
         params = [salesRep];
       }
       
-      const result = await pool.query(query, params);
+      const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
       return result.rows.map(row => row.customer);
     } catch (error) {
       logger.error(`Error fetching customers for sales rep ${salesRep} in division ${division}:`, error);
@@ -927,7 +953,8 @@ class UniversalSalesByCountryService {
           : [year, ...monthsArray, dataType, valueType];
       }
       
-      const result = await pool.query(query, params);
+      const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
       return result.rows.map(row => ({
         customer: row.customername,
         value: parseFloat(row.total_value || 0)
@@ -966,7 +993,8 @@ class UniversalSalesByCountryService {
       `;
       
       const params = [customer, parseInt(year), ...monthsArray, dataType, valueType];
-      const result = await pool.query(query, params);
+      const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
       
       return result.rows.map(row => ({
         salesRep: row.salesrepname,
@@ -1013,7 +1041,8 @@ class UniversalSalesByCountryService {
         ? [salesRep, customer, parseInt(year), monthNum, valueType]
         : [salesRep, customer, parseInt(year), monthNum, dataType, valueType];
 
-      const result = await pool.query(query, params);
+      const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
 
       return parseFloat(result.rows[0]?.total_value || 0);
     } catch (error) {
@@ -1067,7 +1096,8 @@ class UniversalSalesByCountryService {
             valueType
           ];
 
-      const result = await pool.query(query, params);
+      const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
       return parseFloat(result.rows[0]?.total_value || 0);
     } catch (error) {
       logger.error(`Error fetching customer sales data for group in division ${division}:`, error);
@@ -1089,7 +1119,8 @@ class UniversalSalesByCountryService {
         ORDER BY productgroup
       `;
       
-      const result = await pool.query(query);
+      const divisionPool = this.getPool(division);
+      const result = await divisionPool.query(query);
       return result.rows.map(row => row.productgroup);
     } catch (error) {
       logger.error(`Error fetching all product groups for division ${division}:`, error);
@@ -1130,7 +1161,8 @@ class UniversalSalesByCountryService {
         params = [salesRep];
       }
       
-      const result = await pool.query(query, params);
+      const divisionPool = this.getPool(division);
+        const result = await divisionPool.query(query, params);
       return result.rows.map(row => row.productgroup);
     } catch (error) {
       logger.error(`Error fetching product groups for sales rep ${salesRep} in division ${division}:`, error);
@@ -1140,4 +1172,6 @@ class UniversalSalesByCountryService {
 }
 
 module.exports = UniversalSalesByCountryService;
+
+
 

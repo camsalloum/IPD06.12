@@ -1,15 +1,15 @@
 .divisional-dashboard {
-  background: #e3f2fd;
+  background: var(--color-background);
   min-height: 100%;
   padding: 40px 0 80px;
 }
 
 .divisional-dashboard__header {
-  background: #fff;
+  background: var(--color-surface);
   padding: 30px 0 20px;
   text-align: center;
-  color: #2c3e50;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  color: var(--color-text);
+  box-shadow: 0 4px 20px var(--color-shadow);
   margin-bottom: 40px;
 }
 
@@ -31,9 +31,9 @@
   margin-top: 16px;
   padding: 10px 24px;
   border-radius: 30px;
-  background: #ecf0f1;
+  background: var(--color-surfaceHover);
   font-weight: 600;
-  color: #34495e;
+  color: var(--color-text);
   font-size: 1rem;
 }
 
@@ -60,11 +60,11 @@
 }
 
 .divisional-dashboard__card {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--color-surface);
   border-radius: 18px;
   padding: 30px 24px;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(15, 40, 87, 0.1);
+  box-shadow: 0 8px 20px var(--color-shadow);
   border: 2px solid transparent;
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -75,14 +75,14 @@
 }
 
 .divisional-dashboard__card--active {
-  border-color: #13386f;
-  box-shadow: 0 18px 40px rgba(19, 56, 111, 0.35);
+  border-color: var(--color-primary);
+  box-shadow: 0 18px 40px var(--color-shadow);
 }
 
 .divisional-dashboard__card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 15px 40px rgba(15, 40, 87, 0.2);
-  border-color: #3498db;
+  box-shadow: 0 15px 40px var(--color-shadow);
+  border-color: var(--color-primary);
 }
 
 .divisional-dashboard__icon {
@@ -93,38 +93,38 @@
 .divisional-dashboard__card-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #2f3640;
+  color: var(--color-text);
   margin-bottom: 10px;
 }
 
 .divisional-dashboard__card-copy {
   font-size: 0.95rem;
-  color: #7f8c8d;
+  color: var(--color-textSecondary);
   line-height: 1.45;
 }
 
 .divisional-dashboard__empty {
   text-align: center;
   padding: 60px 20px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 12px;
-  border: 1px dashed #d0dbe8;
-  color: #5f6c7b;
+  border: 1px dashed var(--color-border);
+  color: var(--color-textSecondary);
 }
 
 .divisional-dashboard__loading {
   text-align: center;
-  color: #2c3e50;
+  color: var(--color-text);
   font-weight: 600;
 }
 
 .divisional-dashboard__detail-panel {
   margin-top: 40px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(15, 40, 87, 0.12);
+  box-shadow: 0 20px 60px var(--color-shadow);
   padding: 32px;
-  border: 1px solid #e3ecf7;
+  border: 1px solid var(--color-border);
 }
 
 .divisional-dashboard__detail-header {
@@ -138,11 +138,11 @@
 .divisional-dashboard__detail-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #12345c;
+  color: var(--color-text);
 }
 
 .divisional-dashboard__detail-body {
-  border-top: 1px solid #edf2fb;
+  border-top: 1px solid var(--color-borderLight);
   padding-top: 24px;
 }
 
@@ -152,7 +152,7 @@
   z-index: 1000;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #f7fbff;
+  background: var(--color-background);
 }
 
 .divisional-dashboard__overlay-scroll {
@@ -166,7 +166,7 @@
   gap: 16px;
   padding: 24px clamp(24px, 6vw, 72px) 24px;
   color: #ffffff;
-  background: linear-gradient(135deg, #0d1f3d 0%, #1a3a6e 35%, #2d5a9e 70%, #4a7fc7 100%);
+  background: var(--color-gradient);
   position: relative;
 }
 
@@ -198,7 +198,7 @@
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.4;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-overlay);
   max-width: 400px;
 }
 
@@ -207,8 +207,8 @@
   margin-top: 0;
   padding: 8px 18px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: var(--color-overlay);
+  border: 1px solid var(--color-overlay);
   font-weight: 600;
   color: #ffffff;
   backdrop-filter: blur(4px);
@@ -241,13 +241,13 @@
 }
 
 .divisional-dashboard__overlay-period--secondary {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-overlay);
 }
 
 .divisional-dashboard__overlay-period-divider {
   font-weight: 600;
   text-transform: lowercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-overlay);
   font-size: 0.8rem;
 }
 
@@ -263,14 +263,14 @@
   gap: 2px;
   margin: 0;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.98);
-  color: #1e293b;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px var(--color-shadow);
   transition: all 0.2s ease;
   z-index: 9999 !important;
   line-height: 1.3;
@@ -285,11 +285,11 @@
 
 .divisional-dashboard__overlay-close:hover,
 .divisional-dashboard__overlay-close:focus {
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  background: var(--color-surface);
+  box-shadow: 0 4px 12px var(--color-shadow);
   transform: translateY(-1px);
   outline: none;
-  border-color: rgba(0, 0, 0, 0.15);
+  border-color: var(--color-border);
 }
 
 /* Export HTML back button styling */
@@ -304,14 +304,14 @@
   gap: 2px;
   margin: 0;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.98);
-  color: #1e293b;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px var(--color-shadow);
   transition: all 0.2s ease;
   z-index: 9999 !important;
   line-height: 1.3;
@@ -325,10 +325,10 @@
 }
 
 .overlay-close-btn:hover {
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  background: var(--color-surface);
+  box-shadow: 0 4px 12px var(--color-shadow);
   transform: translateY(-1px);
-  border-color: rgba(0, 0, 0, 0.15);
+  border-color: var(--color-border);
 }
 
 .divisional-dashboard__overlay-body {
@@ -336,7 +336,7 @@
   justify-content: center;
   align-items: flex-start;
   padding: 1px 8px 8px; /* 1px top padding */
-  background: #f7fbff;
+  background: var(--color-background);
 }
 
 .divisional-dashboard__overlay-body > * {
