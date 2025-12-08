@@ -38,9 +38,9 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot
 # Wait a moment for backend to initialize
 Start-Sleep -Seconds 3
 
-# Start frontend server in a new PowerShell window
+# Start frontend server in a new PowerShell window (with BROWSER=none to prevent auto-open)
 Write-Host "🚀 Starting frontend server..." -ForegroundColor Cyan
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot'; Write-Host '⚛️  Frontend Server' -ForegroundColor Blue; npm start"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot'; Write-Host '⚛️  Frontend Server' -ForegroundColor Blue; `$env:BROWSER='none'; npm start"
 
 Write-Host ""
 Write-Host "✅ Both servers are starting in separate windows!" -ForegroundColor Green

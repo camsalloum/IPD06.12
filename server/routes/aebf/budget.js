@@ -99,7 +99,7 @@ router.get('/budget', queryLimiter, cacheMiddleware({ ttl: CacheTTL.LONG }), val
       SELECT 
         id, division, type, year, month, customername, salesrepname, 
         countryname, productgroup, material, process, values_type, values,
-        sourcesheet, created_at, updated_at, uploaded_by
+        sourcesheet, updated_at, uploaded_by
       FROM ${getTableNames(division).dataExcel}
       WHERE division = $1 AND type = 'Budget'
     `;
@@ -137,7 +137,10 @@ router.get('/budget', queryLimiter, cacheMiddleware({ ttl: CacheTTL.LONG }), val
     
     const divisionPool = getPoolForDivision(division);
     
-    const countQuery = query.replace(/SELECT[\s\S]+FROM/, 'SELECT COUNT(*) FROM');
+    // Build count query - remove ORDER BY which is invalid for COUNT
+    const countQuery = query
+      .replace(/SELECT[\s\S]+FROM/, 'SELECT COUNT(*) FROM')
+      .replace(/ORDER BY[\s\S]+$/, '');
     const countResult = await divisionPool.query(countQuery, params);
     const totalRecords = parseInt(countResult.rows[0].count);
     
@@ -284,6 +287,61 @@ router.post('/upload-budget', uploadLimiter, upload.single('file'), validationRu
 }));
 
 /**
+ * DELETE /clear-estimates
+ * Clear all estimate records for a specific year
+ * 
+ * @route DELETE /api/aebf/clear-estimates
+ * @query {string} division - Division (FP or HC)
+ * @query {number} year - Year to clear estimates for
+ * @returns {object} 200 - Delete result with count
+ */
+router.delete('/clear-estimates', queryLimiter, asyncHandler(async (req, res) => {
+  const { division, year } = req.query;
+  
+  if (!division || !year) {
+    return res.status(400).json({
+      success: false,
+      error: 'Division and year are required'
+    });
+  }
+  
+  logger.info('🗑️ Clear estimates request:', { division, year });
+  
+  const divisionPool = getPoolForDivision(division);
+  const tables = getTableNames(division);
+  
+  // Get count before delete
+  const countQuery = `
+    SELECT COUNT(*) as count
+    FROM public.${tables.dataExcel}
+    WHERE UPPER(division) = $1 AND UPPER(type) = 'ESTIMATE' AND year = $2
+  `;
+  const countResult = await divisionPool.query(countQuery, [division.toUpperCase(), parseInt(year)]);
+  const existingCount = parseInt(countResult.rows[0].count);
+  
+  if (existingCount === 0) {
+    return successResponse(res, {
+      deletedCount: 0,
+      message: 'No estimate records found for this year'
+    });
+  }
+  
+  // Delete all estimates for the year
+  const deleteQuery = `
+    DELETE FROM public.${tables.dataExcel}
+    WHERE UPPER(division) = $1 AND UPPER(type) = 'ESTIMATE' AND year = $2
+  `;
+  const deleteResult = await divisionPool.query(deleteQuery, [division.toUpperCase(), parseInt(year)]);
+  
+  logger.info(`🗑️ Deleted ${deleteResult.rowCount} estimate records for ${division} ${year}`);
+  
+  successResponse(res, {
+    deletedCount: deleteResult.rowCount,
+    message: `Successfully cleared ${deleteResult.rowCount} estimate records for ${year}`
+  });
+}));
+
+/**
  * POST /calculate-estimate
  * Calculate estimates based on actual data using proportional distribution
  * 
@@ -427,10 +485,10 @@ router.post('/save-estimate', queryLimiter, validationRules.saveEstimate, asyncH
     const dimensionQuery = `
       SELECT 
         salesrepname, customername, countryname, productgroup, material, process,
-        sourcesheet, values_type, SUM(values) as total_value
+        values_type, SUM(values) as total_value
       FROM public.${tables.dataExcel}
       WHERE UPPER(division) = $1 AND UPPER(type) = 'ACTUAL' AND year = $2 AND month = ANY($3)
-      GROUP BY salesrepname, customername, countryname, productgroup, material, process, sourcesheet, values_type
+      GROUP BY salesrepname, customername, countryname, productgroup, material, process, values_type
     `;
     
     const dimensionResult = await client.query(dimensionQuery, [division.toUpperCase(), year, basePeriodMonths]);

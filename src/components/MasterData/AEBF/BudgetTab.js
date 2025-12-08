@@ -80,6 +80,8 @@ const BudgetTab = () => {
   const [isSubmittingDivisional, setIsSubmittingDivisional] = useState(false);
   const [submitDivisionalConfirmVisible, setSubmitDivisionalConfirmVisible] = useState(false);
   const [divisionalPricingData, setDivisionalPricingData] = useState({}); // { "productgroup": { sellingPrice, morm } }
+  const [servicesChargesData, setServicesChargesData] = useState(null); // { productGroup, isServiceCharges, monthlyActual }
+  const [servicesChargesBudget, setServicesChargesBudget] = useState({}); // { "Services Charges|month|AMOUNT": value, "...|MORM": value }
   
   // HTML tab table data
   const [htmlTableData, setHtmlTableData] = useState([]);
@@ -489,11 +491,11 @@ const BudgetTab = () => {
       });
       
       if (response.data.success) {
-        const years = response.data.filterOptions.year || [];
+        const years = response.data.data.filterOptions.year || [];
         setAvailableYears(years.sort((a, b) => b - a)); // Descending
         
         // Store all filter options for column filters
-        setFilterOptions(response.data.filterOptions);
+        setFilterOptions(response.data.data.filterOptions);
         
         // Set default year based on base period
         if (years.length > 0 && !selectedYear) {
@@ -647,7 +649,7 @@ const BudgetTab = () => {
       ]);
       
       if (filterResponse.data.success) {
-        const yearsRaw = filterResponse.data.filterOptions.year || [];
+        const yearsRaw = filterResponse.data.data.filterOptions.year || [];
         const normalizedYears = yearsRaw
           .map((year) => (typeof year === 'number' ? year : parseInt(year, 10)))
           .filter((year) => !Number.isNaN(year));
@@ -733,7 +735,7 @@ const BudgetTab = () => {
       const response = await axios.get('http://localhost:3001/api/aebf/year-summary', { params });
       
       if (response.data.success) {
-        setYearSummary(response.data.summary);
+        setYearSummary(response.data.data.summary);
       }
     } catch (error) {
       console.error('Error fetching year summary:', error);
@@ -769,11 +771,11 @@ const BudgetTab = () => {
       const response = await axios.get('http://localhost:3001/api/aebf/budget', { params });
       
       if (response.data.success) {
-        setData(response.data.data.map(item => ({ ...item, key: item.id })));
+        setData(response.data.data.data.map(item => ({ ...item, key: item.id })));
         setPagination({
-          current: response.data.pagination.page,
-          pageSize: response.data.pagination.pageSize,
-          total: response.data.pagination.total,
+          current: response.data.data.pagination.page,
+          pageSize: response.data.data.pagination.pageSize,
+          total: response.data.data.pagination.total,
         });
       } else {
         message.error('Failed to load data');
@@ -2558,7 +2560,7 @@ const BudgetTab = () => {
       });
       
       if (response.data.success) {
-        const years = response.data.years || [];
+        const years = response.data.data?.years || response.data.years || [];
         const sortedYears = [...years].sort((a, b) => b - a);
         setDivisionalHtmlActualYears(sortedYears);
         
@@ -2599,23 +2601,37 @@ const BudgetTab = () => {
       return;
     }
     
+    const budgetYear = parseInt(divisionalHtmlFilters.actualYear) + 1;
+    
     setDivisionalHtmlTableLoading(true);
     try {
       const response = await axios.post('http://localhost:3001/api/aebf/divisional-html-budget-data', {
         division: selectedDivision,
         actualYear: divisionalHtmlFilters.actualYear,
+        budgetYear,
       });
       
       if (response.data.success) {
-        setDivisionalHtmlTableData(response.data.data || []);
+        // Handle nested data structure from successResponse wrapper
+        const responseData = response.data.data || response.data;
+        const tableData = responseData.data || [];
+        const pricingData = responseData.pricingData || {};
+        const budgetDataFromBackend = responseData.budgetData || {};
+        const servicesChargesFromBackend = responseData.servicesChargesData || null;
+        const servicesChargesBudgetFromBackend = responseData.servicesChargesBudget || {};
+        
+        setDivisionalHtmlTableData(tableData);
         
         // Load pricing data for Amount/MoRM calculations
-        setDivisionalPricingData(response.data.pricingData || {});
+        setDivisionalPricingData(pricingData);
+        
+        // Load Services Charges data (separate from regular product groups)
+        setServicesChargesData(servicesChargesFromBackend);
+        setServicesChargesBudget(servicesChargesBudgetFromBackend);
         
         // Load budget data from backend
-        const budgetDataFromBackend = response.data.budgetData || {};
         const initialBudget = {};
-        (response.data.data || []).forEach(row => {
+        tableData.forEach(row => {
           for (let month = 1; month <= 12; month++) {
             const key = `${row.productGroup}|${month}`;
             const backendValue = budgetDataFromBackend[key];
@@ -2632,12 +2648,16 @@ const BudgetTab = () => {
         message.error(response.data.error || 'Failed to load divisional data');
         setDivisionalHtmlTableData([]);
         setDivisionalPricingData({});
+        setServicesChargesData(null);
+        setServicesChargesBudget({});
       }
     } catch (error) {
       console.error('Error fetching divisional table data:', error);
       message.error('Failed to load divisional sales data');
       setDivisionalHtmlTableData([]);
       setDivisionalPricingData({});
+      setServicesChargesData(null);
+      setServicesChargesBudget({});
     } finally {
       setDivisionalHtmlTableLoading(false);
     }
@@ -2674,6 +2694,9 @@ const BudgetTab = () => {
           actualYear: divisionalHtmlFilters.actualYear,
           tableData: divisionalHtmlTableData,
           budgetData: divisionalHtmlBudgetData,
+          servicesChargesData: servicesChargesData,
+          servicesChargesBudget: servicesChargesBudget,
+          // Pass pricing data so backend can calculate Amount/MoRM totals
           pricingData: divisionalPricingData,
         },
         { responseType: 'blob' }
@@ -2715,13 +2738,14 @@ const BudgetTab = () => {
     
     // Validate filename format first
     // Pattern: BUDGET_Divisional_[Division]_[Year]_[Date]_[Time].html OR FINAL_Divisional_...
-    const filenamePattern = /^(BUDGET|FINAL)_Divisional_(.+)_(\d{4})_(\d{8})_(\d{6})\.html$/;
+    // Date can be YYYYMMDD or DDMMYYYY (8 digits), Time can be HHMMSS (6 digits) or HHMM (4 digits)
+    const filenamePattern = /^(BUDGET|FINAL)_Divisional_(.+)_(\d{4})_(\d{8})_(\d{4,6})\.html$/;
     const match = file.name.match(filenamePattern);
     
     if (!match) {
       console.error('❌ Invalid divisional budget filename format:', file.name);
       message.error({
-        content: `Invalid filename format.\n\nExpected: FINAL_Divisional_[Division]_[Year]_[Date]_[Time].html\n\nYour file: ${file.name}`,
+        content: `Invalid filename format.\n\nExpected: BUDGET_Divisional_[Division]_[Year]_[Date]_[Time].html\n\nYour file: ${file.name}`,
         duration: 8
       });
       return;
@@ -3085,6 +3109,7 @@ const BudgetTab = () => {
       return;
     }
     
+    // Regular product group records (MT -> KGS conversion)
     const records = Object.entries(divisionalHtmlBudgetData).reduce((acc, [key, value]) => {
       const [productGroup, monthStr] = key.split('|');
       if (!productGroup || monthStr === undefined) {
@@ -3101,12 +3126,38 @@ const BudgetTab = () => {
       acc.push({
         productGroup,
         month,
-        value: Math.round(numericValue * 1000)
+        value: Math.round(numericValue * 1000) // MT to KGS
       });
       return acc;
     }, []);
     
-    if (records.length === 0) {
+    // Services Charges records (Amount entered in k, store as actual value)
+    const servicesChargesRecords = Object.entries(servicesChargesBudget).reduce((acc, [key, value]) => {
+      // Key format: "Services Charges|month|AMOUNT"
+      const parts = key.split('|');
+      if (parts.length !== 3 || parts[0] !== 'Services Charges') {
+        return acc;
+      }
+      const month = parseInt(parts[1], 10);
+      const metric = parts[2]; // AMOUNT
+      const numericValue = parseFloat((value ?? '').toString().replace(/,/g, ''));
+      if (Number.isNaN(numericValue) || numericValue <= 0) {
+        return acc;
+      }
+      if (!Number.isInteger(month) || month < 1 || month > 12) {
+        return acc;
+      }
+      acc.push({
+        productGroup: 'Services Charges',
+        month,
+        metric, // 'AMOUNT'
+        value: Math.round(numericValue * 1000), // k to actual value
+        isServiceCharges: true
+      });
+      return acc;
+    }, []);
+    
+    if (records.length === 0 && servicesChargesRecords.length === 0) {
       message.warning('Please enter at least one valid budget value before submitting');
       return;
     }
@@ -3118,7 +3169,8 @@ const BudgetTab = () => {
       const response = await axios.post('http://localhost:3001/api/aebf/save-divisional-budget', {
         division: selectedDivision,
         budgetYear,
-        records
+        records,
+        servicesChargesRecords
       });
       
       // Close modal first
@@ -3164,7 +3216,9 @@ const BudgetTab = () => {
     }
     divisionalHtmlTableData.forEach(row => {
       for (let month = 1; month <= 12; month++) {
-        totals[month] += row.monthlyActual?.[month] || 0;
+        // monthlyActual[month] is object with {MT, AMOUNT, MORM}
+        const monthData = row.monthlyActual?.[month];
+        totals[month] += monthData?.MT ?? monthData ?? 0;
       }
     });
     return totals;
@@ -3204,36 +3258,57 @@ const BudgetTab = () => {
   }, [divisionalMonthlyBudgetTotals]);
   
   // Calculate monthly Actual Amount totals (from database, not calculated)
+  // Includes regular product groups + Services Charges
   const divisionalMonthlyActualAmountTotals = useMemo(() => {
     const totals = {};
     for (let month = 1; month <= 12; month++) {
       totals[month] = 0;
     }
+    // Regular product groups
     divisionalHtmlTableData.forEach(row => {
       for (let month = 1; month <= 12; month++) {
-        totals[month] += row.monthlyActualAmount?.[month] || 0;
+        const monthData = row.monthlyActual?.[month];
+        totals[month] += monthData?.AMOUNT ?? 0;
       }
     });
+    // Add Services Charges actual Amount
+    if (servicesChargesData?.monthlyActual) {
+      for (let month = 1; month <= 12; month++) {
+        const monthData = servicesChargesData.monthlyActual[month];
+        totals[month] += monthData?.AMOUNT ?? 0;
+      }
+    }
     return totals;
-  }, [divisionalHtmlTableData]);
+  }, [divisionalHtmlTableData, servicesChargesData]);
   
   const divisionalActualAmountYearTotal = useMemo(() => {
     return Object.values(divisionalMonthlyActualAmountTotals).reduce((sum, val) => sum + val, 0);
   }, [divisionalMonthlyActualAmountTotals]);
 
   // Calculate monthly Actual MoRM totals (from database)
+  // Includes regular product groups + Services Charges (MoRM = 100% of Amount for Services Charges)
   const divisionalMonthlyActualMormTotals = useMemo(() => {
     const totals = {};
     for (let month = 1; month <= 12; month++) {
       totals[month] = 0;
     }
+    // Regular product groups
     divisionalHtmlTableData.forEach(row => {
       for (let month = 1; month <= 12; month++) {
-        totals[month] += row.monthlyActualMorm?.[month] || 0;
+        const monthData = row.monthlyActual?.[month];
+        totals[month] += monthData?.MORM ?? 0;
       }
     });
+    // Add Services Charges MoRM (= 100% of Amount)
+    if (servicesChargesData?.monthlyActual) {
+      for (let month = 1; month <= 12; month++) {
+        const monthData = servicesChargesData.monthlyActual[month];
+        // Services Charges MoRM = 100% of Amount
+        totals[month] += monthData?.AMOUNT ?? 0;
+      }
+    }
     return totals;
-  }, [divisionalHtmlTableData]);
+  }, [divisionalHtmlTableData, servicesChargesData]);
   
   const divisionalActualMormYearTotal = useMemo(() => {
     return Object.values(divisionalMonthlyActualMormTotals).reduce((sum, val) => sum + val, 0);
@@ -3245,7 +3320,9 @@ const BudgetTab = () => {
     divisionalHtmlTableData.forEach(row => {
       let total = 0;
       for (let month = 1; month <= 12; month++) {
-        total += row.monthlyActual?.[month] || 0;
+        // monthlyActual[month] is object with {MT, AMOUNT, MORM}
+        const monthData = row.monthlyActual?.[month];
+        total += monthData?.MT ?? monthData ?? 0;
       }
       totals[row.productGroup] = total;
     });
@@ -3270,26 +3347,32 @@ const BudgetTab = () => {
   // Helper to find pricing by product group (case-insensitive)
   const findPricing = useCallback((productGroup) => {
     if (!productGroup || !divisionalPricingData) return { sellingPrice: 0, morm: 0 };
-    const normalizedKey = productGroup.toLowerCase().trim();
+    
     // Try exact match first
-    if (divisionalPricingData[normalizedKey]) {
-      return divisionalPricingData[normalizedKey];
+    if (divisionalPricingData[productGroup]) {
+      const p = divisionalPricingData[productGroup];
+      return { sellingPrice: p.asp || p.sellingPrice || 0, morm: p.morm || 0 };
     }
-    // Try to find by iterating (in case of whitespace differences)
+    
+    // Try case-insensitive match
+    const normalizedKey = productGroup.toLowerCase().trim();
     for (const key of Object.keys(divisionalPricingData)) {
       if (key.toLowerCase().trim() === normalizedKey) {
-        return divisionalPricingData[key];
+        const p = divisionalPricingData[key];
+        return { sellingPrice: p.asp || p.sellingPrice || 0, morm: p.morm || 0 };
       }
     }
     return { sellingPrice: 0, morm: 0 };
   }, [divisionalPricingData]);
   
   // Calculate monthly Amount totals (KGS * 1000 * sellingPrice for each product group)
+  // Includes regular product groups + Services Charges budget Amount (entered directly)
   const divisionalMonthlyAmountTotals = useMemo(() => {
     const totals = {};
     for (let month = 1; month <= 12; month++) {
       totals[month] = 0;
     }
+    // Regular product groups
     divisionalHtmlTableData.forEach(row => {
       const pricing = findPricing(row.productGroup);
       for (let month = 1; month <= 12; month++) {
@@ -3299,15 +3382,23 @@ const BudgetTab = () => {
         totals[month] += mtValue * 1000 * pricing.sellingPrice;
       }
     });
+    // Add Services Charges budget Amount (entered in thousands by user, multiply by 1000)
+    for (let month = 1; month <= 12; month++) {
+      const key = `Services Charges|${month}|AMOUNT`;
+      const scAmountInK = parseFloat((servicesChargesBudget[key] || '').toString().replace(/,/g, '')) || 0;
+      totals[month] += scAmountInK * 1000; // Convert from k to actual value
+    }
     return totals;
-  }, [divisionalHtmlTableData, divisionalHtmlBudgetData, findPricing]);
+  }, [divisionalHtmlTableData, divisionalHtmlBudgetData, findPricing, servicesChargesBudget]);
   
   // Calculate monthly MoRM totals (KGS * 1000 * morm for each product group)
+  // Includes regular product groups + Services Charges (MoRM = 100% of Amount)
   const divisionalMonthlyMormTotals = useMemo(() => {
     const totals = {};
     for (let month = 1; month <= 12; month++) {
       totals[month] = 0;
     }
+    // Regular product groups
     divisionalHtmlTableData.forEach(row => {
       const pricing = findPricing(row.productGroup);
       for (let month = 1; month <= 12; month++) {
@@ -3317,8 +3408,15 @@ const BudgetTab = () => {
         totals[month] += mtValue * 1000 * pricing.morm;
       }
     });
+    // Add Services Charges MoRM (= 100% of budget Amount, entered in thousands)
+    for (let month = 1; month <= 12; month++) {
+      const key = `Services Charges|${month}|AMOUNT`;
+      const scAmountInK = parseFloat((servicesChargesBudget[key] || '').toString().replace(/,/g, '')) || 0;
+      // Services Charges MoRM = 100% of Amount (convert from k to actual)
+      totals[month] += scAmountInK * 1000;
+    }
     return totals;
-  }, [divisionalHtmlTableData, divisionalHtmlBudgetData, findPricing]);
+  }, [divisionalHtmlTableData, divisionalHtmlBudgetData, findPricing, servicesChargesBudget]);
   
   // Grand totals for Amount and MoRM
   const divisionalAmountYearTotal = useMemo(() => {
@@ -5305,6 +5403,7 @@ const BudgetTab = () => {
                     tableLayout: 'fixed',
                   }}
                 >
+                  {/* Total column is 8% width */}
                   <colgroup>
                     <col style={{ width: '20%' }} />
                     <col style={{ width: '5.5%' }} />
@@ -5319,7 +5418,7 @@ const BudgetTab = () => {
                     <col style={{ width: '5.5%' }} />
                     <col style={{ width: '5.5%' }} />
                     <col style={{ width: '5.5%' }} />
-                    <col style={{ width: '8%' }} /> {/* Total column */}
+                    <col style={{ width: '8%' }} />
                   </colgroup>
                   <thead>
                     <tr>
@@ -5438,7 +5537,9 @@ const BudgetTab = () => {
                           </td>
                           {Array.from({ length: 12 }, (_, i) => {
                             const month = i + 1;
-                            const actualValue = row.monthlyActual?.[month] || 0;
+                            // monthlyActual[month] is an object with MT, AMOUNT, MORM
+                            const monthData = row.monthlyActual?.[month];
+                            const actualValue = monthData?.MT ?? monthData ?? 0;
                             return (
                               <td 
                                 key={`actual-${month}`}
@@ -5525,6 +5626,136 @@ const BudgetTab = () => {
                         </tr>
                       </React.Fragment>
                     ))}
+                    
+                    {/* Services Charges Row - Special handling (Amount/MoRM only, no MT) */}
+                    {servicesChargesData && (
+                      <React.Fragment key="services-charges">
+                        {/* Actual Row - Shows Amount */}
+                        <tr style={{ backgroundColor: '#f0f5ff', borderTop: '2px solid #1890ff' }}>
+                          <td 
+                            rowSpan={2}
+                            style={{ 
+                              padding: '8px',
+                              border: '1px solid #ddd',
+                              backgroundColor: '#fff',
+                              position: 'sticky',
+                              left: 0,
+                              zIndex: 5,
+                              fontWeight: 600,
+                              whiteSpace: 'normal',
+                              wordBreak: 'break-word',
+                              lineHeight: 1.3,
+                              fontStyle: 'italic',
+                            }}
+                          >
+                            Services Charges
+                            <div style={{ fontSize: '10px', color: '#666', fontWeight: 400 }}>
+                              (Amount only)
+                            </div>
+                          </td>
+                          {Array.from({ length: 12 }, (_, i) => {
+                            const month = i + 1;
+                            const monthData = servicesChargesData.monthlyActual?.[month];
+                            const actualAmount = monthData?.AMOUNT ?? 0;
+                            return (
+                              <td 
+                                key={`sc-actual-${month}`}
+                                style={{ 
+                                  padding: '6px 8px',
+                                  border: '1px solid #ddd',
+                                  backgroundColor: '#f0f5ff',
+                                  textAlign: 'right',
+                                  fontWeight: 500,
+                                  fontSize: '11px',
+                                }}
+                              >
+                                {formatAed(actualAmount)}
+                              </td>
+                            );
+                          })}
+                          {/* Total cell for actual row */}
+                          <td 
+                            style={{ 
+                              padding: '6px 8px',
+                              border: '1px solid #ddd',
+                              backgroundColor: '#d4f7d4',
+                              textAlign: 'right',
+                              fontWeight: 700,
+                              fontSize: '11px',
+                            }}
+                          >
+                            {formatAed(Object.values(servicesChargesData.monthlyActual || {}).reduce((sum, m) => sum + (m?.AMOUNT || 0), 0))}
+                          </td>
+                        </tr>
+                        {/* Budget Row - User enters Amount in thousands (k) */}
+                        <tr style={{ backgroundColor: '#fffbe6' }}>
+                          {Array.from({ length: 12 }, (_, i) => {
+                            const month = i + 1;
+                            const key = `Services Charges|${month}|AMOUNT`;
+                            const budgetValue = servicesChargesBudget[key] || '';
+                            return (
+                              <td 
+                                key={`sc-budget-${month}`}
+                                style={{ 
+                                  padding: '2px',
+                                  border: '1px solid #ddd',
+                                  backgroundColor: '#fffbe6',
+                                  textAlign: 'right',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '2px' }}>
+                                  <Input
+                                    value={budgetValue}
+                                    onChange={(e) => {
+                                      const val = e.target.value.replace(/[^0-9.,]/g, '');
+                                      setServicesChargesBudget(prev => ({
+                                        ...prev,
+                                        [key]: val,
+                                      }));
+                                      setDivisionalDraftStatus('unsaved');
+                                    }}
+                                    placeholder="0"
+                                    style={{ 
+                                      width: '60px',
+                                      textAlign: 'right',
+                                      border: 'none',
+                                      padding: '4px 2px',
+                                      fontSize: '11px',
+                                      fontWeight: 500,
+                                      backgroundColor: 'transparent',
+                                      boxShadow: 'none',
+                                    }}
+                                  />
+                                  <span style={{ fontSize: '11px', fontWeight: 500, color: '#666' }}>k</span>
+                                </div>
+                              </td>
+                            );
+                          })}
+                          {/* Total cell for budget row */}
+                          <td 
+                            style={{ 
+                              padding: '6px 8px',
+                              border: '1px solid #ddd',
+                              backgroundColor: '#fffbe6',
+                              textAlign: 'right',
+                              fontWeight: 700,
+                              fontSize: '11px',
+                            }}
+                          >
+                            {(() => {
+                              const totalInK = Array.from({ length: 12 }, (_, i) => {
+                                const month = i + 1;
+                                const key = `Services Charges|${month}|AMOUNT`;
+                                return parseFloat((servicesChargesBudget[key] || '').toString().replace(/,/g, '')) || 0;
+                              }).reduce((sum, val) => sum + val, 0);
+                              // Display total in k format (value entered is already in k)
+                              return formatAed(totalInK * 1000);
+                            })()}
+                          </td>
+                        </tr>
+                      </React.Fragment>
+                    )}
+                    
                     {divisionalHtmlTableData.length === 0 && !divisionalHtmlTableLoading && (
                       <tr>
                         <td colSpan={15} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>

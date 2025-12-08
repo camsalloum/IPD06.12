@@ -2671,13 +2671,14 @@ const BudgetTab = () => {
     
     // Validate filename format first
     // Pattern: BUDGET_Divisional_[Division]_[Year]_[Date]_[Time].html OR FINAL_Divisional_...
-    const filenamePattern = /^(BUDGET|FINAL)_Divisional_(.+)_(\d{4})_(\d{8})_(\d{6})\.html$/;
+    // Date can be YYYYMMDD or DDMMYYYY (8 digits), Time can be HHMMSS (6 digits) or HHMM (4 digits)
+    const filenamePattern = /^(BUDGET|FINAL)_Divisional_(.+)_(\d{4})_(\d{8})_(\d{4,6})\.html$/;
     const match = file.name.match(filenamePattern);
     
     if (!match) {
       console.error('❌ Invalid divisional budget filename format:', file.name);
       message.error({
-        content: `Invalid filename format.\n\nExpected: FINAL_Divisional_[Division]_[Year]_[Date]_[Time].html\n\nYour file: ${file.name}`,
+        content: `Invalid filename format.\n\nExpected: BUDGET_Divisional_[Division]_[Year]_[Date]_[Time].html\n\nYour file: ${file.name}`,
         duration: 8
       });
       return;

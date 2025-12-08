@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, message, Modal, Spin, Tag, Statistic, Row, Col, Card, Tabs, Input, Checkbox } from 'antd';
-import { DownloadOutlined, ReloadOutlined, CalculatorOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Table, Button, Space, message, Modal, Spin, Tag, Statistic, Row, Col, Card, Tabs, Input, Checkbox, InputNumber, Tooltip, Alert } from 'antd';
+import { DownloadOutlined, ReloadOutlined, CalculatorOutlined, CheckCircleOutlined, PercentageOutlined, PlusOutlined, MinusOutlined, DeleteOutlined, WarningOutlined } from '@ant-design/icons';
 import { useExcelData } from '../../../contexts/ExcelDataContext';
 import { useFilter } from '../../../contexts/FilterContext';
 import axios from 'axios';
@@ -38,6 +38,9 @@ const EstimateTab = () => {
   const [calculatedEstimates, setCalculatedEstimates] = useState(null);
   const [editableEstimates, setEditableEstimates] = useState({});
   const [approving, setApproving] = useState(false);
+  const [existingEstimateCount, setExistingEstimateCount] = useState(0);
+  const [clearing, setClearing] = useState(false);
+  const [confirmReplaceVisible, setConfirmReplaceVisible] = useState(false);
 
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -51,7 +54,7 @@ const EstimateTab = () => {
       });
       
       if (response.data.success) {
-        const years = response.data.filterOptions.year || [];
+        const years = response.data.data.filterOptions.year || [];
         setAvailableYears(years.sort((a, b) => b - a));
         
         if (years.length > 0 && !selectedYear) {
@@ -91,7 +94,7 @@ const EstimateTab = () => {
       const response = await axios.get('http://localhost:3001/api/aebf/year-summary', { params });
       
       if (response.data.success) {
-        setYearSummary(response.data.summary);
+        setYearSummary(response.data.data.summary);
       }
     } catch (error) {
       console.error('Error fetching summary:', error);
@@ -126,11 +129,11 @@ const EstimateTab = () => {
       const response = await axios.get('http://localhost:3001/api/aebf/actual', { params });
       
       if (response.data.success) {
-        setData(response.data.data.map(item => ({ ...item, key: item.id })));
+        setData(response.data.data.data.map(item => ({ ...item, key: item.id })));
         setPagination({
-          current: response.data.pagination.page,
-          pageSize: response.data.pagination.pageSize,
-          total: response.data.pagination.total,
+          current: response.data.data.pagination.page,
+          pageSize: response.data.data.pagination.pageSize,
+          total: response.data.data.pagination.total,
         });
       } else {
         message.error('Failed to load data');
@@ -179,9 +182,35 @@ const EstimateTab = () => {
     setSelectedMonths([]);
     setCalculatedEstimates(null);
     setEditableEstimates({});
+    setExistingEstimateCount(0);
     
     await fetchAvailableActualMonths(defaultYear);
+    await fetchExistingEstimateCount(defaultYear);
     setEstimateModalVisible(true);
+  };
+
+  // Fetch existing estimate count for the year
+  const fetchExistingEstimateCount = async (year) => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/aebf/year-summary', {
+        params: {
+          division: selectedDivision,
+          type: 'Estimate',
+          year
+        }
+      });
+      
+      if (response.data.success && response.data.data.summary.length > 0) {
+        // Sum up record counts from all values_type
+        const totalCount = response.data.data.summary.reduce((sum, item) => sum + parseInt(item.record_count), 0);
+        setExistingEstimateCount(totalCount);
+      } else {
+        setExistingEstimateCount(0);
+      }
+    } catch (error) {
+      console.error('Error fetching estimate count:', error);
+      setExistingEstimateCount(0);
+    }
   };
 
   // Fetch available Actual months
@@ -195,7 +224,7 @@ const EstimateTab = () => {
       });
       
       if (response.data.success) {
-        const months = response.data.months.sort((a, b) => a - b);
+        const months = response.data.data.months.sort((a, b) => a - b);
         setAvailableMonths(months);
         console.log('Available Actual months:', months);
       }
@@ -203,6 +232,40 @@ const EstimateTab = () => {
       console.error('Error fetching actual months:', error);
       message.error('Failed to fetch available months');
     }
+  };
+
+  // Clear old estimates for the year
+  const handleClearEstimates = async () => {
+    Modal.confirm({
+      title: 'Clear All Estimates',
+      content: `Are you sure you want to delete ALL estimate records for ${estimateYear}? This cannot be undone.`,
+      okText: 'Yes, Clear All',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        try {
+          const response = await axios.delete('http://localhost:3001/api/aebf/clear-estimates', {
+            params: {
+              division: selectedDivision,
+              year: estimateYear
+            }
+          });
+          
+          if (response.data.success) {
+            message.success(response.data.data.message || `Cleared ${response.data.data.deletedCount} estimate records`);
+            // Refresh the data
+            fetchAvailableYears();
+            fetchData();
+            if (selectedYear) fetchYearSummary(selectedYear);
+          } else {
+            message.error('Failed to clear estimates');
+          }
+        } catch (error) {
+          console.error('Error clearing estimates:', error);
+          message.error('Failed to clear estimates');
+        }
+      }
+    });
   };
 
   // Toggle month selection
@@ -214,15 +277,47 @@ const EstimateTab = () => {
     }
   };
 
-  // Calculate estimates
+  // Calculate estimates (auto-clears old estimates if any exist)
   const handleCalculateEstimate = async () => {
     if (selectedMonths.length === 0) {
       message.warning('Please select at least one month to estimate');
       return;
     }
     
+    // If there are existing estimates, show confirmation modal
+    if (existingEstimateCount > 0) {
+      setConfirmReplaceVisible(true);
+    } else {
+      // No existing estimates, just calculate
+      await performCalculation(false);
+    }
+  };
+
+  // Handle confirm replace
+  const handleConfirmReplace = async () => {
+    setConfirmReplaceVisible(false);
+    await performCalculation(true);
+  };
+
+  // Perform the actual calculation
+  const performCalculation = async (clearFirst) => {
     setCalculating(true);
     try {
+      // Step 1: Clear existing estimates if needed
+      if (clearFirst) {
+        const clearResponse = await axios.delete('http://localhost:3001/api/aebf/clear-estimates', {
+          params: {
+            division: selectedDivision,
+            year: estimateYear
+          }
+        });
+        
+        if (clearResponse.data.success) {
+          message.info(`Cleared ${clearResponse.data.data.deletedCount} old estimate records`);
+        }
+      }
+      
+      // Step 2: Calculate new estimates
       const response = await axios.post('http://localhost:3001/api/aebf/calculate-estimate', {
         division: selectedDivision,
         year: estimateYear,
@@ -231,9 +326,9 @@ const EstimateTab = () => {
       });
       
       if (response.data.success) {
-        setCalculatedEstimates(response.data.estimates);
+        setCalculatedEstimates(response.data.data.estimates);
         const editable = {};
-        response.data.estimates.forEach(est => {
+        response.data.data.estimates.forEach(est => {
           editable[est.month] = {
             amount: est.amount,
             kgs: est.kgs,
@@ -242,6 +337,7 @@ const EstimateTab = () => {
         });
         setEditableEstimates(editable);
         setEstimateStep(2);
+        setExistingEstimateCount(0); // Reset count after clearing
         message.success('Estimates calculated successfully');
       } else {
         message.error(response.data.error || 'Failed to calculate estimates');
@@ -280,6 +376,23 @@ const EstimateTab = () => {
     } finally {
       setApproving(false);
     }
+  };
+
+  // Apply percentage adjustment to all estimates
+  const applyPercentageAdjustment = (percentage) => {
+    const multiplier = 1 + (percentage / 100);
+    const adjusted = {};
+    
+    Object.keys(editableEstimates).forEach(month => {
+      adjusted[month] = {
+        amount: Math.round((editableEstimates[month]?.amount || 0) * multiplier),
+        kgs: Math.round((editableEstimates[month]?.kgs || 0) * multiplier),
+        morm: Math.round((editableEstimates[month]?.morm || 0) * multiplier)
+      };
+    });
+    
+    setEditableEstimates(adjusted);
+    message.success(`Applied ${percentage > 0 ? '+' : ''}${percentage}% adjustment to all values`);
   };
 
   // Export handler
@@ -508,6 +621,18 @@ const EstimateTab = () => {
                 </p>
               </div>
 
+              {/* Existing Estimates Warning */}
+              {existingEstimateCount > 0 && (
+                <Alert
+                  type="warning"
+                  showIcon
+                  icon={<WarningOutlined />}
+                  message={`${existingEstimateCount.toLocaleString()} existing estimate records found for ${estimateYear}`}
+                  description="These will be automatically cleared when you click 'Calculate Estimates'. You'll be asked to confirm before proceeding."
+                  style={{ marginBottom: '8px' }}
+                />
+              )}
+
               <div>
                 <p><strong>Select Months to Estimate:</strong></p>
                 <p style={{ color: '#999', fontSize: '12px', marginBottom: '12px' }}>
@@ -550,6 +675,72 @@ const EstimateTab = () => {
                 <p style={{ color: '#666', fontSize: '12px' }}>
                   Review and adjust calculated estimates. Click on values to edit.
                 </p>
+              </div>
+
+              {/* Percentage Adjustment Controls */}
+              <div style={{ 
+                padding: '12px', 
+                backgroundColor: '#f5f5f5', 
+                borderRadius: '6px',
+                border: '1px solid #d9d9d9'
+              }}>
+                <Space wrap>
+                  <span style={{ fontWeight: 500 }}>
+                    <PercentageOutlined /> Adjust All Values:
+                  </span>
+                  <Tooltip title="Decrease by 10%">
+                    <Button size="small" onClick={() => applyPercentageAdjustment(-10)} icon={<MinusOutlined />}>
+                      10%
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Decrease by 5%">
+                    <Button size="small" onClick={() => applyPercentageAdjustment(-5)} icon={<MinusOutlined />}>
+                      5%
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Increase by 5%">
+                    <Button size="small" onClick={() => applyPercentageAdjustment(5)} icon={<PlusOutlined />}>
+                      5%
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Increase by 10%">
+                    <Button size="small" onClick={() => applyPercentageAdjustment(10)} icon={<PlusOutlined />}>
+                      10%
+                    </Button>
+                  </Tooltip>
+                  <span style={{ borderLeft: '1px solid #d9d9d9', paddingLeft: 8 }}>
+                    Custom:
+                  </span>
+                  <InputNumber
+                    size="small"
+                    placeholder="%"
+                    style={{ width: 70 }}
+                    addonAfter="%"
+                    onPressEnter={(e) => {
+                      const val = parseFloat(e.target.value);
+                      if (!isNaN(val)) applyPercentageAdjustment(val);
+                    }}
+                  />
+                  <Button 
+                    size="small" 
+                    type="primary"
+                    onClick={() => {
+                      // Reset to original calculated values
+                      const reset = {};
+                      calculatedEstimates.forEach(est => {
+                        reset[est.month] = {
+                          amount: est.amount,
+                          kgs: est.kgs,
+                          morm: est.morm
+                        };
+                      });
+                      setEditableEstimates(reset);
+                      message.info('Reset to original calculated values');
+                    }}
+                  >
+                    Reset
+                  </Button>
+                </Space>
               </div>
 
               <Table
@@ -635,6 +826,28 @@ const EstimateTab = () => {
             </Space>
           </Spin>
         )}
+      </Modal>
+
+      {/* Confirmation Modal for Replace */}
+      <Modal
+        title="Replace Existing Estimates"
+        open={confirmReplaceVisible}
+        onCancel={() => setConfirmReplaceVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setConfirmReplaceVisible(false)}>
+            Cancel
+          </Button>,
+          <Button key="confirm" type="primary" onClick={handleConfirmReplace}>
+            Yes, Replace
+          </Button>
+        ]}
+      >
+        <Alert
+          type="warning"
+          showIcon
+          message={`${existingEstimateCount.toLocaleString()} existing estimate records will be deleted`}
+          description={`Do you want to clear all existing estimates for ${estimateYear} and calculate new ones?`}
+        />
       </Modal>
     </div>
   );

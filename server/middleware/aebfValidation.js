@@ -366,8 +366,12 @@ const validationRules = {
       .notEmpty().withMessage('Budget year is required')
       .isInt({ min: 2000, max: 2100 }).withMessage('Budget year must be between 2000 and 2100')
       .toInt(),
-    body('budgetData')
-      .isArray().withMessage('Budget data must be an array'),
+    body('records')
+      .optional()
+      .isArray().withMessage('Records must be an array'),
+    body('servicesChargesRecords')
+      .optional()
+      .isArray().withMessage('Services charges records must be an array'),
     handleValidationErrors
   ],
 

@@ -1,3 +1,5 @@
+const logger = require('../utils/logger');
+
 const MAX_KGS_VALUE = 1_000_000_000;
 
 const safeTrim = (value) => (value === null || value === undefined)

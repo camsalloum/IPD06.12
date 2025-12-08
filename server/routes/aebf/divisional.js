@@ -31,60 +31,425 @@ const { saveDivisionalBudget, getDivisionalBudgetInfo } = require('../../service
 const { asyncHandler, successResponse } = require('../../middleware/aebfErrorHandler');
 const validationRules = require('../../middleware/aebfValidation');
 const { queryLimiter } = require('../../middleware/rateLimiter');
+const { generateDivisionalBudgetHtml } = require('../../utils/divisionalHtmlExport');
 
 /**
  * POST /divisional-html-budget-data
- * Get divisional budget data via getDivisionalBudgetInfo service
+ * Get divisional budget data - aggregated actual data by product group with pricing
+ * Returns actual year data for display and any existing budget data for budgetYear
  * 
  * @route POST /api/aebf/divisional-html-budget-data
  * @body {string} division - Division (FP or HC)
- * @body {number} budgetYear - Budget year
- * @returns {object} 200 - Divisional budget data
+ * @body {number} actualYear - Year to get actual data from
+ * @returns {object} 200 - Divisional budget data with tableData, pricingData, budgetData
  */
-router.post('/divisional-html-budget-data', queryLimiter, cacheMiddleware({ ttl: CacheTTL.MEDIUM }), validationRules.divisionalBudgetData, asyncHandler(async (req, res) => {
-  const { division, budgetYear } = req.body;
+router.post('/divisional-html-budget-data', queryLimiter, cacheMiddleware({ ttl: CacheTTL.MEDIUM }), asyncHandler(async (req, res) => {
+  const { division, actualYear, budgetYear: requestedBudgetYear } = req.body;
   
-  const budgetInfo = await getDivisionalBudgetInfo(division, budgetYear);
+  if (!division || !actualYear) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Division and actualYear are required' 
+    });
+  }
   
-  successResponse(res, { budgetData: budgetInfo });
-}));
-
-/**
- * POST /export-divisional-html-budget-form
- * Export divisional budget form (placeholder for future implementation)
- * 
- * @route POST /api/aebf/export-divisional-html-budget-form
- * @body {string} division - Division (FP or HC)
- * @body {number} budgetYear - Budget year
- * @returns {object} 200 - Export result (placeholder)
- */
-router.post('/export-divisional-html-budget-form', validationRules.divisionalBudgetData, asyncHandler(async (req, res) => {
-  const { division, budgetYear } = req.body;
+  const divisionPool = getPoolForDivision(division);
+  const tables = getTableNames(division);
+  // Use requested budgetYear if provided, otherwise default to actualYear + 1
+  const budgetYear = requestedBudgetYear ? parseInt(requestedBudgetYear) : parseInt(actualYear) + 1;
   
-  // Placeholder - implement export logic
-  successResponse(res, {
-    message: 'Export divisional budget form to be implemented',
-    division,
+  // 1. Get aggregated actual data by product group (excluding Services Charges)
+  const actualQuery = `
+    SELECT 
+      TRIM(productgroup) as product_group,
+      month,
+      values_type,
+      SUM(values) as total_values
+    FROM ${tables.dataExcel}
+    WHERE UPPER(division) = UPPER($1)
+      AND year = $2
+      AND UPPER(type) = 'ACTUAL'
+      AND values_type IN ('AMOUNT', 'KGS', 'MORM')
+      AND productgroup IS NOT NULL
+      AND TRIM(productgroup) != ''
+      AND UPPER(TRIM(productgroup)) != 'SERVICES CHARGES'
+    GROUP BY TRIM(productgroup), month, values_type
+    ORDER BY TRIM(productgroup), month
+  `;
+  
+  const actualResult = await divisionPool.query(actualQuery, [division, parseInt(actualYear)]);
+  
+  // Build table data structure - convert KGS to MT (divide by 1000)
+  const productGroupsMap = {};
+  actualResult.rows.forEach(row => {
+    const pgName = row.product_group;
+    if (!productGroupsMap[pgName]) {
+      productGroupsMap[pgName] = {
+        productGroup: pgName,
+        monthlyActual: {}
+      };
+    }
+    const month = row.month;
+    if (!productGroupsMap[pgName].monthlyActual[month]) {
+      productGroupsMap[pgName].monthlyActual[month] = { AMOUNT: 0, MT: 0, MORM: 0 };
+    }
+    const value = parseFloat(row.total_values) || 0;
+    if (row.values_type === 'KGS') {
+      // Convert KGS to MT
+      productGroupsMap[pgName].monthlyActual[month].MT = value / 1000;
+    } else {
+      productGroupsMap[pgName].monthlyActual[month][row.values_type] = value;
+    }
+  });
+  
+  const tableData = Object.values(productGroupsMap);
+  
+  // 1b. Get Services Charges separately (has Amount/MoRM but no KGS)
+  const servicesChargesQuery = `
+    SELECT 
+      month,
+      values_type,
+      SUM(values) as total_values
+    FROM ${tables.dataExcel}
+    WHERE UPPER(division) = UPPER($1)
+      AND year = $2
+      AND UPPER(type) = 'ACTUAL'
+      AND values_type IN ('AMOUNT', 'MORM')
+      AND UPPER(TRIM(productgroup)) = 'SERVICES CHARGES'
+    GROUP BY month, values_type
+    ORDER BY month
+  `;
+  
+  const servicesResult = await divisionPool.query(servicesChargesQuery, [division, parseInt(actualYear)]);
+  
+  // Build Services Charges data
+  const servicesChargesData = {
+    productGroup: 'Services Charges',
+    isServiceCharges: true, // Flag for frontend to handle differently
+    monthlyActual: {}
+  };
+  
+  servicesResult.rows.forEach(row => {
+    const month = row.month;
+    if (!servicesChargesData.monthlyActual[month]) {
+      servicesChargesData.monthlyActual[month] = { AMOUNT: 0, MT: 0, MORM: 0 };
+    }
+    const value = parseFloat(row.total_values) || 0;
+    servicesChargesData.monthlyActual[month][row.values_type] = value;
+  });
+  
+  // 2. Get pricing data (asp_round = Amount per KG, morm_round = MoRM per KG)
+  const pricingQuery = `
+    SELECT 
+      TRIM(p.product_group) as product_group,
+      p.asp_round,
+      p.morm_round,
+      COALESCE(m.material, '') as material,
+      COALESCE(m.process, '') as process
+    FROM ${tables.pricingRounding} p
+    LEFT JOIN ${tables.materialPercentages} m 
+      ON UPPER(TRIM(p.product_group)) = UPPER(TRIM(m.product_group))
+    WHERE UPPER(p.division) = UPPER($1)
+      AND p.year = $2
+      AND p.product_group IS NOT NULL
+      AND TRIM(p.product_group) != ''
+  `;
+  
+  const pricingResult = await divisionPool.query(pricingQuery, [division, parseInt(actualYear)]);
+  
+  const pricingData = {};
+  pricingResult.rows.forEach(row => {
+    pricingData[row.product_group] = {
+      asp: parseFloat(row.asp_round) || 0,  // Amount per KG
+      morm: parseFloat(row.morm_round) || 0, // MoRM per KG
+      material: row.material || '',
+      process: row.process || ''
+    };
+  });
+  
+  // 3. Get existing budget data (for budgetYear = actualYear + 1)
+  // Table columns: division, year, month, product_group, metric, value, material, process
+  let budgetData = {};
+  let servicesChargesBudget = {};
+  try {
+    // Get regular product group budgets (stored as KGS, convert to MT)
+    const budgetQuery = `
+      SELECT 
+        TRIM(product_group) as product_group,
+        month,
+        metric,
+        value
+      FROM ${tables.divisionalBudget}
+      WHERE UPPER(division) = UPPER($1)
+        AND year = $2
+        AND UPPER(metric) = 'KGS'
+        AND UPPER(TRIM(product_group)) != 'SERVICES CHARGES'
+    `;
+    
+    const budgetResult = await divisionPool.query(budgetQuery, [division, budgetYear]);
+    
+    budgetResult.rows.forEach(row => {
+      const key = `${row.product_group}|${row.month}`;
+      // Convert KGS to MT for display (user enters in MT)
+      budgetData[key] = (parseFloat(row.value) || 0) / 1000;
+    });
+    
+    // Get Services Charges budget (stored as AMOUNT directly)
+    const servicesBudgetQuery = `
+      SELECT 
+        month,
+        metric,
+        value
+      FROM ${tables.divisionalBudget}
+      WHERE UPPER(division) = UPPER($1)
+        AND year = $2
+        AND UPPER(TRIM(product_group)) = 'SERVICES CHARGES'
+        AND UPPER(metric) IN ('AMOUNT', 'MORM')
+    `;
+    
+    const servicesBudgetResult = await divisionPool.query(servicesBudgetQuery, [division, budgetYear]);
+    
+    servicesBudgetResult.rows.forEach(row => {
+      const key = `Services Charges|${row.month}|${row.metric}`;
+      servicesChargesBudget[key] = parseFloat(row.value) || 0;
+    });
+  } catch (error) {
+    logger.warn('No existing budget data found:', error.message);
+  }
+  
+  // Check if Services Charges has any data (actual or from pricing table)
+  const hasServicesChargesData = Object.keys(servicesChargesData.monthlyActual).length > 0 || 
+    pricingData['Services Charges'] !== undefined;
+  
+  successResponse(res, { 
+    data: tableData, 
+    servicesChargesData: hasServicesChargesData ? servicesChargesData : null,
+    pricingData, 
+    budgetData,
+    servicesChargesBudget,
+    actualYear: parseInt(actualYear),
     budgetYear
   });
 }));
 
 /**
+ * POST /export-divisional-html-budget-form
+ * Export divisional budget HTML form with actual data and editable budget fields
+ * Now generates a dynamic HTML with embedded JavaScript for live calculations
+ * 
+ * @route POST /api/aebf/export-divisional-html-budget-form
+ * @body {string} division - Division (FP or HC)
+ * @body {number} actualYear - Actual year for reference data
+ * @body {array} tableData - Table data with product groups and actual values
+ * @body {object} budgetData - Current budget values
+ * @body {object} servicesChargesData - Services Charges actual data
+ * @body {object} servicesChargesBudget - Services Charges budget data
+ * @body {object} pricingData - Pricing data for Amount/MoRM calculations
+ * @returns {html} - Dynamic HTML form file for download
+ */
+router.post('/export-divisional-html-budget-form', asyncHandler(async (req, res) => {
+  const { division, actualYear, tableData, budgetData, servicesChargesData, servicesChargesBudget, pricingData } = req.body;
+  
+  if (!division || !actualYear) {
+    return res.status(400).json({ success: false, error: 'Division and actualYear are required' });
+  }
+  
+  const budgetYear = parseInt(actualYear) + 1;
+  
+  logger.info(`Generating dynamic divisional budget HTML for ${division}, budget year ${budgetYear}`);
+  
+  // Generate the dynamic HTML using the generator
+  const htmlContent = generateDivisionalBudgetHtml({
+    division,
+    actualYear: parseInt(actualYear),
+    budgetYear,
+    tableData: tableData || [],
+    budgetData: budgetData || {},
+    servicesChargesData,
+    servicesChargesBudget: servicesChargesBudget || {},
+    pricingData: pricingData || {}
+  });
+  
+  // Generate filename with timestamp (no seconds, just HH:mm)
+  const now = new Date();
+  const dateStr = String(now.getDate()).padStart(2, '0') + String(now.getMonth() + 1).padStart(2, '0') + now.getFullYear();
+  const timeStr = String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
+  const filename = `BUDGET_Divisional_${division}_${budgetYear}_${dateStr}_${timeStr}.html`;
+  
+  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.send(htmlContent);
+}));
+
+/**
  * POST /import-divisional-budget-html
- * Import divisional budget HTML (placeholder for future implementation)
+ * Import divisional budget from HTML file
+ * Parses the HTML to extract budget values and saves to database
  * 
  * @route POST /api/aebf/import-divisional-budget-html
- * @body {string} division - Division (FP or HC)
- * @body {number} budgetYear - Budget year
- * @body {object} budgetData - Budget data to import
- * @returns {object} 200 - Import result (placeholder)
+ * @body {string} htmlContent - The HTML content to parse
+ * @body {boolean} forceUpdate - If true, update existing records without confirmation
+ * @returns {object} 200 - Import result with record counts
  */
-router.post('/import-divisional-budget-html', validationRules.saveDivisionalBudget, asyncHandler(async (req, res) => {
-  const { division, budgetYear, budgetData } = req.body;
+router.post('/import-divisional-budget-html', asyncHandler(async (req, res) => {
+  const { htmlContent, forceUpdate, confirmReplace } = req.body;
+  const shouldForceUpdate = forceUpdate || confirmReplace;
   
-  // Placeholder - implement import logic
+  if (!htmlContent) {
+    return res.status(400).json({ success: false, error: 'htmlContent is required' });
+  }
+  
+  // Parse metadata from HTML
+  const divisionMatch = htmlContent.match(/<meta\s+name="division"\s+content="([^"]+)"/i);
+  const actualYearMatch = htmlContent.match(/<meta\s+name="actualYear"\s+content="(\d+)"/i);
+  const budgetYearMatch = htmlContent.match(/<meta\s+name="budgetYear"\s+content="(\d+)"/i);
+  
+  if (!divisionMatch || !budgetYearMatch) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'Invalid HTML file - missing division or budgetYear metadata. Please use a file exported from this system.' 
+    });
+  }
+  
+  const division = divisionMatch[1];
+  const budgetYear = parseInt(budgetYearMatch[1]);
+  const actualYear = actualYearMatch ? parseInt(actualYearMatch[1]) : budgetYear - 1;
+  
+  // Parse budget values from input fields
+  // Format for regular products: name="budget_ProductGroup|Month" value="123"
+  // Format for Services Charges: name="budget_Services Charges|Month|AMOUNT" value="123"
+  const regularBudgetPattern = /name="budget_([^|]+)\|(\d+)"\s+value="([^"]*)"/gi;
+  const servicesChargesPattern = /name="budget_Services Charges\|(\d+)\|AMOUNT"\s+value="([^"]*)"/gi;
+  
+  const parsedRecords = [];
+  const servicesChargesRecords = [];
+  let match;
+  
+  // Parse regular product group budget entries
+  while ((match = regularBudgetPattern.exec(htmlContent)) !== null) {
+    const productGroup = match[1];
+    const month = parseInt(match[2]);
+    const value = match[3].trim();
+    
+    // Skip Services Charges - they're parsed separately with the other pattern
+    if (productGroup.toUpperCase() === 'SERVICES CHARGES') continue;
+    
+    if (value && !isNaN(parseFloat(value))) {
+      parsedRecords.push({
+        productGroup,
+        month,
+        value: Math.round(parseFloat(value) * 1000) // Convert MT to KGS
+      });
+    }
+  }
+  
+  // Parse Services Charges budget entries (stored as AMOUNT × 1000)
+  while ((match = servicesChargesPattern.exec(htmlContent)) !== null) {
+    const month = parseInt(match[1]);
+    const value = match[2].trim();
+    
+    if (value && !isNaN(parseFloat(value))) {
+      servicesChargesRecords.push({
+        month,
+        amountValue: Math.round(parseFloat(value) * 1000) // Convert k to full value
+      });
+    }
+  }
+  
+  if (parsedRecords.length === 0 && servicesChargesRecords.length === 0) {
+    return res.status(400).json({ 
+      success: false, 
+      error: 'No valid budget values found in the HTML file. Please fill in at least one budget value.' 
+    });
+  }
+  
+  const divisionPool = getPoolForDivision(division);
+  const tables = getTableNames(division);
+  
+  // Check for existing budget
+  const existingResult = await divisionPool.query(`
+    SELECT COUNT(*) as count, MAX(uploaded_at) as last_upload
+    FROM ${tables.divisionalBudget}
+    WHERE UPPER(division) = UPPER($1) AND year = $2
+  `, [division, budgetYear]);
+  
+  const existingCount = parseInt(existingResult.rows[0]?.count || 0);
+  const lastUpload = existingResult.rows[0]?.last_upload;
+  
+  // If existing budget found and no forceUpdate/confirmReplace, ask for confirmation
+  if (existingCount > 0 && !shouldForceUpdate) {
+    return successResponse(res, {
+      needsConfirmation: true,
+      existingBudget: {
+        recordCount: existingCount,
+        lastUpload
+      },
+      metadata: {
+        division,
+        budgetYear,
+        actualYear
+      },
+      recordsToImport: parsedRecords.length + servicesChargesRecords.length
+    });
+  }
+  
+  // Proceed with import using the existing save function
+  const result = await saveDivisionalBudget(divisionPool, {
+    division,
+    budgetYear,
+    records: parsedRecords
+  });
+  
+  // Save Services Charges records (AMOUNT and MORM)
+  let servicesChargesCount = 0;
+  if (servicesChargesRecords.length > 0) {
+    // Delete existing Services Charges for this year
+    await divisionPool.query(`
+      DELETE FROM ${tables.divisionalBudget}
+      WHERE UPPER(division) = UPPER($1) 
+        AND year = $2 
+        AND UPPER(TRIM(product_group)) = 'SERVICES CHARGES'
+    `, [division, parseInt(budgetYear)]);
+    
+    // Insert new Services Charges records
+    for (const record of servicesChargesRecords) {
+      // Insert AMOUNT record
+      await divisionPool.query(`
+        INSERT INTO ${tables.divisionalBudget} 
+        (division, year, month, product_group, metric, value, material, process, uploaded_filename, uploaded_at)
+        VALUES ($1, $2, $3, 'Services Charges', 'AMOUNT', $4, '', '', 'HTML_Import', NOW())
+      `, [division, budgetYear, record.month, record.amountValue]);
+      
+      // Insert MORM record (same as AMOUNT for Services Charges - 100% margin)
+      await divisionPool.query(`
+        INSERT INTO ${tables.divisionalBudget} 
+        (division, year, month, product_group, metric, value, material, process, uploaded_filename, uploaded_at)
+        VALUES ($1, $2, $3, 'Services Charges', 'MORM', $4, '', '', 'HTML_Import', NOW())
+      `, [division, budgetYear, record.month, record.amountValue]);
+      
+      servicesChargesCount++;
+    }
+  }
+  
+  // Invalidate cache
+  invalidateCache('aebf:*').catch(err => 
+    logger.warn('Cache invalidation warning:', err.message)
+  );
+  
   successResponse(res, {
-    message: 'Import divisional budget to be implemented'
+    success: true,
+    metadata: {
+      division,
+      budgetYear,
+      actualYear
+    },
+    recordsInserted: result.recordsInserted,
+    recordsProcessed: result.recordsProcessed,
+    servicesChargesRecords: servicesChargesCount,
+    skippedRecords: result.skippedRecords,
+    validationErrors: result.validationErrors,
+    warnings: result.warnings || [],
+    pricingYear: result.pricingYear
   });
 }));
 
@@ -95,20 +460,79 @@ router.post('/import-divisional-budget-html', validationRules.saveDivisionalBudg
  * @route POST /api/aebf/save-divisional-budget
  * @body {string} division - Division (FP or HC)
  * @body {number} budgetYear - Budget year
- * @body {array} budgetData - Array of budget records
+ * @body {array} records - Array of budget records (regular product groups)
+ * @body {array} servicesChargesRecords - Array of Services Charges records (optional)
  * @returns {object} 200 - Save result with record counts
  */
 router.post('/save-divisional-budget', validationRules.saveDivisionalBudget, asyncHandler(async (req, res) => {
-  const { division, budgetYear, budgetData } = req.body;
+  const { division, budgetYear, records, servicesChargesRecords } = req.body;
   
-  const result = await saveDivisionalBudget(division, budgetYear, budgetData);
+  const divisionPool = getPoolForDivision(division);
+  const tables = getTableNames(division);
+  
+  // Save regular product group budget records
+  const result = await saveDivisionalBudget(divisionPool, {
+    division,
+    budgetYear,
+    records: records || []
+  });
+  
+  // Save Services Charges records separately (stored as AMOUNT, not KGS)
+  let servicesChargesCount = 0;
+  if (servicesChargesRecords && servicesChargesRecords.length > 0) {
+    // First delete existing Services Charges for this year
+    await divisionPool.query(`
+      DELETE FROM ${tables.divisionalBudget}
+      WHERE UPPER(division) = UPPER($1) 
+        AND year = $2 
+        AND UPPER(TRIM(product_group)) = 'SERVICES CHARGES'
+    `, [division, parseInt(budgetYear)]);
+    
+    // Insert new Services Charges records
+    for (const record of servicesChargesRecords) {
+      // Insert AMOUNT record
+      await divisionPool.query(`
+        INSERT INTO ${tables.divisionalBudget} 
+        (division, year, month, product_group, metric, value, material, process, uploaded_filename, uploaded_at)
+        VALUES ($1, $2, $3, $4, $5, $6, '', '', 'LIVE_Services_Charges', NOW())
+      `, [
+        division.toUpperCase(),
+        parseInt(budgetYear),
+        record.month,
+        'Services Charges',
+        'AMOUNT',
+        record.value
+      ]);
+      
+      // Also insert MORM record (100% of Amount for Services Charges)
+      await divisionPool.query(`
+        INSERT INTO ${tables.divisionalBudget} 
+        (division, year, month, product_group, metric, value, material, process, uploaded_filename, uploaded_at)
+        VALUES ($1, $2, $3, $4, $5, $6, '', '', 'LIVE_Services_Charges', NOW())
+      `, [
+        division.toUpperCase(),
+        parseInt(budgetYear),
+        record.month,
+        'Services Charges',
+        'MORM',
+        record.value  // MoRM = 100% of Amount
+      ]);
+      
+      servicesChargesCount++;
+    }
+    
+    logger.info(`Saved ${servicesChargesCount} Services Charges records for ${division} ${budgetYear}`);
+  }
   
   // Invalidate cache after saving
   invalidateCache('aebf:*').catch(err => 
     logger.warn('Cache invalidation warning:', err.message)
   );
   
-  successResponse(res, result);
+  successResponse(res, {
+    ...result,
+    servicesChargesRecords: servicesChargesCount
+  });
 }));
 
 /**
@@ -128,7 +552,7 @@ router.delete('/delete-divisional-budget/:division/:budgetYear', validationRules
   
   const deleteQuery = `
     DELETE FROM ${tables.divisionalBudget}
-    WHERE UPPER(division) = UPPER($1) AND budget_year = $2
+    WHERE UPPER(division) = UPPER($1) AND year = $2
   `;
   
   const result = await divisionPool.query(deleteQuery, [division, parseInt(budgetYear)]);

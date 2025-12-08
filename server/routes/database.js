@@ -313,18 +313,70 @@ router.post('/sales-rep-divisional-batch', async (req, res) => {
 });
 
 // POST /sales-rep-divisional-ultra-fast - Ultra-fast sales rep query
+// Returns aggregated sales data by sales rep for the requested columns (year/type)
 router.post('/sales-rep-divisional-ultra-fast', async (req, res) => {
   try {
-    const { division, salesRep, filters } = req.body;
+    const { division, salesReps, columns } = req.body;
+    
+    if (!division || !Array.isArray(salesReps) || !salesReps.length) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'division and salesReps array are required' 
+      });
+    }
+    
     const pool = await getDivisionPool(division);
-    const tableName = `${division.toLowerCase()}_data_excel`;
+    const divCode = division.split('-')[0].toLowerCase();
+    const tableName = `${divCode}_data_excel`;
     
-    const result = await pool.query(
-      `SELECT * FROM ${tableName} WHERE salesrepname = $1`,
-      [salesRep]
-    );
+    // Build column queries - each column specifies year, type, months
+    const columnDefs = columns || [{ year: new Date().getFullYear(), type: 'Actual', columnKey: 'default' }];
     
-    res.json({ success: true, data: result.rows });
+    // Query aggregated data per sales rep
+    const query = `
+      SELECT 
+        UPPER(TRIM(salesrepname)) as salesrep,
+        year,
+        UPPER(type) as type,
+        SUM(CASE WHEN UPPER(values_type) = 'KGS' THEN values ELSE 0 END) as total_kgs
+      FROM ${tableName}
+      WHERE UPPER(TRIM(salesrepname)) = ANY($1::text[])
+        AND year = ANY($2::int[])
+        AND UPPER(type) = ANY($3::text[])
+      GROUP BY UPPER(TRIM(salesrepname)), year, UPPER(type)
+    `;
+    
+    const years = [...new Set(columnDefs.map(c => parseInt(c.year)))];
+    const types = [...new Set(columnDefs.map(c => c.type.toUpperCase()))];
+    const normalizedSalesReps = salesReps.map(sr => sr.toString().trim().toUpperCase());
+    
+    const result = await pool.query(query, [normalizedSalesReps, years, types]);
+    
+    // Build response keyed by sales rep with column values
+    const data = {};
+    
+    // Initialize all sales reps with zeros
+    normalizedSalesReps.forEach(sr => {
+      data[sr] = {};
+      columnDefs.forEach(col => {
+        data[sr][col.columnKey || `${col.type.toLowerCase()}-${col.year}`] = 0;
+      });
+    });
+    
+    // Fill in actual values from query results
+    result.rows.forEach(row => {
+      const repKey = row.salesrep;
+      if (!data[repKey]) return;
+      
+      columnDefs.forEach(col => {
+        if (parseInt(row.year) === parseInt(col.year) && row.type === col.type.toUpperCase()) {
+          const colKey = col.columnKey || `${col.type.toLowerCase()}-${col.year}`;
+          data[repKey][colKey] = parseFloat(row.total_kgs) || 0;
+        }
+      });
+    });
+    
+    res.json({ success: true, data });
   } catch (error) {
     logger.error('Error in ultra-fast sales rep query', { error: error.message });
     res.status(500).json({ success: false, error: 'Failed to fetch data' });

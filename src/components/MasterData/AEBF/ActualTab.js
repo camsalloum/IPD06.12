@@ -63,11 +63,11 @@ const ActualTab = () => {
       });
       
       if (response.data.success) {
-        const years = response.data.filterOptions.year || [];
+        const years = response.data.data.filterOptions.year || [];
         setAvailableYears(years.sort((a, b) => b - a)); // Descending
         
         // Store all filter options for column filters
-        setFilterOptions(response.data.filterOptions);
+        setFilterOptions(response.data.data.filterOptions);
         
         // Set default year based on base period
         if (years.length > 0 && !selectedYear) {
@@ -112,7 +112,7 @@ const ActualTab = () => {
       const response = await axios.get('http://localhost:3001/api/aebf/year-summary', { params });
       
       if (response.data.success) {
-        setYearSummary(response.data.summary);
+        setYearSummary(response.data.data.summary);
       }
     } catch (error) {
       console.error('Error fetching year summary:', error);
@@ -152,11 +152,11 @@ const ActualTab = () => {
       const response = await axios.get('http://localhost:3001/api/aebf/actual', { params });
       
       if (response.data.success) {
-        setData(response.data.data.map(item => ({ ...item, key: item.id })));
+        setData(response.data.data.data.map(item => ({ ...item, key: item.id })));
         setPagination({
-          current: response.data.pagination.page,
-          pageSize: response.data.pagination.pageSize,
-          total: response.data.pagination.total,
+          current: response.data.data.pagination.page,
+          pageSize: response.data.data.pagination.pageSize,
+          total: response.data.data.pagination.total,
         });
       } else {
         message.error('Failed to load data');

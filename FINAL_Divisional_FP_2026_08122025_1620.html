@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<!-- IPD_BUDGET_SYSTEM_v1.0 :: TYPE=DIVISIONAL_BUDGET :: DO_NOT_EDIT_THIS_LINE -->
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="division" content="FP">
+  <meta name="actualYear" content="2025">
+  <meta name="budgetYear" content="2026">
+  <meta name="exportType" content="divisional">
+  <title>Divisional Budget Planning - FP - 2026</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    .header { background: #fff; padding: 16px 20px; margin-bottom: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; }
+    .header h1 { margin-bottom: 8px; color: #333; font-size: 20px; }
+    .header-info { display: flex; gap: 30px; flex-wrap: wrap; font-size: 13px; color: #666; }
+    .header-info strong { color: #333; }
+    
+    .summary-container { background: #f8f9fa; padding: 12px 16px; margin-bottom: 12px; border-radius: 4px; }
+    .summary-title { font-size: 13px; font-weight: 600; color: #1890ff; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .summary-cards { display: flex; gap: 16px; flex-wrap: wrap; }
+    .summary-card { flex: 1; min-width: 280px; background: #fff; border-radius: 6px; padding: 12px 16px; border: 1px solid #e8e8e8; }
+    .summary-card-title { font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .summary-card-values { display: flex; align-items: baseline; gap: 24px; }
+    .summary-label { font-size: 11px; color: #999; }
+    .summary-value { font-size: 16px; font-weight: 600; }
+    .summary-value.actual { color: #1890ff; }
+    .summary-value.budget { color: #d4b106; }
+    .summary-variance { margin-left: auto; font-size: 14px; font-weight: 700; }
+    .summary-variance.positive { color: #52c41a; }
+    .summary-variance.negative { color: #ff4d4f; }
+    
+    .table-container {
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow: auto;
+      margin-bottom: 16px;
+      max-height: 600px;
+    }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; table-layout: fixed; }
+    
+    thead th.legend-header {
+      position: sticky; top: 0; z-index: 1002;
+      background: #fff; padding: 12px 24px;
+      border-bottom: 1px solid #e8e8e8; text-align: left;
+    }
+    thead tr.header-row { position: sticky; top: 49px; z-index: 1001; background: #fff; }
+    thead th.column-header {
+      background-color: #1677ff; color: #fff;
+      padding: 8px; border: 1px solid #fff;
+      text-align: center; white-space: normal; word-break: break-word; line-height: 1.3;
+    }
+    thead th.column-header.sticky-col {
+      position: sticky; left: 0; z-index: 1003; background-color: #1677ff;
+    }
+    
+    tbody td { padding: 8px; border: 1px solid #ddd; }
+    tbody td:first-child {
+      background-color: #fff; position: sticky; left: 0; z-index: 5;
+      font-weight: 600; white-space: normal; word-break: break-word; line-height: 1.3;
+    }
+    tbody tr.actual-row { background-color: #e6f4ff; }
+    tbody tr.actual-row td:nth-child(n+2) { background-color: #e6f4ff; text-align: right; font-weight: 500; padding: 6px 8px; }
+    tbody tr.budget-row { background-color: #FFFFB8; }
+    tbody tr.budget-row td { background-color: #FFFFB8 !important; padding: 2px; text-align: right; }
+    tbody input {
+      width: 100%; border: none; padding: 4px 6px;
+      text-align: right; font-size: 12px; font-weight: 500;
+      background-color: transparent !important; box-shadow: none;
+    }
+    tbody input:focus { outline: 2px solid #1677ff; background-color: #fff !important; }
+    
+    tfoot tr.actual-total td { padding: 6px 8px; border: 1px solid #ddd; background-color: #cce4ff; text-align: right; font-weight: 700; font-size: 12px; }
+    tfoot tr.actual-total td:first-child { position: sticky; left: 0; z-index: 6; text-align: left; }
+    tfoot tr.actual-total td:last-child { background-color: #b3d9ff; text-align: center; }
+    
+    tfoot tr.actual-amount-total td { padding: 6px 8px; border: 1px solid #ddd; background-color: #d4edda; text-align: right; font-weight: 700; font-size: 12px; }
+    tfoot tr.actual-amount-total td:first-child { position: sticky; left: 0; z-index: 6; text-align: left; background-color: #d4edda; }
+    tfoot tr.actual-amount-total td:last-child { background-color: #c3e6cb; text-align: center; }
+    
+    tfoot tr.actual-morm-total td { padding: 6px 8px; border: 1px solid #ddd; background-color: #ffe0b2; text-align: right; font-weight: 700; font-size: 12px; }
+    tfoot tr.actual-morm-total td:first-child { position: sticky; left: 0; z-index: 6; text-align: left; background-color: #ffe0b2; }
+    tfoot tr.actual-morm-total td:last-child { background-color: #ffb74d; text-align: center; }
+    
+    tfoot tr.budget-total td { padding: 6px 8px; border: 1px solid #ddd; background-color: #cce4ff; text-align: right; font-weight: 700; font-size: 12px; }
+    tfoot tr.budget-total td:first-child { position: sticky; left: 0; z-index: 6; text-align: left; background-color: #cce4ff; }
+    tfoot tr.budget-total td:last-child { background-color: #b3d9ff; text-align: center; }
+    
+    tfoot tr.budget-amount-total td { padding: 6px 8px; border: 1px solid #ddd; background-color: #d4edda; text-align: right; font-weight: 700; font-size: 12px; }
+    tfoot tr.budget-amount-total td:first-child { position: sticky; left: 0; z-index: 6; text-align: left; background-color: #d4edda; }
+    tfoot tr.budget-amount-total td:last-child { background-color: #c3e6cb; text-align: center; }
+    
+    tfoot tr.budget-morm-total td { padding: 6px 8px; border: 1px solid #ddd; background-color: #ffe0b2; text-align: right; font-weight: 700; font-size: 12px; }
+    tfoot tr.budget-morm-total td:first-child { position: sticky; left: 0; z-index: 6; text-align: left; background-color: #ffe0b2; }
+    tfoot tr.budget-morm-total td:last-child { background-color: #ffb74d; text-align: center; }
+    
+    .btn { background: #1677ff; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500; }
+    .btn:hover { background: #4096ff; }
+    .btn-success { background: #52c41a; }
+    .btn-success:hover { background: #73d13d; }
+    
+    /* Product Group Chart Section */
+    .product-group-chart-container {
+      background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+      border: 1px solid #ffc53d;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 12px 0;
+      box-shadow: 0 2px 6px rgba(212, 136, 6, 0.1);
+      flex-shrink: 0;
+    }
+    .product-group-chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #d48806;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1;
+    }
+    .product-group-chart-title svg {
+      width: 18px;
+      height: 18px;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .product-group-chart-wrapper {
+      background: #fff;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .product-group-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-top: 16px;
+    }
+    .product-group-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 600;
+      color: #fff;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+    }
+    .product-group-table th:nth-child(2),
+    .product-group-table th:nth-child(3),
+    .product-group-table th:nth-child(4) {
+      text-align: right;
+    }
+    .product-group-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e8e8e8;
+      font-size: 13px;
+    }
+    .product-group-table td:first-child {
+      font-weight: 600;
+      color: #333;
+    }
+    .product-group-table td:nth-child(2),
+    .product-group-table td:nth-child(3),
+    .product-group-table td:nth-child(4) {
+      text-align: right;
+      font-weight: 500;
+      font-family: 'Segoe UI', monospace;
+    }
+    .product-group-table tbody tr:hover {
+      background-color: #f0f7ff;
+    }
+    .product-group-table tbody tr:nth-child(even) {
+      background-color: #fafbfc;
+    }
+    .pg-variance-positive { color: #52c41a; font-weight: 600; }
+    .pg-variance-negative { color: #ff4d4f; font-weight: 600; }
+    .pg-variance-neutral { color: #666; font-weight: 500; }
+    .pg-variance-new { color: #1890ff; font-weight: 600; background: #e6f7ff; padding: 2px 8px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📊 Divisional Budget Planning - FP</h1>
+    <div class="header-info">
+      <div><strong>Division:</strong> FP</div>
+      <div><strong>Actual Year:</strong> 2025</div>
+      <div><strong>Budget Year:</strong> 2026</div>
+    </div>
+  </div>
+
+  <!-- Budget vs Actual Summary -->
+  <div class="summary-container">
+    <div class="summary-title">📊 Budget vs Actual Summary</div>
+    <div class="summary-cards">
+      <!-- Volume Card -->
+      <div class="summary-card">
+        <div class="summary-card-title">📦 Volume (MT)</div>
+        <div class="summary-card-values">
+          <div><span class="summary-label">Act: </span><span class="summary-value actual">8,544.25</span></div>
+          <div><span class="summary-label">Bud: </span><span id="summaryBudgetVolume" class="summary-value budget">1,500.00</span></div>
+          <span id="summaryVolumeVariance" class="summary-variance negative">-82%</span>
+        </div>
+      </div>
+      <!-- Amount Card -->
+      <div class="summary-card">
+        <div class="summary-card-title"><svg class="uae-dirham-symbol" viewBox="0 0 344.84 299.91" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display: inline-block; vertical-align: -0.1em; width: 1em; height: 1em; margin-right: 0.2em;"><path d="M342.14,140.96l2.7,2.54v-7.72c0-17-11.92-30.84-26.56-30.84h-23.41C278.49,36.7,222.69,0,139.68,0c-52.86,0-59.65,0-109.71,0,0,0,15.03,12.63,15.03,52.4v52.58h-27.68c-5.38,0-10.43-2.08-14.61-6.01l-2.7-2.54v7.72c0,17.01,11.92,30.84,26.56,30.84h18.44s0,29.99,0,29.99h-27.68c-5.38,0-10.43-2.07-14.61-6.01l-2.7-2.54v7.71c0,17,11.92,30.82,26.56,30.82h18.44s0,54.89,0,54.89c0,38.65-15.03,50.06-15.03,50.06h109.71c85.62,0,139.64-36.96,155.38-104.98h32.46c5.38,0,10.43,2.07,14.61,6l2.7,2.54v-7.71c0-17-11.92-30.83-26.56-30.83h-18.9c.32-4.88.49-9.87.49-15s-.18-10.11-.51-14.99h28.17c5.37,0,10.43,2.07,14.61,6.01ZM89.96,15.01h45.86c61.7,0,97.44,27.33,108.1,89.94l-153.96.02V15.01ZM136.21,284.93h-46.26v-89.98l153.87-.02c-9.97,56.66-42.07,88.38-107.61,90ZM247.34,149.96c0,5.13-.11,10.13-.34,14.99l-157.04.02v-29.99l157.05-.02c.22,4.84.33,9.83.33,15Z"></path></svg> Amount</div>
+        <div class="summary-card-values">
+          <div><span class="summary-label">Act: </span><span class="summary-value actual">95.79M</span></div>
+          <div><span class="summary-label">Bud: </span><span id="summaryBudgetAmount" class="summary-value budget">20.32M</span></div>
+          <span id="summaryAmountVariance" class="summary-variance negative">-79%</span>
+        </div>
+      </div>
+      <!-- MoRM Card -->
+      <div class="summary-card">
+        <div class="summary-card-title">📈 MoRM</div>
+        <div class="summary-card-values">
+          <div><span class="summary-label">Act: </span><span class="summary-value actual">37.46M</span></div>
+          <div><span class="summary-label">Bud: </span><span id="summaryBudgetMorm" class="summary-value budget">9.62M</span></div>
+          <span id="summaryMormVariance" class="summary-variance negative">-74%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <colgroup>
+        <col style="width: 20%;">
+        <col style="width: 5.7%;"><col style="width: 5.7%;"><col style="width: 5.7%;"><col style="width: 5.7%;"><col style="width: 5.7%;"><col style="width: 5.7%;"><col style="width: 5.7%;"><col style="width: 5.7%;"><col style="width: 5.7%;"><col style="width: 5.7%;"><col style="width: 5.7%;"><col style="width: 5.7%;">
+        <col style="width: 8%;">
+      </colgroup>
+      <thead>
+        <tr>
+          <th colspan="14" class="legend-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; gap: 24px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #e6f4ff; border: 1px solid #99c8ff;"></span>
+                  <span>Actual 2025 Volume (MT)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="display: inline-block; width: 16px; height: 16px; background-color: #FFFFB8; border: 1px solid #d4b106;"></span>
+                  <span>Budget 2026 Volume (MT)</span>
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                
+                
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr class="header-row">
+          <th rowspan="2" class="column-header sticky-col">Product Group</th>
+          <th class="column-header">1</th><th class="column-header">2</th><th class="column-header">3</th><th class="column-header">4</th><th class="column-header">5</th><th class="column-header">6</th><th class="column-header">7</th><th class="column-header">8</th><th class="column-header">9</th><th class="column-header">10</th><th class="column-header">11</th><th class="column-header">12</th>
+          <th class="column-header">Year Total</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        
+        <tr class="actual-row" data-pg="Commercial Items Plain">
+          <td rowspan="2">Commercial Items Plain</td>
+          <td>31.22</td><td>17.53</td><td>18.04</td><td>27.22</td><td>11.08</td><td>28.30</td><td>18.12</td><td>14.24</td><td>14.90</td><td>25.29</td><td>8.55</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">214.50</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Commercial Items Plain" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">200.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Commercial Items Printed">
+          <td rowspan="2">Commercial Items Printed</td>
+          <td>21.13</td><td>22.33</td><td>11.57</td><td>30.79</td><td>15.70</td><td>4.44</td><td>8.94</td><td>16.10</td><td>7.62</td><td>13.20</td><td>3.51</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">155.33</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Commercial Items Printed" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">200.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Industrial Items Plain">
+          <td rowspan="2">Industrial Items Plain</td>
+          <td>20.37</td><td>19.92</td><td>12.94</td><td>18.42</td><td>29.07</td><td>14.94</td><td>9.45</td><td>10.42</td><td>11.19</td><td>13.12</td><td>10.00</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">169.85</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Industrial Items Plain" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">100.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Industrial Items Printed">
+          <td rowspan="2">Industrial Items Printed</td>
+          <td>69.41</td><td>58.30</td><td>87.28</td><td>44.02</td><td>81.45</td><td>77.89</td><td>65.11</td><td>63.71</td><td>79.74</td><td>56.30</td><td>39.04</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">722.25</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Industrial Items Printed" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">100.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Laminates">
+          <td rowspan="2">Laminates</td>
+          <td>123.38</td><td>174.69</td><td>175.94</td><td>209.75</td><td>168.73</td><td>144.27</td><td>138.06</td><td>145.09</td><td>149.73</td><td>180.82</td><td>147.50</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">1,757.94</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Laminates" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">100.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Mono Layer Printed">
+          <td rowspan="2">Mono Layer Printed</td>
+          <td>0.00</td><td>26.10</td><td>26.86</td><td>25.01</td><td>27.57</td><td>24.63</td><td>37.92</td><td>7.04</td><td>0.99</td><td>0.00</td><td>39.17</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">215.29</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Mono Layer Printed" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">100.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Others">
+          <td rowspan="2">Others</td>
+          <td>1.68</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.54</td><td>0.98</td><td>0.00</td><td>0.53</td><td>0.00</td><td>0.48</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">4.22</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Others" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">100.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Shrink Film Plain">
+          <td rowspan="2">Shrink Film Plain</td>
+          <td>98.23</td><td>93.77</td><td>85.20</td><td>119.76</td><td>111.53</td><td>102.40</td><td>153.37</td><td>60.22</td><td>152.04</td><td>143.02</td><td>158.63</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">1,278.18</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Shrink Film Plain" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">100.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Shrink Film Printed">
+          <td rowspan="2">Shrink Film Printed</td>
+          <td>217.73</td><td>228.17</td><td>220.97</td><td>264.04</td><td>241.32</td><td>267.73</td><td>300.39</td><td>262.57</td><td>293.54</td><td>308.79</td><td>318.44</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">2,923.70</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Shrink Film Printed" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">100.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Shrink Sleeves">
+          <td rowspan="2">Shrink Sleeves</td>
+          <td>70.60</td><td>60.12</td><td>62.24</td><td>59.48</td><td>51.54</td><td>63.57</td><td>49.91</td><td>60.03</td><td>51.21</td><td>58.38</td><td>38.92</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">625.99</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Shrink Sleeves" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">100.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Wide Film">
+          <td rowspan="2">Wide Film</td>
+          <td>17.74</td><td>12.52</td><td>25.28</td><td>5.25</td><td>8.89</td><td>16.65</td><td>12.42</td><td>18.34</td><td>11.89</td><td>30.51</td><td>19.00</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">178.49</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td>
+          <td class="product-budget-total" data-group="Wide Film" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">100.00</td>
+        </tr>
+        <tr class="actual-row" data-pg="Wrap Around Label">
+          <td rowspan="2">Wrap Around Label</td>
+          <td>38.12</td><td>21.95</td><td>13.18</td><td>19.59</td><td>34.09</td><td>28.42</td><td>33.41</td><td>29.93</td><td>45.82</td><td>16.67</td><td>17.33</td><td>0.00</td>
+          <td style="background-color: #b3d9ff; text-align: center; font-weight: 700;">298.52</td>
+        </tr>
+        <tr class="budget-row">
+          <td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">0</td><td style="text-align: right; font-weight: 500; padding: 6px 8px;">100.00</td>
+          <td class="product-budget-total" data-group="Wrap Around Label" style="background-color: #FFEB3B; text-align: center; font-weight: 700;">200.00</td>
+        </tr>
+        <tr class="actual-row" style="border-top: 2px solid #1890ff; background-color: #f0f5ff;">
+          <td rowspan="2" style="font-style: italic;">Services Charges<br><span style="font-size: 10px; color: #666; font-weight: 400;">(Amount in k)</span></td>
+          <td style="font-size: 11px;">67.1K</td><td style="font-size: 11px;">49.2K</td><td style="font-size: 11px;">96.1K</td><td style="font-size: 11px;">64.7K</td><td style="font-size: 11px;">199.0K</td><td style="font-size: 11px;">60.1K</td><td style="font-size: 11px;">34.1K</td><td style="font-size: 11px;">210.5K</td><td style="font-size: 11px;">68.8K</td><td style="font-size: 11px;">39.4K</td><td style="font-size: 11px;">80.5K</td><td style="font-size: 11px;">0</td>
+          <td style="background-color: #d4f7d4; text-align: center; font-weight: 700; font-size: 11px;">969.5K</td>
+        </tr>
+        <tr class="budget-row" style="background-color: #fffbe6;">
+          <td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="1" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="2" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="3" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="4" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="5" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="6" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="7" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="8" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="9" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="10" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="11" data-metric="AMOUNT" placeholder="0" value="1000" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td><td style="background-color: #fffbe6;">
+          <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; text-align: right; font-weight: 500; padding: 6px 8px;">
+            <input type="text" data-group="Services Charges" data-month="12" data-metric="AMOUNT" placeholder="0" value="" style="width: 50px; font-size: 11px;">
+            <span style="font-size: 10px; color: #666;">k</span>
+          </div>
+        </td>
+          <td class="sc-budget-total" style="background-color: #fffbe6; text-align: center; font-weight: 700; font-size: 11px;">1.00M</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="actual-total">
+          <td>Total Actual Volume (MT)</td>
+          <td>709.60</td><td>735.39</td><td>739.52</td><td>823.33</td><td>780.97</td><td>773.79</td><td>828.08</td><td>687.70</td><td>819.21</td><td>846.10</td><td>800.58</td><td>0.00</td>
+          <td>8,544.25</td>
+        </tr>
+        <tr class="actual-amount-total">
+          <td>Total Actual Amount <svg class="uae-dirham-symbol" viewBox="0 0 344.84 299.91" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display: inline-block; vertical-align: -0.1em; width: 1em; height: 1em; margin-right: 0.2em;"><path d="M342.14,140.96l2.7,2.54v-7.72c0-17-11.92-30.84-26.56-30.84h-23.41C278.49,36.7,222.69,0,139.68,0c-52.86,0-59.65,0-109.71,0,0,0,15.03,12.63,15.03,52.4v52.58h-27.68c-5.38,0-10.43-2.08-14.61-6.01l-2.7-2.54v7.72c0,17.01,11.92,30.84,26.56,30.84h18.44s0,29.99,0,29.99h-27.68c-5.38,0-10.43-2.07-14.61-6.01l-2.7-2.54v7.71c0,17,11.92,30.82,26.56,30.82h18.44s0,54.89,0,54.89c0,38.65-15.03,50.06-15.03,50.06h109.71c85.62,0,139.64-36.96,155.38-104.98h32.46c5.38,0,10.43,2.07,14.61,6l2.7,2.54v-7.71c0-17-11.92-30.83-26.56-30.83h-18.9c.32-4.88.49-9.87.49-15s-.18-10.11-.51-14.99h28.17c5.37,0,10.43,2.07,14.61,6.01ZM89.96,15.01h45.86c61.7,0,97.44,27.33,108.1,89.94l-153.96.02V15.01ZM136.21,284.93h-46.26v-89.98l153.87-.02c-9.97,56.66-42.07,88.38-107.61,90ZM247.34,149.96c0,5.13-.11,10.13-.34,14.99l-157.04.02v-29.99l157.05-.02c.22,4.84.33,9.83.33,15Z"></path></svg></td>
+          <td>8.38M</td><td>8.31M</td><td>8.32M</td><td>9.14M</td><td>9.13M</td><td>8.75M</td><td>9.01M</td><td>8.02M</td><td>9.06M</td><td>9.02M</td><td>8.66M</td><td>0</td>
+          <td>95.79M</td>
+        </tr>
+        <tr class="actual-morm-total">
+          <td>Total Actual MoRM <svg class="uae-dirham-symbol" viewBox="0 0 344.84 299.91" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display: inline-block; vertical-align: -0.1em; width: 1em; height: 1em; margin-right: 0.2em;"><path d="M342.14,140.96l2.7,2.54v-7.72c0-17-11.92-30.84-26.56-30.84h-23.41C278.49,36.7,222.69,0,139.68,0c-52.86,0-59.65,0-109.71,0,0,0,15.03,12.63,15.03,52.4v52.58h-27.68c-5.38,0-10.43-2.08-14.61-6.01l-2.7-2.54v7.72c0,17.01,11.92,30.84,26.56,30.84h18.44s0,29.99,0,29.99h-27.68c-5.38,0-10.43-2.07-14.61-6.01l-2.7-2.54v7.71c0,17,11.92,30.82,26.56,30.82h18.44s0,54.89,0,54.89c0,38.65-15.03,50.06-15.03,50.06h109.71c85.62,0,139.64-36.96,155.38-104.98h32.46c5.38,0,10.43,2.07,14.61,6l2.7,2.54v-7.71c0-17-11.92-30.83-26.56-30.83h-18.9c.32-4.88.49-9.87.49-15s-.18-10.11-.51-14.99h28.17c5.37,0,10.43,2.07,14.61,6.01ZM89.96,15.01h45.86c61.7,0,97.44,27.33,108.1,89.94l-153.96.02V15.01ZM136.21,284.93h-46.26v-89.98l153.87-.02c-9.97,56.66-42.07,88.38-107.61,90ZM247.34,149.96c0,5.13-.11,10.13-.34,14.99l-157.04.02v-29.99l157.05-.02c.22,4.84.33,9.83.33,15Z"></path></svg></td>
+          <td>3.44M</td><td>3.21M</td><td>3.27M</td><td>3.32M</td><td>3.60M</td><td>3.29M</td><td>3.42M</td><td>3.34M</td><td>3.57M</td><td>3.58M</td><td>3.42M</td><td>0</td>
+          <td>37.46M</td>
+        </tr>
+        <tr class="budget-total">
+          <td>Total Budget Volume (MT)</td>
+          <td>100.00</td><td>100.00</td><td>200.00</td><td>200.00</td><td>200.00</td><td>100.00</td><td>100.00</td><td>100.00</td><td>100.00</td><td>100.00</td><td>100.00</td><td>100.00</td>
+          <td id="budgetYearTotal">1,500.00</td>
+        </tr>
+        <tr class="budget-amount-total">
+          <td>Total Budget Amount <svg class="uae-dirham-symbol" viewBox="0 0 344.84 299.91" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display: inline-block; vertical-align: -0.1em; width: 1em; height: 1em; margin-right: 0.2em;"><path d="M342.14,140.96l2.7,2.54v-7.72c0-17-11.92-30.84-26.56-30.84h-23.41C278.49,36.7,222.69,0,139.68,0c-52.86,0-59.65,0-109.71,0,0,0,15.03,12.63,15.03,52.4v52.58h-27.68c-5.38,0-10.43-2.08-14.61-6.01l-2.7-2.54v7.72c0,17.01,11.92,30.84,26.56,30.84h18.44s0,29.99,0,29.99h-27.68c-5.38,0-10.43-2.07-14.61-6.01l-2.7-2.54v7.71c0,17,11.92,30.82,26.56,30.82h18.44s0,54.89,0,54.89c0,38.65-15.03,50.06-15.03,50.06h109.71c85.62,0,139.64-36.96,155.38-104.98h32.46c5.38,0,10.43,2.07,14.61,6l2.7,2.54v-7.71c0-17-11.92-30.83-26.56-30.83h-18.9c.32-4.88.49-9.87.49-15s-.18-10.11-.51-14.99h28.17c5.37,0,10.43,2.07,14.61,6.01ZM89.96,15.01h45.86c61.7,0,97.44,27.33,108.1,89.94l-153.96.02V15.01ZM136.21,284.93h-46.26v-89.98l153.87-.02c-9.97,56.66-42.07,88.38-107.61,90ZM247.34,149.96c0,5.13-.11,10.13-.34,14.99l-157.04.02v-29.99l157.05-.02c.22,4.84.33,9.83.33,15Z"></path></svg></td>
+          <td>900.0K</td><td>1.11M</td><td>1.93M</td><td>2.13M</td><td>3.40M</td><td>1.44M</td><td>1.80M</td><td>620.0K</td><td>985.0K</td><td>2.12M</td><td>1.68M</td><td>2.20M</td>
+          <td id="budgetAmountYearTotal">20.32M</td>
+        </tr>
+        <tr class="budget-morm-total">
+          <td>Total Budget MoRM <svg class="uae-dirham-symbol" viewBox="0 0 344.84 299.91" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display: inline-block; vertical-align: -0.1em; width: 1em; height: 1em; margin-right: 0.2em;"><path d="M342.14,140.96l2.7,2.54v-7.72c0-17-11.92-30.84-26.56-30.84h-23.41C278.49,36.7,222.69,0,139.68,0c-52.86,0-59.65,0-109.71,0,0,0,15.03,12.63,15.03,52.4v52.58h-27.68c-5.38,0-10.43-2.08-14.61-6.01l-2.7-2.54v7.72c0,17.01,11.92,30.84,26.56,30.84h18.44s0,29.99,0,29.99h-27.68c-5.38,0-10.43-2.07-14.61-6.01l-2.7-2.54v7.71c0,17,11.92,30.82,26.56,30.82h18.44s0,54.89,0,54.89c0,38.65-15.03,50.06-15.03,50.06h109.71c85.62,0,139.64-36.96,155.38-104.98h32.46c5.38,0,10.43,2.07,14.61,6l2.7,2.54v-7.71c0-17-11.92-30.83-26.56-30.83h-18.9c.32-4.88.49-9.87.49-15s-.18-10.11-.51-14.99h28.17c5.37,0,10.43,2.07,14.61,6.01ZM89.96,15.01h45.86c61.7,0,97.44,27.33,108.1,89.94l-153.96.02V15.01ZM136.21,284.93h-46.26v-89.98l153.87-.02c-9.97,56.66-42.07,88.38-107.61,90ZM247.34,149.96c0,5.13-.11,10.13-.34,14.99l-157.04.02v-29.99l157.05-.02c.22,4.84.33,9.83.33,15Z"></path></svg></td>
+          <td>470.0K</td><td>570.0K</td><td>1.03M</td><td>1.02M</td><td>1.40M</td><td>400.0K</td><td>785.0K</td><td>140.0K</td><td>365.0K</td><td>1.10M</td><td>1.28M</td><td>1.05M</td>
+          <td id="budgetMormYearTotal">9.62M</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Product Group Chart & Tables Section -->
+  <div id="productGroupChartContainer" class="product-group-chart-container" style="display: block;">
+    <div class="product-group-chart-title">📊 Product Group Breakdown: Actual vs Budget (MT)</div>
+    <div class="product-group-chart-wrapper">
+      <canvas id="productGroupChart" style="max-height: 350px; display: block; box-sizing: border-box; height: 349px; width: 1404px;" width="1755" height="436"></canvas>
+    </div>
+    
+    <!-- MT Table -->
+    <table class="product-group-table" id="mtTable" style="margin-bottom: 24px;">
+      <thead>
+        <tr>
+          <th>Product Group</th>
+          <th>Actual (MT)</th>
+          <th>Budget (MT)</th>
+          <th>Variance</th>
+        </tr>
+      </thead>
+      <tbody id="mtTableBody"><tr><td>Shrink Film Printed</td><td>2923.70</td><td>100.00</td><td><span class="pg-variance-negative">-96.6%</span></td></tr><tr><td>Laminates</td><td>1757.94</td><td>100.00</td><td><span class="pg-variance-negative">-94.3%</span></td></tr><tr><td>Shrink Film Plain</td><td>1278.18</td><td>100.00</td><td><span class="pg-variance-negative">-92.2%</span></td></tr><tr><td>Industrial Items Printed</td><td>722.25</td><td>100.00</td><td><span class="pg-variance-negative">-86.2%</span></td></tr><tr><td>Shrink Sleeves</td><td>625.99</td><td>100.00</td><td><span class="pg-variance-negative">-84.0%</span></td></tr><tr><td>Wrap Around Label</td><td>298.52</td><td>200.00</td><td><span class="pg-variance-negative">-33.0%</span></td></tr><tr><td>Commercial Items Plain</td><td>214.50</td><td>200.00</td><td><span class="pg-variance-negative">-6.8%</span></td></tr><tr><td>Commercial Items Printed</td><td>155.33</td><td>200.00</td><td><span class="pg-variance-positive">+28.8%</span></td></tr><tr><td>Mono Layer Printed</td><td>215.29</td><td>100.00</td><td><span class="pg-variance-negative">-53.6%</span></td></tr><tr><td>Wide Film</td><td>178.49</td><td>100.00</td><td><span class="pg-variance-negative">-44.0%</span></td></tr><tr><td>Industrial Items Plain</td><td>169.85</td><td>100.00</td><td><span class="pg-variance-negative">-41.1%</span></td></tr><tr><td>Others</td><td>4.22</td><td>100.00</td><td><span class="pg-variance-positive">+2269.9%</span></td></tr></tbody>
+      <tfoot>
+        <tr style="background: #f0f0f0;">
+          <td><strong>TOTAL</strong></td>
+          <td id="mtTotalActual"><strong>8544.25</strong></td>
+          <td id="mtTotalBudget"><strong>1500.00</strong></td>
+          <td id="mtTotalVariance"><strong><span class="pg-variance-negative">-82.4%</span></strong></td>
+        </tr>
+      </tfoot>
+    </table>
+    
+    <!-- Amount Table -->
+    <div class="product-group-chart-title" style="margin-top: 24px;"><svg class="uae-dirham-symbol" viewBox="0 0 344.84 299.91" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display: inline-block; vertical-align: -0.1em; width: 1em; height: 1em; margin-right: 0.2em;"><path d="M342.14,140.96l2.7,2.54v-7.72c0-17-11.92-30.84-26.56-30.84h-23.41C278.49,36.7,222.69,0,139.68,0c-52.86,0-59.65,0-109.71,0,0,0,15.03,12.63,15.03,52.4v52.58h-27.68c-5.38,0-10.43-2.08-14.61-6.01l-2.7-2.54v7.72c0,17.01,11.92,30.84,26.56,30.84h18.44s0,29.99,0,29.99h-27.68c-5.38,0-10.43-2.07-14.61-6.01l-2.7-2.54v7.71c0,17,11.92,30.82,26.56,30.82h18.44s0,54.89,0,54.89c0,38.65-15.03,50.06-15.03,50.06h109.71c85.62,0,139.64-36.96,155.38-104.98h32.46c5.38,0,10.43,2.07,14.61,6l2.7,2.54v-7.71c0-17-11.92-30.83-26.56-30.83h-18.9c.32-4.88.49-9.87.49-15s-.18-10.11-.51-14.99h28.17c5.37,0,10.43,2.07,14.61,6.01ZM89.96,15.01h45.86c61.7,0,97.44,27.33,108.1,89.94l-153.96.02V15.01ZM136.21,284.93h-46.26v-89.98l153.87-.02c-9.97,56.66-42.07,88.38-107.61,90ZM247.34,149.96c0,5.13-.11,10.13-.34,14.99l-157.04.02v-29.99l157.05-.02c.22,4.84.33,9.83.33,15Z"></path></svg><span>Amount Breakdown</span></div>
+    <table class="product-group-table" id="amountTable">
+      <thead>
+        <tr>
+          <th>Product Group</th>
+          <th>Actual Amount</th>
+          <th>Budget Amount</th>
+          <th>Variance</th>
+        </tr>
+      </thead>
+      <tbody id="amountTableBody"><tr><td>Shrink Film Printed</td><td>28.71M</td><td>985.0K</td><td><span class="pg-variance-negative">-96.6%</span></td></tr><tr><td>Laminates</td><td>20.94M</td><td>1.20M</td><td><span class="pg-variance-negative">-94.3%</span></td></tr><tr><td>Shrink Film Plain</td><td>7.88M</td><td>620.0K</td><td><span class="pg-variance-negative">-92.1%</span></td></tr><tr><td>Industrial Items Printed</td><td>7.43M</td><td>1.02M</td><td><span class="pg-variance-negative">-86.2%</span></td></tr><tr><td>Shrink Sleeves</td><td>13.42M</td><td>2.12M</td><td><span class="pg-variance-negative">-84.2%</span></td></tr><tr><td>Wrap Around Label</td><td>6.63M</td><td>4.40M</td><td><span class="pg-variance-negative">-33.6%</span></td></tr><tr><td>Commercial Items Plain</td><td>1.94M</td><td>1.80M</td><td><span class="pg-variance-negative">-7.2%</span></td></tr><tr><td>Commercial Items Printed</td><td>1.73M</td><td>2.22M</td><td><span class="pg-variance-positive">+28.4%</span></td></tr><tr><td>Mono Layer Printed</td><td>3.10M</td><td>1.44M</td><td><span class="pg-variance-negative">-53.6%</span></td></tr><tr><td>Wide Film</td><td>1.18M</td><td>675.0K</td><td><span class="pg-variance-negative">-42.8%</span></td></tr><tr><td>Industrial Items Plain</td><td>1.78M</td><td>1.03M</td><td><span class="pg-variance-negative">-42.1%</span></td></tr><tr><td>Others</td><td>75.3K</td><td>1.80M</td><td><span class="pg-variance-positive">+2291.9%</span></td></tr><tr style="background: #f0f5ff; font-style: italic;"><td>Services Charges</td><td>969.5K</td><td>1.00M</td><td><span class="pg-variance-neutral">+3.1%</span></td></tr></tbody>
+      <tfoot>
+        <tr style="background: #f0f0f0;">
+          <td><strong>TOTAL</strong></td>
+          <td id="amtTotalActual"><strong>95.79M</strong></td>
+          <td id="amtTotalBudget"><strong>20.32M</strong></td>
+          <td id="amtTotalVariance"><strong><span class="pg-variance-negative">-78.8%</span></strong></td>
+        </tr>
+      </tfoot>
+    </table>
+    
+    <!-- MoRM Table -->
+    <div class="product-group-chart-title" style="margin-top: 24px;"><svg class="uae-dirham-symbol" viewBox="0 0 344.84 299.91" xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="display: inline-block; vertical-align: -0.1em; width: 1em; height: 1em; margin-right: 0.2em;"><path d="M342.14,140.96l2.7,2.54v-7.72c0-17-11.92-30.84-26.56-30.84h-23.41C278.49,36.7,222.69,0,139.68,0c-52.86,0-59.65,0-109.71,0,0,0,15.03,12.63,15.03,52.4v52.58h-27.68c-5.38,0-10.43-2.08-14.61-6.01l-2.7-2.54v7.72c0,17.01,11.92,30.84,26.56,30.84h18.44s0,29.99,0,29.99h-27.68c-5.38,0-10.43-2.07-14.61-6.01l-2.7-2.54v7.71c0,17,11.92,30.82,26.56,30.82h18.44s0,54.89,0,54.89c0,38.65-15.03,50.06-15.03,50.06h109.71c85.62,0,139.64-36.96,155.38-104.98h32.46c5.38,0,10.43,2.07,14.61,6l2.7,2.54v-7.71c0-17-11.92-30.83-26.56-30.83h-18.9c.32-4.88.49-9.87.49-15s-.18-10.11-.51-14.99h28.17c5.37,0,10.43,2.07,14.61,6.01ZM89.96,15.01h45.86c61.7,0,97.44,27.33,108.1,89.94l-153.96.02V15.01ZM136.21,284.93h-46.26v-89.98l153.87-.02c-9.97,56.66-42.07,88.38-107.61,90ZM247.34,149.96c0,5.13-.11,10.13-.34,14.99l-157.04.02v-29.99l157.05-.02c.22,4.84.33,9.83.33,15Z"></path></svg><span>MoRM Breakdown</span></div>
+    <table class="product-group-table" id="mormTable">
+      <thead>
+        <tr>
+          <th>Product Group</th>
+          <th>Actual MoRM</th>
+          <th>Budget MoRM</th>
+          <th>Variance</th>
+        </tr>
+      </thead>
+      <tbody id="mormTableBody"><tr><td>Shrink Film Printed</td><td>10.62M</td><td>365.0K</td><td><span class="pg-variance-negative">-96.6%</span></td></tr><tr><td>Laminates</td><td>6.18M</td><td>350.0K</td><td><span class="pg-variance-negative">-94.3%</span></td></tr><tr><td>Shrink Film Plain</td><td>1.80M</td><td>140.0K</td><td><span class="pg-variance-negative">-92.2%</span></td></tr><tr><td>Industrial Items Printed</td><td>3.29M</td><td>450.0K</td><td><span class="pg-variance-negative">-86.3%</span></td></tr><tr><td>Shrink Sleeves</td><td>7.10M</td><td>1.10M</td><td><span class="pg-variance-negative">-84.5%</span></td></tr><tr><td>Wrap Around Label</td><td>3.21M</td><td>2.10M</td><td><span class="pg-variance-negative">-34.5%</span></td></tr><tr><td>Commercial Items Plain</td><td>1.00M</td><td>940.0K</td><td><span class="pg-variance-negative">-6.4%</span></td></tr><tr><td>Commercial Items Printed</td><td>887.0K</td><td>1.14M</td><td><span class="pg-variance-positive">+28.5%</span></td></tr><tr><td>Mono Layer Printed</td><td>890.1K</td><td>400.0K</td><td><span class="pg-variance-negative">-55.1%</span></td></tr><tr><td>Wide Film</td><td>493.3K</td><td>285.0K</td><td><span class="pg-variance-negative">-42.2%</span></td></tr><tr><td>Industrial Items Plain</td><td>984.2K</td><td>560.0K</td><td><span class="pg-variance-negative">-43.1%</span></td></tr><tr><td>Others</td><td>32.2K</td><td>785.0K</td><td><span class="pg-variance-positive">+2339.9%</span></td></tr><tr style="background: #f0f5ff; font-style: italic;"><td>Services Charges</td><td>969.5K</td><td>1.00M</td><td><span class="pg-variance-neutral">+3.1%</span></td></tr></tbody>
+      <tfoot>
+        <tr style="background: #f0f0f0;">
+          <td><strong>TOTAL</strong></td>
+          <td id="mormTotalActual"><strong>37.46M</strong></td>
+          <td id="mormTotalBudget"><strong>9.62M</strong></td>
+          <td id="mormTotalVariance"><strong><span class="pg-variance-negative">-74.3%</span></strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  
+  
+
+<script id="savedBudgetData">/* DIVISIONAL BUDGET DATA FOR DATABASE IMPORT */
+const budgetMetadata = {
+  "division": "FP",
+  "actualYear": 2025,
+  "budgetYear": 2026,
+  "savedAt": "2025-12-08T12:20:55.280Z",
+  "dataFormat": "divisional_budget_import"
+};
+const savedBudget = [
+  {
+    "productGroup": "Commercial Items Plain",
+    "month": 1,
+    "value": 100000
+  },
+  {
+    "productGroup": "Commercial Items Plain",
+    "month": 3,
+    "value": 100000
+  },
+  {
+    "productGroup": "Commercial Items Printed",
+    "month": 2,
+    "value": 100000
+  },
+  {
+    "productGroup": "Commercial Items Printed",
+    "month": 4,
+    "value": 100000
+  },
+  {
+    "productGroup": "Industrial Items Plain",
+    "month": 3,
+    "value": 100000
+  },
+  {
+    "productGroup": "Industrial Items Printed",
+    "month": 4,
+    "value": 100000
+  },
+  {
+    "productGroup": "Laminates",
+    "month": 5,
+    "value": 100000
+  },
+  {
+    "productGroup": "Mono Layer Printed",
+    "month": 6,
+    "value": 100000
+  },
+  {
+    "productGroup": "Others",
+    "month": 7,
+    "value": 100000
+  },
+  {
+    "productGroup": "Shrink Film Plain",
+    "month": 8,
+    "value": 100000
+  },
+  {
+    "productGroup": "Shrink Film Printed",
+    "month": 9,
+    "value": 100000
+  },
+  {
+    "productGroup": "Shrink Sleeves",
+    "month": 10,
+    "value": 100000
+  },
+  {
+    "productGroup": "Wide Film",
+    "month": 11,
+    "value": 100000
+  },
+  {
+    "productGroup": "Wrap Around Label",
+    "month": 5,
+    "value": 100000
+  },
+  {
+    "productGroup": "Wrap Around Label",
+    "month": 12,
+    "value": 100000
+  }
+];
+const savedServicesCharges = [
+  {
+    "productGroup": "Services Charges",
+    "month": 11,
+    "metric": "AMOUNT",
+    "value": 1000000
+  }
+];</script></body></html>
