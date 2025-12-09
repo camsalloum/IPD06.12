@@ -1,0 +1,17 @@
+{
+  "backup_date": "2025-11-29T07:16:50.091Z",
+  "tables_backed_up": [
+    "customer_merge_rules",
+    "customer_similarity_cache",
+    "database_upload_log",
+    "division_customer_merge_rules",
+    "merge_rule_notifications",
+    "merge_rule_rejections",
+    "merge_rule_suggestions",
+    "sales_rep_budget",
+    "sales_rep_budget_draft"
+  ],
+  "purpose": "Old shared tables replaced by division-specific fp_ prefixed tables",
+  "note": "These tables can be deleted after verifying the fp_ tables work correctly",
+  "deletion_command": "\n-- Run this SQL to delete old shared tables after verification:\nDROP TABLE IF EXISTS customer_merge_rules CASCADE;\nDROP TABLE IF EXISTS customer_similarity_cache CASCADE;\nDROP TABLE IF EXISTS database_upload_log CASCADE;\nDROP TABLE IF EXISTS division_customer_merge_rules CASCADE;\nDROP TABLE IF EXISTS merge_rule_notifications CASCADE;\nDROP TABLE IF EXISTS merge_rule_rejections CASCADE;\nDROP TABLE IF EXISTS merge_rule_suggestions CASCADE;\nDROP TABLE IF EXISTS sales_rep_budget CASCADE;\nDROP TABLE IF EXISTS sales_rep_budget_draft CASCADE;\n    "
+}

@@ -14,7 +14,7 @@ const rgbToHex = (rgbString) => {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
 };
 
-const PDFExport = ({ tableRef, selectedDivision }) => {
+const PDFExport = ({ tableRef, selectedDivision, currencyCode = 'AED' }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -54,7 +54,7 @@ const PDFExport = ({ tableRef, selectedDivision }) => {
       doc.setFontSize(18);
       doc.text(title, doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
       
-      const subtitle = '(AED)';
+      const subtitle = `(${currencyCode})`;
       doc.setFontSize(12);
       doc.text(subtitle, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
 

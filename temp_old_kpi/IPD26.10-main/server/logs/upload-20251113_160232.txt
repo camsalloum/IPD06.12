@@ -1,0 +1,38 @@
+[2025-11-13 16:02:32] [INFO] ========================================================================
+[2025-11-13 16:02:32] [INFO] AEBF Excel to SQL Transform & Upload Script
+[2025-11-13 16:02:32] [INFO] ========================================================================
+[2025-11-13 16:02:32] [INFO] Excel File: D:\Projects\IPD26.10\uploads\aebf-upload-1763035350862.xlsx
+[2025-11-13 16:02:32] [INFO] Division: FP
+[2025-11-13 16:02:32] [INFO] Upload Mode: upsert
+[2025-11-13 16:02:32] [INFO] Uploaded By: cam
+[2025-11-13 16:02:32] [INFO] Test Mode: False
+[2025-11-13 16:02:32] [INFO] ========================================================================
+[2025-11-13 16:02:32] [INFO] Checking prerequisites...
+[2025-11-13 16:02:32] [SUCCESS] Prerequisites check passed
+[2025-11-13 16:02:32] [INFO] Testing database connection...
+[2025-11-13 16:02:32] [SUCCESS] Database connection successful
+[2025-11-13 16:02:32] [INFO] PostgreSQL version: PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit 
+[2025-11-13 16:02:32] [INFO] Reading Excel file...
+[2025-11-13 16:02:35] [SUCCESS] Read 51 rows from Excel
+[2025-11-13 16:02:35] [INFO] Validating Excel structure...
+[2025-11-13 16:02:35] [SUCCESS] Excel structure validation passed
+[2025-11-13 16:02:35] [INFO] Total rows: 51
+[2025-11-13 16:02:35] [INFO] Transforming Excel data to SQL format...
+[2025-11-13 16:02:35] [SUCCESS] Transformed 51 rows
+[2025-11-13 16:02:35] [INFO] Generating QC summary...
+[2025-11-13 16:02:35] [INFO] QC Summary:
+[2025-11-13 16:02:35] [INFO]   Total Records: 51
+[2025-11-13 16:02:35] [INFO]   Years: 0, 2020
+[2025-11-13 16:02:35] [INFO]   Months: 0, 1
+[2025-11-13 16:02:35] [INFO]   Values Types: AMOUNT, KGS, MORM
+[2025-11-13 16:02:35] [INFO]   Total AMOUNT: 231909
+[2025-11-13 16:02:35] [INFO]   Total KGS: 27632.3
+[2025-11-13 16:02:35] [INFO]   Total MORM: 91939.544
+[2025-11-13 16:02:35] [INFO] Uploading data in UPSERT mode (batch size: 1000)...
+[2025-11-13 16:02:35] [INFO] Processing batch 1 of 1 (51 rows)...
+[2025-11-13 16:02:35] [ERROR] Batch 1 failed: SQL execution error: ERROR:  there is no unique or exclusion constraint matching the ON CONFLICT specification
+[2025-11-13 16:02:35] [INFO] ========================================================================
+[2025-11-13 16:02:35] [ERROR] Upload failed: SQL execution error: ERROR:  there is no unique or exclusion constraint matching the ON CONFLICT specification
+[2025-11-13 16:02:35] [INFO] ========================================================================
+[2025-11-13 16:02:36] [INFO] Writing audit log...
+[2025-11-13 16:02:36] [WARNING] Failed to write audit log: SQL execution error: ERROR:  column "records_affected" of relation "aebf_upload_audit" does not exist

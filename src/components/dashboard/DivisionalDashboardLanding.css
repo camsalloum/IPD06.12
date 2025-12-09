@@ -99,7 +99,7 @@
 
 .divisional-dashboard__card-copy {
   font-size: 0.95rem;
-  color: var(--color-textSecondary);
+  color: var(--color-textMuted);
   line-height: 1.45;
 }
 
@@ -198,7 +198,7 @@
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.4;
-  color: var(--color-overlay);
+  color: rgba(255, 255, 255, 0.7);
   max-width: 400px;
 }
 
@@ -247,7 +247,7 @@
 .divisional-dashboard__overlay-period-divider {
   font-weight: 600;
   text-transform: lowercase;
-  color: var(--color-overlay);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.8rem;
 }
 

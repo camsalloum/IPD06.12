@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactECharts from 'echarts-for-react';
 import CurrencySymbol from '../../dashboard/CurrencySymbol';
+import { useCurrency } from '../../../contexts/CurrencyContext';
 import './ManufacturingCostTotals.css';
 
 // Helper function to get UAE symbol as data URL for ECharts rich text
@@ -50,6 +51,41 @@ const getDynamicFontSize = (periodCount: number) => {
 };
 
 const BelowGPExpensesChart = ({ tableData, selectedPeriods, computeCellValue, style, hideHeader = false }) => {
+  const { companyCurrency, isUAEDirham } = useCurrency();
+  
+  // Dynamic currency symbol helper for ECharts
+  const getCurrencyRichText = (color: string) => {
+    if (isUAEDirham()) {
+      return {
+        width: 12,
+        height: 12,
+        lineHeight: 12,
+        padding: [-1, 2, 0, 0],
+        align: 'center',
+        verticalAlign: 'top',
+        backgroundColor: {
+          image: getUAESymbolImageDataURL(color)
+        }
+      };
+    }
+    // For non-AED currencies, use text-based symbol
+    return {
+      fontSize: 12,
+      fontWeight: 'bold',
+      color: color,
+      verticalAlign: 'middle',
+      lineHeight: 12
+    };
+  };
+  
+  // Format currency prefix for labels
+  const getCurrencyPrefix = () => {
+    if (isUAEDirham()) {
+      return '{currency|}';
+    }
+    return companyCurrency.symbol;
+  };
+  
   // If no periods selected or no compute function, show empty state
   if (!selectedPeriods || selectedPeriods.length === 0 || typeof computeCellValue !== 'function') {
     console.error('BelowGPExpensesChart: Missing required props');
@@ -281,6 +317,9 @@ const BelowGPExpensesChart = ({ tableData, selectedPeriods, computeCellValue, st
         // Choose text color based on position
         const labelTextColor = isSmallBar ? outsideTextColor : insideTextColor;
         
+        // Get dynamic currency prefix
+        const currencyPrefix = getCurrencyPrefix();
+        
         return {
           value: amount,
           label: {
@@ -288,8 +327,8 @@ const BelowGPExpensesChart = ({ tableData, selectedPeriods, computeCellValue, st
             position: isSmallBar ? 'right' : 'inside',
             distance: isSmallBar ? 5 : 0,
             formatter: isSmallBar 
-              ? '{uae|} ' + millionsValue + 'M  ' + percentValue + '%/Sls  {uae|} ' + perKgValue + '/kg'
-              : '{uae|} ' + millionsValue + 'M\n\n' + percentValue + '%/Sls\n\n{uae|} ' + perKgValue + '/kg',
+              ? currencyPrefix + ' ' + millionsValue + 'M  ' + percentValue + '%/Sls  ' + currencyPrefix + ' ' + perKgValue + '/kg'
+              : currencyPrefix + ' ' + millionsValue + 'M\n\n' + percentValue + '%/Sls\n\n' + currencyPrefix + ' ' + perKgValue + '/kg',
             fontSize: dynamicFontSize,
             fontWeight: 'bold',
             color: labelTextColor,
@@ -302,17 +341,7 @@ const BelowGPExpensesChart = ({ tableData, selectedPeriods, computeCellValue, st
             align: isSmallBar ? 'left' : 'center',
             verticalAlign: 'middle',
             rich: {
-              uae: {
-                width: dynamicFontSize,
-                height: dynamicFontSize,
-                lineHeight: isSmallBar ? 16 : 12,
-                padding: [-1, 2, 0, 0],
-                align: 'center',
-                verticalAlign: 'top',
-                backgroundColor: {
-                  image: getUAESymbolImageDataURL(labelTextColor)
-                }
-              }
+              currency: getCurrencyRichText(labelTextColor)
             }
           }
         };

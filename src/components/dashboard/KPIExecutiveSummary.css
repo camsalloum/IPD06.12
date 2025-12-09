@@ -1,6 +1,6 @@
 /* KPI Executive Summary Styles - Enhanced Version */
 .kpi-dashboard {
-  background: white;
+  background: var(--color-background, white);
   min-height: 100vh;
   padding: 24px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -30,23 +30,23 @@
 .kpi-period-header > span {
   font-weight: 700;
   font-size: 18px;
-  color: #1f2937;
+  color: var(--color-text, #1f2937);
 }
 
 .kpi-period-vs {
   font-weight: 700;
   font-size: 18px;
-  color: #1f2937;
+  color: var(--color-text, #1f2937);
 }
 
 
 .kpi-section {
-  background: #ffffff;
+  background: var(--color-surface, #ffffff);
   border-radius: 16px;
   padding: clamp(16px, 2vw, 28px);
   margin-bottom: 32px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.06));
   position: relative;
   overflow: hidden;
   width: 100%;
@@ -90,11 +90,11 @@
 }
 
 .kpi-card {
-  background: white;
+  background: var(--color-surface, white);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -128,15 +128,16 @@
   min-height: auto !important;
 }
 
+/* Top banner gradient - uses theme-aware CSS variable */
 .kpi-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  height: 100%;
-  width: 4px;
-  background: linear-gradient(to bottom, #667eea, #764ba2);
-  border-radius: 0 2px 2px 0;
+  width: 100%;
+  height: 6px;
+  background: var(--color-cardBanner, linear-gradient(to right, #1e3a8a, #3b82f6, #60a5fa));
+  border-radius: 12px 12px 0 0;
 }
 
 /* PROPER VISUAL HIERARCHY - UNIFORM FONT SYSTEM */
@@ -154,7 +155,7 @@
   text-align: center;
   font-size: 1.3rem;
   font-weight: 700;
-  color: #444b54;
+  color: var(--color-text, #444b54);
   letter-spacing: 0.04em;
   margin-top: 0;
 }
@@ -163,7 +164,7 @@
 .kpi-value {
   font-size: 1.4em;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--color-text, #1f2937);
   text-align: center;
   margin-bottom: 12px;
   line-height: 1.3;
@@ -174,7 +175,7 @@
 .kpi-trend {
   font-size: 0.88em;
   text-align: center;
-  color: #6b7280;
+  color: var(--color-textSecondary, #6b7280);
   font-weight: 500;
   line-height: 1.4;
   padding: 4px 8px;
@@ -191,10 +192,10 @@
 }
 
 .category-card {
-  background: white;
+  background: var(--color-surface, white);
   border-radius: 10px;
   padding: 16px;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid var(--color-primary, #3b82f6);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   min-height: 160px;
   display: flex;
@@ -204,7 +205,7 @@
 
 .category-title {
   font-weight: 700;
-  color: #2d3748;
+  color: var(--color-text, #2d3748);
   margin-bottom: 10px;
   font-size: 1.1em;
   text-transform: uppercase;
@@ -508,7 +509,7 @@
   flex-direction: column;
   justify-content: space-between;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text, #1f2937);
   text-align: center;
   gap: 12px;
   margin-bottom: 10px;
@@ -518,7 +519,7 @@
   font-size: 1.6em;
   margin-bottom: 16px;
   font-weight: 700;
-  color: #1e40af;
+  color: var(--color-primary, #1e40af);
   text-decoration: underline;
   text-align: center;
   letter-spacing: 1px;
@@ -606,13 +607,13 @@
 .revenue-drivers > div > div > div > div:first-child {
   font-weight: 600;
   font-size: 1.1em;
-  color: #1f2937;
+  color: var(--color-text, #1f2937);
   margin-bottom: 4px;
 }
 
 .revenue-drivers > div > div > div > div:last-child {
   font-size: 0.9em;
-  color: #6b7280;
+  color: var(--color-textSecondary, #6b7280);
 }
 
 /* Improve arrow styling in revenue drivers */
@@ -1028,7 +1029,7 @@
 .revenue-driver-name {
   font-weight: 600;
   margin-bottom: 4px;
-  color: #1f2937;
+  color: var(--color-text, #1f2937);
 }
 
 .revenue-driver-details {
@@ -1240,7 +1241,7 @@
 
 .customer-names-small {
   font-size: 1.05em;
-  color: #333;
+  color: var(--color-text, #333);
   font-weight: 500;
   margin-top: 12px;
   line-height: 1.6;
@@ -1316,4 +1317,51 @@
   height: 1em;
   margin-right: 0.2em;
   fill: currentColor;
+}
+
+/* ========================================
+   COLORFUL THEME SPECIFIC STYLES
+   ======================================== */
+
+.theme-colorful .kpi-dashboard {
+  background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 50%, #f5d0fe 100%);
+}
+
+.theme-colorful .kpi-section {
+  background: linear-gradient(145deg, #ffffff 0%, #fdf4ff 100%);
+  border: 1px solid #e9d5ff;
+  box-shadow: 0 8px 32px rgba(192, 38, 211, 0.12);
+}
+
+.theme-colorful .kpi-card {
+  background: linear-gradient(145deg, #ffffff 0%, #fdf4ff 100%);
+  border: 1px solid #e9d5ff;
+}
+
+.theme-colorful .kpi-card:hover {
+  border-color: #c026d3;
+  box-shadow: 0 12px 40px rgba(192, 38, 211, 0.2);
+}
+
+.theme-colorful .kpi-card::before {
+  background: linear-gradient(to right, #c026d3, #8b5cf6, #06b6d4) !important;
+}
+
+.theme-colorful .kpi-label {
+  color: #7c3aed;
+}
+
+.theme-colorful .kpi-value {
+  background: linear-gradient(135deg, #c026d3 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.theme-colorful .arrow-positive {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+}
+
+.theme-colorful .arrow-negative {
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%) !important;
 } 

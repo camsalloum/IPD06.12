@@ -143,31 +143,8 @@ router.get('/unassigned-countries', async (req, res) => {
   }
 });
 
-// POST /geographic-distribution - Get geographic distribution data
-router.post('/geographic-distribution', async (req, res) => {
-  try {
-    const { division, filters } = req.body;
-    const geoService = new GeographicDistributionService(division);
-    const distribution = await geoService.getDistribution(filters);
-    res.json({ success: true, data: distribution });
-  } catch (error) {
-    logger.error('Error fetching geographic distribution', { error: error.message });
-    res.status(500).json({ success: false, error: 'Failed to fetch distribution data' });
-  }
-});
-
-// POST /customer-insights-db - Get customer insights from database
-router.post('/customer-insights-db', async (req, res) => {
-  try {
-    const { division, customer, filters } = req.body;
-    const insightsService = new CustomerInsightsService(division);
-    const insights = await insightsService.getCustomerInsights(customer, filters);
-    res.json({ success: true, data: insights });
-  } catch (error) {
-    logger.error('Error fetching customer insights', { error: error.message });
-    res.status(500).json({ success: false, error: 'Failed to fetch insights' });
-  }
-});
+// NOTE: /geographic-distribution and /customer-insights-db routes are handled by analyticsRoutes
+// with the correct API signature that the frontend expects
 
 // POST /country-sales-data-db - Get country sales data
 router.post('/country-sales-data-db', async (req, res) => {

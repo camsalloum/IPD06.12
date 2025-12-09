@@ -61,7 +61,8 @@ router.get('/budget-sales-reps', queryLimiter, cacheMiddleware({ ttl: CacheTTL.L
     const result = await divisionPool.query(query, [division, parseInt(budgetYear)]);
     const salesReps = result.rows.map(row => row.salesrep);
     
-    successResponse(res, { salesReps });
+    // Return in legacy format (not using successResponse wrapper)
+    res.json({ success: true, salesReps });
 }));
 
 /**
@@ -183,7 +184,9 @@ router.post('/budget-product-groups', cacheMiddleware({ ttl: CacheTTL.MEDIUM }),
       };
     });
     
-    successResponse(res, {
+    // Return in legacy format (not using successResponse wrapper)
+    res.json({
+      success: true,
       productGroups,
       budgetYear: parseInt(budgetYear),
       salesRep: salesRep || '__ALL__'
@@ -313,7 +316,9 @@ router.post('/actual-product-groups', cacheMiddleware({ ttl: CacheTTL.SHORT }), 
       };
     });
     
-    successResponse(res, {
+    // Return in legacy format (not using successResponse wrapper)
+    res.json({
+      success: true,
       productGroups,
       actualYear: parseInt(actualYear),
       salesRep: salesRep || '__ALL__',

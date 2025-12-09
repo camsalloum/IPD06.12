@@ -47,7 +47,8 @@ function getTableNames(division) {
     mergeRuleNotifications: `${code}_merge_rule_notifications`,
     mergeRuleRejections: `${code}_merge_rule_rejections`,
     databaseUploadLog: `${code}_database_upload_log`,
-    customerSimilarityCache: `${code}_customer_similarity_cache`
+    customerSimilarityCache: `${code}_customer_similarity_cache`,
+    budgetBulkImport: `${code}_budget_bulk_import`
   };
 }
 

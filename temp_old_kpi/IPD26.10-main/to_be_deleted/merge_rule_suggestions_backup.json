@@ -1,0 +1,3114 @@
+{
+  "table_name": "merge_rule_suggestions",
+  "backed_up_at": "2025-11-29T07:16:49.955Z",
+  "row_count": 80,
+  "columns": [
+    {
+      "column_name": "id",
+      "data_type": "integer"
+    },
+    {
+      "column_name": "division",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "suggested_merge_name",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "customer_group",
+      "data_type": "jsonb"
+    },
+    {
+      "column_name": "confidence_score",
+      "data_type": "numeric"
+    },
+    {
+      "column_name": "matching_algorithm",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "match_details",
+      "data_type": "jsonb"
+    },
+    {
+      "column_name": "admin_action",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "suggested_at",
+      "data_type": "timestamp without time zone"
+    },
+    {
+      "column_name": "reviewed_at",
+      "data_type": "timestamp without time zone"
+    },
+    {
+      "column_name": "reviewed_by",
+      "data_type": "character varying"
+    },
+    {
+      "column_name": "feedback_notes",
+      "data_type": "text"
+    },
+    {
+      "column_name": "was_correct",
+      "data_type": "boolean"
+    },
+    {
+      "column_name": "created_rule_id",
+      "data_type": "integer"
+    }
+  ],
+  "data": [
+    {
+      "id": 59,
+      "division": "FP",
+      "suggested_merge_name": "Adam General Trading",
+      "customer_group": [
+        "Adam General Trading",
+        "ADAM GENERAL TRADING LLCBusiness Bay Dubai"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-17T14:11:36.429Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-17T14:11:36.429Z",
+      "reviewed_at": "2025-11-18T04:29:48.201Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 40
+    },
+    {
+      "id": 65,
+      "division": "FP",
+      "suggested_merge_name": "HADRAMOUT INDUSTRIAL COMPLEX",
+      "customer_group": [
+        "HADRAMOUT INDUSTRIAL COMPLEX ",
+        "HADRAMOUT INDUSTRIAL COMPLEXMUKALLA"
+      ],
+      "confidence_score": "0.80",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "HADRAMOUT INDUSTRIAL COMPLEX ",
+            "HADRAMOUT INDUSTRIAL COMPLEXMUKALLA"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "0.877",
+            "jaroWinkler": "0.877",
+            "levenshtein": "0.877",
+            "nGramPrefix": "1.000",
+            "normalized1": "hadramout industrial complex",
+            "normalized2": "hadramout industrial complexmukalla",
+            "withoutSuffix": "0.877"
+          },
+          "similarity": "80.4%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T05:52:50.915Z",
+      "reviewed_at": "2025-11-18T06:06:27.295Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 52
+    },
+    {
+      "id": 11,
+      "division": "FP",
+      "suggested_merge_name": "Taibi Bilel agro",
+      "customer_group": [
+        "Taibi Bilel agro",
+        "TAIBI BILEL AGRO "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Taibi Bilel agro",
+            "TAIBI BILEL AGRO "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.454Z",
+      "reviewed_at": "2025-11-16T11:20:29.682Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 21
+    },
+    {
+      "id": 12,
+      "division": "FP",
+      "suggested_merge_name": "TANIA WATER",
+      "customer_group": [
+        "TANIA WATER CO.",
+        "TANIA WATER CO. "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "TANIA WATER CO.",
+            "TANIA WATER CO. "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.456Z",
+      "reviewed_at": "2025-11-16T11:20:59.630Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 22
+    },
+    {
+      "id": 17,
+      "division": "FP",
+      "suggested_merge_name": "NESTLE WATERS ALGERIE SPAHai Sidi El Kebir",
+      "customer_group": [
+        "NESTLE WATERS ALGERIE SPAHai Sidi El Kebir",
+        "NESTLE WATERS ALGERIE SPAHai Sidi El Kebir -Blida"
+      ],
+      "confidence_score": "0.91",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "NESTLE WATERS ALGERIE SPAHai Sidi El Kebir",
+            "NESTLE WATERS ALGERIE SPAHai Sidi El Kebir -Blida"
+          ],
+          "breakdown": {
+            "tokenSet": "0.875",
+            "jaroWinkler": "0.933",
+            "levenshtein": "0.933",
+            "normalized1": "nestle waters algerie spahai sidi el kebir",
+            "normalized2": "nestle waters algerie spahai sidi el kebir blida",
+            "withoutSuffix": "0.933"
+          },
+          "similarity": "91.3%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.466Z",
+      "reviewed_at": "2025-11-16T11:44:01.858Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 25
+    },
+    {
+      "id": 18,
+      "division": "FP",
+      "suggested_merge_name": "AL FAKHER TOBACCO FACTORY - FZEGATE 2, AJMAN FREEZONE",
+      "customer_group": [
+        "AL FAKHER TOBACCO FACTORY - FZEGATE 2, AJMAN FREEZONE",
+        "AL FAKHER TOBACCO FACTORY F.Z.EGATE # 02 , AJMAN FREEZONE"
+      ],
+      "confidence_score": "0.90",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "AL FAKHER TOBACCO FACTORY - FZEGATE 2, AJMAN FREEZONE",
+            "AL FAKHER TOBACCO FACTORY F.Z.EGATE # 02 , AJMAN FREEZONE"
+          ],
+          "breakdown": {
+            "tokenSet": "0.778",
+            "jaroWinkler": "0.965",
+            "levenshtein": "0.965",
+            "normalized1": "al fakher tobacco factory fzegate 2 ajman freezone",
+            "normalized2": "al fakher tobacco factory fzegate 02 ajman freezone",
+            "withoutSuffix": "0.965"
+          },
+          "similarity": "89.9%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.467Z",
+      "reviewed_at": "2025-11-16T12:14:29.495Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 26
+    },
+    {
+      "id": 15,
+      "division": "FP",
+      "suggested_merge_name": "WEATHERMAKER",
+      "customer_group": [
+        "WEATHERMAKER FZE ",
+        "WEATHERMAKER LIMITED "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "WEATHERMAKER FZE ",
+            "WEATHERMAKER LIMITED "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.462Z",
+      "reviewed_at": "2025-11-16T12:14:42.899Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 28
+    },
+    {
+      "id": 14,
+      "division": "FP",
+      "suggested_merge_name": "United Bottling",
+      "customer_group": [
+        "United Bottling Co",
+        "UNITED BOTTLING CO. "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "United Bottling Co",
+            "UNITED BOTTLING CO. "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.460Z",
+      "reviewed_at": "2025-11-16T12:14:49.808Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 29
+    },
+    {
+      "id": 13,
+      "division": "FP",
+      "suggested_merge_name": "The Independent Tobacco",
+      "customer_group": [
+        "The Independent Tobacco",
+        "The Independent Tobacco FZE "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "The Independent Tobacco",
+            "The Independent Tobacco FZE "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.458Z",
+      "reviewed_at": "2025-11-16T12:14:52.263Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 30
+    },
+    {
+      "id": 10,
+      "division": "FP",
+      "suggested_merge_name": "National Food Products",
+      "customer_group": [
+        "National Food Products Co.",
+        "NATIONAL FOOD PRODUCTS COMPANY "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "National Food Products Co.",
+            "NATIONAL FOOD PRODUCTS COMPANY "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.452Z",
+      "reviewed_at": "2025-11-16T12:15:00.883Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 31
+    },
+    {
+      "id": 9,
+      "division": "FP",
+      "suggested_merge_name": "NAQI WATER COAIRPORT ROAD - UNAIZAH",
+      "customer_group": [
+        "NAQI WATER COAIRPORT ROAD - UNAIZAH",
+        "NAQI WATER COAirport Road – unaizah"
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "NAQI WATER COAIRPORT ROAD - UNAIZAH",
+            "NAQI WATER COAirport Road – unaizah"
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.450Z",
+      "reviewed_at": "2025-11-16T12:15:18.204Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 32
+    },
+    {
+      "id": 8,
+      "division": "FP",
+      "suggested_merge_name": "Majid Al Futtaim Hypermarkets",
+      "customer_group": [
+        "Majid Al Futtaim Hypermarkets L.L.C ",
+        "Majid Al Futtaim Hypermarkets LLC "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Majid Al Futtaim Hypermarkets L.L.C ",
+            "Majid Al Futtaim Hypermarkets LLC "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.448Z",
+      "reviewed_at": "2025-11-16T12:15:22.654Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 33
+    },
+    {
+      "id": 7,
+      "division": "FP",
+      "suggested_merge_name": "Mai Dubai",
+      "customer_group": [
+        "Mai Dubai ",
+        "MAI DUBAI ",
+        "MAI DUBAI LLC. "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Mai Dubai ",
+            "MAI DUBAI "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        },
+        {
+          "pair": [
+            "Mai Dubai ",
+            "MAI DUBAI LLC. "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        },
+        {
+          "pair": [
+            "MAI DUBAI ",
+            "MAI DUBAI LLC. "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.445Z",
+      "reviewed_at": "2025-11-16T12:15:28.055Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 34
+    },
+    {
+      "id": 5,
+      "division": "FP",
+      "suggested_merge_name": "GULF MANUFACTURING CO .LLC",
+      "customer_group": [
+        "GULF MANUFACTURING CO .LLC ",
+        "GULF MANUFACTURING CO. LLC "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "GULF MANUFACTURING CO .LLC ",
+            "GULF MANUFACTURING CO. LLC "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.441Z",
+      "reviewed_at": "2025-11-16T12:15:31.257Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 35
+    },
+    {
+      "id": 4,
+      "division": "FP",
+      "suggested_merge_name": "Barzman National",
+      "customer_group": [
+        "Barzman National",
+        "BARZMAN NATIONAL L.L.C. ",
+        "BARZMAN NATIONAL LLC "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Barzman National",
+            "BARZMAN NATIONAL L.L.C. "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        },
+        {
+          "pair": [
+            "Barzman National",
+            "BARZMAN NATIONAL LLC "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        },
+        {
+          "pair": [
+            "BARZMAN NATIONAL L.L.C. ",
+            "BARZMAN NATIONAL LLC "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.438Z",
+      "reviewed_at": "2025-11-16T12:15:33.837Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 36
+    },
+    {
+      "id": 3,
+      "division": "FP",
+      "suggested_merge_name": "AYEZAN E-GISTICS",
+      "customer_group": [
+        "AYEZAN E-GISTICS L.L.C ",
+        "AYEZAN E-GISTICS LLC "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "AYEZAN E-GISTICS L.L.C ",
+            "AYEZAN E-GISTICS LLC "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.436Z",
+      "reviewed_at": "2025-11-16T12:15:41.247Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 37
+    },
+    {
+      "id": 2,
+      "division": "FP",
+      "suggested_merge_name": "Algo Food",
+      "customer_group": [
+        "Algo Food",
+        "ALGO FOOD "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Algo Food",
+            "ALGO FOOD "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.434Z",
+      "reviewed_at": "2025-11-16T12:15:44.621Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 38
+    },
+    {
+      "id": 1,
+      "division": "FP",
+      "suggested_merge_name": "Al Rawdatain",
+      "customer_group": [
+        "Al Rawdatain",
+        "Al Rawdatain "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Al Rawdatain",
+            "Al Rawdatain "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.420Z",
+      "reviewed_at": "2025-11-16T12:15:47.337Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 39
+    },
+    {
+      "id": 64,
+      "division": "FP",
+      "suggested_merge_name": "BRANDS FOR LESS (BFL)",
+      "customer_group": [
+        "BRANDS FOR LESS (BFL) FZCO ",
+        "BRANDS FOR LESS (BFL) FZCOBFL Group,Technopark,Jebel Ali"
+      ],
+      "confidence_score": "0.80",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "BRANDS FOR LESS (BFL) FZCO ",
+            "BRANDS FOR LESS (BFL) FZCOBFL Group,Technopark,Jebel Ali"
+          ],
+          "breakdown": {
+            "phonetic": "0.571",
+            "tokenSet": "0.571",
+            "coreBrand": "1.000",
+            "jaroWinkler": "0.500",
+            "levenshtein": "0.500",
+            "nGramPrefix": "1.000",
+            "normalized1": "brands for less bfl",
+            "normalized2": "brands for less bfl fzcobfl grouptechnoparkjebel ali",
+            "withoutSuffix": "0.500"
+          },
+          "similarity": "80.4%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T05:52:50.914Z",
+      "reviewed_at": "2025-11-18T06:06:32.853Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 53
+    },
+    {
+      "id": 63,
+      "division": "FP",
+      "suggested_merge_name": "Glaciers Coubeche",
+      "customer_group": [
+        "GLACIERES COUBECHE ",
+        "Glaciers Coubeche"
+      ],
+      "confidence_score": "0.81",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "GLACIERES COUBECHE ",
+            "Glaciers Coubeche"
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.333",
+            "coreBrand": "0.903",
+            "jaroWinkler": "0.903",
+            "levenshtein": "0.903",
+            "nGramPrefix": "0.903",
+            "normalized1": "glacieres coubeche",
+            "normalized2": "glaciers coubeche",
+            "withoutSuffix": "0.903"
+          },
+          "similarity": "80.9%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T05:52:50.912Z",
+      "reviewed_at": "2025-11-18T06:06:37.191Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 54
+    },
+    {
+      "id": 62,
+      "division": "FP",
+      "suggested_merge_name": "AL DOURI Food Industries LLCDIP 2",
+      "customer_group": [
+        "AL DOURI Food Industries LLCDIP 2",
+        "AL DOURI FOOD INDUSTRIES LLCP.O BOX 21042"
+      ],
+      "confidence_score": "0.88",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "AL DOURI Food Industries LLCDIP 2",
+            "AL DOURI FOOD INDUSTRIES LLCP.O BOX 21042"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "1.000",
+            "jaroWinkler": "0.836",
+            "levenshtein": "0.836",
+            "nGramPrefix": "1.000",
+            "normalized1": "al douri food industries llcdip 2",
+            "normalized2": "al douri food industries llcpo box",
+            "withoutSuffix": "0.767"
+          },
+          "similarity": "87.9%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T05:52:50.911Z",
+      "reviewed_at": "2025-11-18T06:06:48.414Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 55
+    },
+    {
+      "id": 61,
+      "division": "FP",
+      "suggested_merge_name": "EXTRA CO.FIBRE GLASS & PREFAB",
+      "customer_group": [
+        "EXTRA CO.FIBRE GLASS & PREFAB ",
+        "EXTRA CO.FIBRE GLASS & PREFABAl Sajaa"
+      ],
+      "confidence_score": "0.89",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "EXTRA CO.FIBRE GLASS & PREFAB ",
+            "EXTRA CO.FIBRE GLASS & PREFABAl Sajaa"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "0.964",
+            "jaroWinkler": "0.885",
+            "levenshtein": "0.885",
+            "nGramPrefix": "1.000",
+            "normalized1": "extra companyfibre glass prefab",
+            "normalized2": "extra companyfibre glass prefabal sajaa",
+            "withoutSuffix": "0.851"
+          },
+          "similarity": "88.8%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T05:52:50.905Z",
+      "reviewed_at": "2025-11-18T06:06:52.611Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 56
+    },
+    {
+      "id": 79,
+      "division": "FP",
+      "suggested_merge_name": "Al Ain Food & Beverages",
+      "customer_group": [
+        "Al Ain Food & Beverages",
+        "AL AIN FOOD & BEVERAGES PJSCKhatim Al Shiklah Road"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T08:40:37.830Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T08:40:37.831Z",
+      "reviewed_at": "2025-11-18T08:41:14.547Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 60
+    },
+    {
+      "id": 81,
+      "division": "FP",
+      "suggested_merge_name": "Al Pina Pure Drinking Water",
+      "customer_group": [
+        "AL PINA PURE DRINKING WATER LLCPlot 1047 Sector 5",
+        "Alpina"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T10:29:11.554Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T10:29:11.555Z",
+      "reviewed_at": "2025-11-18T10:40:56.940Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 62
+    },
+    {
+      "id": 26,
+      "division": "FP",
+      "suggested_merge_name": "AL RAYAN PLANT FOR DAIRY",
+      "customer_group": [
+        "AL RAYAN PLANT FOR DAIRY COMPANY ",
+        "Al Rayan Plant for Dairy CompanyBASRA"
+      ],
+      "confidence_score": "0.79",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "AL RAYAN PLANT FOR DAIRY COMPANY ",
+            "Al Rayan Plant for Dairy CompanyBASRA"
+          ],
+          "breakdown": {
+            "tokenSet": "0.833",
+            "jaroWinkler": "0.760",
+            "levenshtein": "0.760",
+            "normalized1": "al rayan plant for dairy",
+            "normalized2": "al rayan plant for dairy companybasra",
+            "withoutSuffix": "0.760"
+          },
+          "similarity": "78.6%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.485Z",
+      "reviewed_at": "2025-11-16T10:43:35.656Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 16
+    },
+    {
+      "id": 24,
+      "division": "FP",
+      "suggested_merge_name": "Al Nakheel Hygienic Papar",
+      "customer_group": [
+        "Al Nakheel Hygienic Papar",
+        "AL NAKHEEL HYGIENIC PAPER "
+      ],
+      "confidence_score": "0.80",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Al Nakheel Hygienic Papar",
+            "AL NAKHEEL HYGIENIC PAPER "
+          ],
+          "breakdown": {
+            "tokenSet": "0.600",
+            "jaroWinkler": "0.905",
+            "levenshtein": "0.905",
+            "normalized1": "al nakheel hygienic papar",
+            "normalized2": "al nakheel hygienic paper",
+            "withoutSuffix": "0.905"
+          },
+          "similarity": "79.8%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.482Z",
+      "reviewed_at": "2025-11-16T10:44:08.811Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 17
+    },
+    {
+      "id": 23,
+      "division": "FP",
+      "suggested_merge_name": "Coca Cola Bottling Bahrain",
+      "customer_group": [
+        "Coca Cola Bottling Bahrain",
+        "COCA COLA BOTTLING CO OF BAHRAIN BS "
+      ],
+      "confidence_score": "0.80",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Coca Cola Bottling Bahrain",
+            "COCA COLA BOTTLING CO OF BAHRAIN BS "
+          ],
+          "breakdown": {
+            "tokenSet": "0.667",
+            "jaroWinkler": "0.875",
+            "levenshtein": "0.875",
+            "normalized1": "coca cola bottling bahrain",
+            "normalized2": "coca cola bottling of bahrain bs",
+            "withoutSuffix": "0.875"
+          },
+          "similarity": "80.2%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.480Z",
+      "reviewed_at": "2025-11-16T11:18:37.942Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 18
+    },
+    {
+      "id": 22,
+      "division": "FP",
+      "suggested_merge_name": "Dubai Refreshment",
+      "customer_group": [
+        "Dubai Refreshment",
+        "DUBAI REFRESHMENT (PSC) "
+      ],
+      "confidence_score": "0.82",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Dubai Refreshment",
+            "DUBAI REFRESHMENT (PSC) "
+          ],
+          "breakdown": {
+            "tokenSet": "0.667",
+            "jaroWinkler": "0.909",
+            "levenshtein": "0.909",
+            "normalized1": "dubai refreshment",
+            "normalized2": "dubai refreshment psc",
+            "withoutSuffix": "0.909"
+          },
+          "similarity": "82.4%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.478Z",
+      "reviewed_at": "2025-11-16T11:19:20.363Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 19
+    },
+    {
+      "id": 21,
+      "division": "FP",
+      "suggested_merge_name": "MAWARED ALHAYAT FACTORY FOR BOTTLEDWATER IND. AREA",
+      "customer_group": [
+        "MAWARED ALHAYAT FACTORY FOR BOTTLEDRIYADH WATER IND. AREA",
+        "MAWARED ALHAYAT FACTORY FOR BOTTLEDWATER IND. AREA"
+      ],
+      "confidence_score": "0.83",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "MAWARED ALHAYAT FACTORY FOR BOTTLEDRIYADH WATER IND. AREA",
+            "MAWARED ALHAYAT FACTORY FOR BOTTLEDWATER IND. AREA"
+          ],
+          "breakdown": {
+            "tokenSet": "0.667",
+            "jaroWinkler": "0.911",
+            "levenshtein": "0.911",
+            "normalized1": "mawared alhayat factory for bottledriyadh water ind area",
+            "normalized2": "mawared alhayat factory for bottledwater ind area",
+            "withoutSuffix": "0.911"
+          },
+          "similarity": "82.6%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.476Z",
+      "reviewed_at": "2025-11-16T11:19:52.828Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 20
+    },
+    {
+      "id": 20,
+      "division": "FP",
+      "suggested_merge_name": "SAAH AL GHRAYEF WATER FILTER LLCAL RAWDAH /MAHADHA",
+      "customer_group": [
+        "SAAH AL GHRAYEF WATER FILTER LLCAL RAWDAH /MAHADHA",
+        "SAAH AL GHRAYEF WATER FILTER LLCHead Q Al Rawdah / Mahadha"
+      ],
+      "confidence_score": "0.84",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "SAAH AL GHRAYEF WATER FILTER LLCAL RAWDAH /MAHADHA",
+            "SAAH AL GHRAYEF WATER FILTER LLCHead Q Al Rawdah / Mahadha"
+          ],
+          "breakdown": {
+            "tokenSet": "0.700",
+            "jaroWinkler": "0.920",
+            "levenshtein": "0.920",
+            "normalized1": "saah al ghrayef water filter llcal rawdah mahadha",
+            "normalized2": "saah al ghrayef water filter llchead q al rawdah mahadha",
+            "withoutSuffix": "0.920"
+          },
+          "similarity": "84.3%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.471Z",
+      "reviewed_at": "2025-11-16T11:43:24.732Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 24
+    },
+    {
+      "id": 88,
+      "division": "FP",
+      "suggested_merge_name": "Cosmoplast",
+      "customer_group": [
+        "COSMO OUTLET(Al Barsha)",
+        "COSMOPLAST IND CO LLC (Ecommerce)",
+        "COSMOPLAST IND CO LLC (Trade)"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T12:33:05.531Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T12:33:05.531Z",
+      "reviewed_at": "2025-11-18T13:02:54.073Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 63
+    },
+    {
+      "id": 86,
+      "division": "FP",
+      "suggested_merge_name": "Bahr Al Suwaiq Trading Llc",
+      "customer_group": [
+        "BAHR AL SUWAIQ TRADING LLCAl Suwayq",
+        "BAHR AL SUWAIQ TRADINGAl-Suwaiq, North Batinah"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T12:24:49.081Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T12:24:49.082Z",
+      "reviewed_at": "2025-11-18T13:03:02.884Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 65
+    },
+    {
+      "id": 85,
+      "division": "FP",
+      "suggested_merge_name": "Aujan Industries Llc",
+      "customer_group": [
+        "AUJAN INDUSTRIES LLCAUJAN IND DIP FACTORY",
+        "AUJAN SOFT DRINK INDUSTRIES"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T12:23:18.821Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T12:23:18.821Z",
+      "reviewed_at": "2025-11-18T13:03:11.070Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 66
+    },
+    {
+      "id": 76,
+      "division": "FP",
+      "suggested_merge_name": "GULF FOOD IND.",
+      "customer_group": [
+        "GULF FOOD IND. ",
+        "Gulf Food Industries Company "
+      ],
+      "confidence_score": "0.75",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "GULF FOOD IND. ",
+            "Gulf Food Industries Company "
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "0.824",
+            "jaroWinkler": "0.741",
+            "levenshtein": "0.741",
+            "nGramPrefix": "1.000",
+            "normalized1": "gulf food ind",
+            "normalized2": "gulf food industries",
+            "withoutSuffix": "0.741"
+          },
+          "similarity": "75.4%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T05:52:50.935Z",
+      "reviewed_at": "2025-11-18T06:04:34.188Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 41
+    },
+    {
+      "id": 75,
+      "division": "FP",
+      "suggested_merge_name": "Aujan",
+      "customer_group": [
+        "Aujan ",
+        "AUJAN INDUSTRIES LLC "
+      ],
+      "confidence_score": "0.77",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Aujan ",
+            "AUJAN INDUSTRIES LLC "
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "1.000",
+            "jaroWinkler": "0.444",
+            "levenshtein": "0.444",
+            "nGramPrefix": "1.000",
+            "normalized1": "aujan",
+            "normalized2": "aujan industries",
+            "withoutSuffix": "0.444"
+          },
+          "similarity": "76.6%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T05:52:50.933Z",
+      "reviewed_at": "2025-11-18T06:04:53.362Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 42
+    },
+    {
+      "id": 73,
+      "division": "FP",
+      "suggested_merge_name": "SHIPA DELIVERY SERVICES",
+      "customer_group": [
+        "SHIPA DELIVERY SERVICES (KUWAIOFFICE NO:8, AL WAHA MALL, DAJ",
+        "SHIPA DELIVERY SERVICES LLC "
+      ],
+      "confidence_score": "0.77",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "SHIPA DELIVERY SERVICES (KUWAIOFFICE NO:8, AL WAHA MALL, DAJ",
+            "SHIPA DELIVERY SERVICES LLC "
+          ],
+          "breakdown": {
+            "phonetic": "0.375",
+            "tokenSet": "0.333",
+            "coreBrand": "1.000",
+            "jaroWinkler": "0.597",
+            "levenshtein": "0.597",
+            "nGramPrefix": "1.000",
+            "normalized1": "shipa delivery services kuwaioffice no8 al waha mall daj",
+            "normalized2": "shipa delivery services",
+            "withoutSuffix": "0.597"
+          },
+          "similarity": "76.9%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T05:52:50.930Z",
+      "reviewed_at": "2025-11-18T06:05:11.330Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 44
+    },
+    {
+      "id": 72,
+      "division": "FP",
+      "suggested_merge_name": "OASIS PURE WATER FACTORY (LLC)",
+      "customer_group": [
+        "OASIS PURE WATER FACTORY (LLC) ",
+        "Oasis Pure Water Factory(LLC)Jebel Ali"
+      ],
+      "confidence_score": "0.77",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "OASIS PURE WATER FACTORY (LLC) ",
+            "Oasis Pure Water Factory(LLC)Jebel Ali"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "0.833",
+            "jaroWinkler": "0.784",
+            "levenshtein": "0.784",
+            "nGramPrefix": "1.000",
+            "normalized1": "oasis pure water factory",
+            "normalized2": "oasis pure water factoryllcjebel ali",
+            "withoutSuffix": "0.833"
+          },
+          "similarity": "77.2%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T05:52:50.928Z",
+      "reviewed_at": "2025-11-18T06:05:20.480Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 45
+    },
+    {
+      "id": 71,
+      "division": "FP",
+      "suggested_merge_name": "NATIONAL FACTORY FOR FOODS [GLORIA]",
+      "customer_group": [
+        "NATIONAL FACTORY FOR FOODS [GLORIA]",
+        "NATIONAL FACTORY FOR FOODS11489 P.O. Box 39884"
+      ],
+      "confidence_score": "0.78",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "NATIONAL FACTORY FOR FOODS [GLORIA]",
+            "NATIONAL FACTORY FOR FOODS11489 P.O. Box 39884"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "0.898",
+            "jaroWinkler": "0.800",
+            "levenshtein": "0.800",
+            "nGramPrefix": "1.000",
+            "normalized1": "national factory for foods gloria",
+            "normalized2": "national factory for foods11489",
+            "withoutSuffix": "0.677"
+          },
+          "similarity": "77.7%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T05:52:50.926Z",
+      "reviewed_at": "2025-11-18T06:05:30.500Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 46
+    },
+    {
+      "id": 70,
+      "division": "FP",
+      "suggested_merge_name": "Tanganyika Maendeleo SARL",
+      "customer_group": [
+        "Tanganyika Maendeleo SARL ",
+        "Tanganyika Maendeleo SARLQ/Filtisaf"
+      ],
+      "confidence_score": "0.78",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Tanganyika Maendeleo SARL ",
+            "Tanganyika Maendeleo SARLQ/Filtisaf"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "0.830",
+            "jaroWinkler": "0.830",
+            "levenshtein": "0.830",
+            "nGramPrefix": "1.000",
+            "normalized1": "tanganyika maendeleo sarl",
+            "normalized2": "tanganyika maendeleo sarlqfiltisaf",
+            "withoutSuffix": "0.830"
+          },
+          "similarity": "78.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T05:52:50.925Z",
+      "reviewed_at": "2025-11-18T06:05:39.514Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 47
+    },
+    {
+      "id": 69,
+      "division": "FP",
+      "suggested_merge_name": "AL AIN FARMS FOR LIVESTOCK",
+      "customer_group": [
+        "AL AIN FARMS FOR LIVESTOCK ",
+        "AL AIN FARMS FOR LIVESTOCKMasakin Area"
+      ],
+      "confidence_score": "0.78",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "AL AIN FARMS FOR LIVESTOCK ",
+            "AL AIN FARMS FOR LIVESTOCKMasakin Area"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.571",
+            "coreBrand": "0.844",
+            "jaroWinkler": "0.792",
+            "levenshtein": "0.792",
+            "nGramPrefix": "1.000",
+            "normalized1": "al ain farms for livestock",
+            "normalized2": "al ain farms for livestockmasakin area",
+            "withoutSuffix": "0.792"
+          },
+          "similarity": "78.3%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T05:52:50.923Z",
+      "reviewed_at": "2025-11-18T06:05:53.310Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 48
+    },
+    {
+      "id": 68,
+      "division": "FP",
+      "suggested_merge_name": "CARBONIC",
+      "customer_group": [
+        "CARBONIC",
+        "Carbonic International FZCO "
+      ],
+      "confidence_score": "0.79",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "CARBONIC",
+            "Carbonic International FZCO "
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "1.000",
+            "jaroWinkler": "0.519",
+            "levenshtein": "0.519",
+            "nGramPrefix": "1.000",
+            "normalized1": "carbonic",
+            "normalized2": "carbonic international",
+            "withoutSuffix": "0.519"
+          },
+          "similarity": "78.9%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T05:52:50.922Z",
+      "reviewed_at": "2025-11-18T06:05:58.056Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 49
+    },
+    {
+      "id": 67,
+      "division": "FP",
+      "suggested_merge_name": "International Beverages",
+      "customer_group": [
+        "INTERNATIONAL BEVERAGE & FILLING ",
+        "International Beverages"
+      ],
+      "confidence_score": "0.80",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "INTERNATIONAL BEVERAGE & FILLING ",
+            "International Beverages"
+          ],
+          "breakdown": {
+            "phonetic": "0.250",
+            "tokenSet": "0.250",
+            "coreBrand": "0.976",
+            "jaroWinkler": "0.833",
+            "levenshtein": "0.833",
+            "nGramPrefix": "0.976",
+            "normalized1": "international beverage filling",
+            "normalized2": "international beverages",
+            "withoutSuffix": "0.833"
+          },
+          "similarity": "79.9%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T05:52:50.920Z",
+      "reviewed_at": "2025-11-18T06:06:16.689Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 50
+    },
+    {
+      "id": 60,
+      "division": "FP",
+      "suggested_merge_name": "Oman Refreshment",
+      "customer_group": [
+        "Oman Refreshment",
+        "OMAN REFRESHMENT CO, LTD. ",
+        "OMAN REFRESHMENTS CO "
+      ],
+      "confidence_score": "0.91",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Oman Refreshment",
+            "OMAN REFRESHMENT CO, LTD. "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        },
+        {
+          "pair": [
+            "Oman Refreshment",
+            "OMAN REFRESHMENTS CO "
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.333",
+            "coreBrand": "0.966",
+            "jaroWinkler": "0.966",
+            "levenshtein": "0.966",
+            "nGramPrefix": "0.966",
+            "normalized1": "oman refreshment",
+            "normalized2": "oman refreshments",
+            "withoutSuffix": "0.966"
+          },
+          "similarity": "85.8%"
+        },
+        {
+          "pair": [
+            "OMAN REFRESHMENT CO, LTD. ",
+            "OMAN REFRESHMENTS CO "
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.333",
+            "coreBrand": "0.966",
+            "jaroWinkler": "0.966",
+            "levenshtein": "0.966",
+            "nGramPrefix": "0.966",
+            "normalized1": "oman refreshment",
+            "normalized2": "oman refreshments",
+            "withoutSuffix": "0.966"
+          },
+          "similarity": "85.8%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T05:52:50.859Z",
+      "reviewed_at": "2025-11-18T06:06:59.779Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 57
+    },
+    {
+      "id": 80,
+      "division": "FP",
+      "suggested_merge_name": "Al Barakah Dates",
+      "customer_group": [
+        "Al Barakah Dates",
+        "AL BARAKAH DATES FACTORY LLCBin Suhaib 2"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T08:41:04.540Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T08:41:04.540Z",
+      "reviewed_at": "2025-11-18T08:41:10.810Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 59
+    },
+    {
+      "id": 82,
+      "division": "FP",
+      "suggested_merge_name": "Yemen Company For Ghee & Soap",
+      "customer_group": [
+        "YCGSI",
+        "YEMEN COMPANY FOR GHEE & SOAP"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T12:03:23.405Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T12:03:23.406Z",
+      "reviewed_at": "2025-11-18T13:03:19.970Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 69
+    },
+    {
+      "id": 74,
+      "division": "FP",
+      "suggested_merge_name": "Al Falaj Pure Drinking Water CArea Umm Al Quwain U.A.E 1104",
+      "customer_group": [
+        "AL FALAJ PURE DRINKING WATER CAl Falaj Building Old Industri",
+        "Al Falaj Pure Drinking Water CArea Umm Al Quwain U.A.E 1104"
+      ],
+      "confidence_score": "0.77",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "AL FALAJ PURE DRINKING WATER CAl Falaj Building Old Industri",
+            "Al Falaj Pure Drinking Water CArea Umm Al Quwain U.A.E 1104"
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.385",
+            "coreBrand": "1.000",
+            "jaroWinkler": "0.587",
+            "levenshtein": "0.587",
+            "nGramPrefix": "1.000",
+            "normalized1": "al falaj pure drinking water cal falaj building old industri",
+            "normalized2": "al falaj pure drinking water carea umm al quwain uae",
+            "withoutSuffix": "0.563"
+          },
+          "similarity": "76.7%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T05:52:50.931Z",
+      "reviewed_at": "2025-11-18T06:05:06.783Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 43
+    },
+    {
+      "id": 66,
+      "division": "FP",
+      "suggested_merge_name": "Premier International",
+      "customer_group": [
+        "PREMIER INT. PLASTIC PRODUCTS TRDG ",
+        "Premier International ",
+        "PREMIER INTERNATIONAL PLASTICAL JORF"
+      ],
+      "confidence_score": "0.80",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "PREMIER INT. PLASTIC PRODUCTS TRDG ",
+            "Premier International "
+          ],
+          "breakdown": {
+            "phonetic": "0.400",
+            "tokenSet": "0.400",
+            "coreBrand": "1.000",
+            "jaroWinkler": "0.633",
+            "levenshtein": "0.633",
+            "nGramPrefix": "1.000",
+            "normalized1": "premier international plastic products trading",
+            "normalized2": "premier international",
+            "withoutSuffix": "0.426"
+          },
+          "similarity": "77.6%"
+        },
+        {
+          "pair": [
+            "PREMIER INT. PLASTIC PRODUCTS TRDG ",
+            "PREMIER INTERNATIONAL PLASTICAL JORF"
+          ],
+          "breakdown": {
+            "phonetic": "0.286",
+            "tokenSet": "0.286",
+            "coreBrand": "1.000",
+            "jaroWinkler": "0.712",
+            "levenshtein": "0.712",
+            "nGramPrefix": "1.000",
+            "normalized1": "premier international plastic products trading",
+            "normalized2": "premier international plastical jorf",
+            "withoutSuffix": "0.500"
+          },
+          "similarity": "76.6%"
+        },
+        {
+          "pair": [
+            "Premier International ",
+            "PREMIER INTERNATIONAL PLASTICAL JORF"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "1.000",
+            "jaroWinkler": "0.745",
+            "levenshtein": "0.745",
+            "nGramPrefix": "1.000",
+            "normalized1": "premier international",
+            "normalized2": "premier international plastical jorf",
+            "withoutSuffix": "0.745"
+          },
+          "similarity": "85.7%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T05:52:50.918Z",
+      "reviewed_at": "2025-11-18T06:06:24.022Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 51
+    },
+    {
+      "id": 77,
+      "division": "FP",
+      "suggested_merge_name": "Al Faris Food Industries",
+      "customer_group": [
+        "AL FARIS FOOD INDUSTRIES CO LTDNew 2nd Industrial Area,",
+        "ALFARIS FOOD CO."
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T06:19:03.337Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T06:19:03.337Z",
+      "reviewed_at": "2025-11-18T06:40:24.635Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 58
+    },
+    {
+      "id": 78,
+      "division": "FP",
+      "suggested_merge_name": "Abu Dhabi Refreshments Co. Llc",
+      "customer_group": [
+        "ABU DHABI REFRESHMENTS CO. LLC",
+        "ADRC"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T08:39:55.198Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T08:39:55.199Z",
+      "reviewed_at": "2025-11-18T08:41:16.182Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 61
+    },
+    {
+      "id": 58,
+      "division": "FP",
+      "suggested_merge_name": "VARUN BEVERAGES MOROCCOZI BOUSKOURA 27182, BP408",
+      "customer_group": [
+        "VARUN BEVERAGE MOROCCO SAZI BOUSKOURA 27182, BP#408",
+        "VARUN BEVERAGES MOROCCOZI BOUSKOURA 27182, BP408"
+      ],
+      "confidence_score": "0.75",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "VARUN BEVERAGE MOROCCO SAZI BOUSKOURA 27182, BP#408",
+            "VARUN BEVERAGES MOROCCOZI BOUSKOURA 27182, BP408"
+          ],
+          "breakdown": {
+            "tokenSet": "0.444",
+            "jaroWinkler": "0.916",
+            "levenshtein": "0.916",
+            "normalized1": "varun beverage morocco sazi bouskoura 27182 bp408",
+            "normalized2": "varun beverages moroccozi bouskoura 27182 bp408",
+            "withoutSuffix": "0.916"
+          },
+          "similarity": "75.1%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:38:43.819Z",
+      "reviewed_at": "2025-11-16T08:44:35.273Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 9
+    },
+    {
+      "id": 57,
+      "division": "FP",
+      "suggested_merge_name": "TECHNICAL SUPPLIES &SERVICES",
+      "customer_group": [
+        "TECHNICAL SUPPLIES &SERVICES CO LLC ",
+        "TECHNICAL SUPPLIES &SERVICES CO.LTD ",
+        "TECHNICAL SUPPLY & SERVICES CO. LTD "
+      ],
+      "confidence_score": "0.76",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "TECHNICAL SUPPLIES &SERVICES CO LLC ",
+            "TECHNICAL SUPPLIES &SERVICES CO.LTD "
+          ],
+          "breakdown": {
+            "tokenSet": "0.750",
+            "jaroWinkler": "0.906",
+            "levenshtein": "0.906",
+            "normalized1": "technical supplies services",
+            "normalized2": "technical supplies services coltd",
+            "withoutSuffix": "1.000"
+          },
+          "similarity": "86.5%"
+        },
+        {
+          "pair": [
+            "TECHNICAL SUPPLIES &SERVICES CO LLC ",
+            "TECHNICAL SUPPLY & SERVICES CO. LTD "
+          ],
+          "breakdown": {
+            "tokenSet": "0.500",
+            "jaroWinkler": "0.870",
+            "levenshtein": "0.870",
+            "normalized1": "technical supplies services",
+            "normalized2": "technical supply services",
+            "withoutSuffix": "0.870"
+          },
+          "similarity": "74.0%"
+        },
+        {
+          "pair": [
+            "TECHNICAL SUPPLIES &SERVICES CO.LTD ",
+            "TECHNICAL SUPPLY & SERVICES CO. LTD "
+          ],
+          "breakdown": {
+            "tokenSet": "0.400",
+            "jaroWinkler": "0.784",
+            "levenshtein": "0.784",
+            "normalized1": "technical supplies services coltd",
+            "normalized2": "technical supply services",
+            "withoutSuffix": "0.870"
+          },
+          "similarity": "66.3%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:38:43.817Z",
+      "reviewed_at": "2025-11-16T09:01:34.114Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 13
+    },
+    {
+      "id": 6,
+      "division": "FP",
+      "suggested_merge_name": "KAMAL OSMAN JAMJOOM",
+      "customer_group": [
+        "KAMAL OSMAN JAMJOOM TRADING LLC ",
+        "KAMAL OSMAN JAMJOOM TRADING LLC. "
+      ],
+      "confidence_score": "1.00",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "KAMAL OSMAN JAMJOOM TRADING LLC ",
+            "KAMAL OSMAN JAMJOOM TRADING LLC. "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.443Z",
+      "reviewed_at": "2025-11-16T10:25:14.860Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 14
+    },
+    {
+      "id": 56,
+      "division": "FP",
+      "suggested_merge_name": "Awal Dairy",
+      "customer_group": [
+        "Awal Dairy",
+        "AWAL DAIRY COMPANY W.L.L "
+      ],
+      "confidence_score": "0.78",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Awal Dairy",
+            "AWAL DAIRY COMPANY W.L.L "
+          ],
+          "breakdown": {
+            "tokenSet": "0.667",
+            "jaroWinkler": "0.842",
+            "levenshtein": "0.842",
+            "normalized1": "awal dairy",
+            "normalized2": "awal dairy wll",
+            "withoutSuffix": "0.842"
+          },
+          "similarity": "78.1%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:38:43.815Z",
+      "reviewed_at": "2025-11-16T10:27:40.231Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 15
+    },
+    {
+      "id": 19,
+      "division": "FP",
+      "suggested_merge_name": "COCA-COLA AL AHLIA BEVERAGES",
+      "customer_group": [
+        "COCA-COLA AL AHLIA BEVERAGE CO LLC ",
+        "COCA-COLA AL AHLIA BEVERAGES "
+      ],
+      "confidence_score": "0.85",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "COCA-COLA AL AHLIA BEVERAGE CO LLC ",
+            "COCA-COLA AL AHLIA BEVERAGES "
+          ],
+          "breakdown": {
+            "tokenSet": "0.600",
+            "jaroWinkler": "0.978",
+            "levenshtein": "0.978",
+            "normalized1": "cocacola al ahlia beverage",
+            "normalized2": "cocacola al ahlia beverages",
+            "withoutSuffix": "0.978"
+          },
+          "similarity": "84.6%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-16T07:36:52.469Z",
+      "reviewed_at": "2025-11-16T11:42:36.067Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 23
+    },
+    {
+      "id": 16,
+      "division": "FP",
+      "suggested_merge_name": "AL MANHAL WATER FACTORY",
+      "customer_group": [
+        "AL MANHAL WATER FACTORY ",
+        "AL MANHAL WATER FACTORY CO. LTD WLL ",
+        "AL MANHAL WATER FACTORY, W.L.L "
+      ],
+      "confidence_score": "0.92",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "AL MANHAL WATER FACTORY ",
+            "AL MANHAL WATER FACTORY CO. LTD WLL "
+          ],
+          "breakdown": {
+            "tokenSet": "0.800",
+            "jaroWinkler": "0.927",
+            "levenshtein": "0.927",
+            "normalized1": "al manhal water factory",
+            "normalized2": "al manhal water factory wll",
+            "withoutSuffix": "0.927"
+          },
+          "similarity": "88.2%"
+        },
+        {
+          "pair": [
+            "AL MANHAL WATER FACTORY ",
+            "AL MANHAL WATER FACTORY, W.L.L "
+          ],
+          "breakdown": {
+            "tokenSet": "0.800",
+            "jaroWinkler": "0.927",
+            "levenshtein": "0.927",
+            "normalized1": "al manhal water factory",
+            "normalized2": "al manhal water factory wll",
+            "withoutSuffix": "0.927"
+          },
+          "similarity": "88.2%"
+        },
+        {
+          "pair": [
+            "AL MANHAL WATER FACTORY CO. LTD WLL ",
+            "AL MANHAL WATER FACTORY, W.L.L "
+          ],
+          "breakdown": {
+            "exactMatch": true
+          },
+          "similarity": "100.0%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-16T07:36:52.464Z",
+      "reviewed_at": "2025-11-16T12:14:33.507Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 27
+    },
+    {
+      "id": 83,
+      "division": "FP",
+      "suggested_merge_name": "Bafarat Ind. Group (Rana)",
+      "customer_group": [
+        "BAFARAT IND. GROUP (RANA)",
+        "BAFARAT INDUSTRIAL GROUP COJeddah Industrial City"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T12:19:32.298Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T12:19:32.298Z",
+      "reviewed_at": "2025-11-18T13:03:18.108Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 68
+    },
+    {
+      "id": 87,
+      "division": "FP",
+      "suggested_merge_name": "Crown Food Industry",
+      "customer_group": [
+        "CROWN FOOD INDUSTRY (L.L.C.)",
+        "Crown Foods"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T12:25:28.277Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T12:25:28.278Z",
+      "reviewed_at": "2025-11-18T13:02:58.414Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 64
+    },
+    {
+      "id": 84,
+      "division": "FP",
+      "suggested_merge_name": "Al Tunkaya",
+      "customer_group": [
+        "Al Tunkaya",
+        "ALTUNKAYA DAIRY FZCOP.O. BOX 3955"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-18T12:21:39.270Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T12:21:39.271Z",
+      "reviewed_at": "2025-11-18T13:03:14.112Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 67
+    },
+    {
+      "id": 95,
+      "division": "FP",
+      "suggested_merge_name": "EMIRATES BUSTANICA L.L.CDUBAI UAE",
+      "customer_group": [
+        "EMIRATES BUSTANICA L.L.CAirport Road,Dubai Airport",
+        "EMIRATES BUSTANICA L.L.CDUBAI UAE"
+      ],
+      "confidence_score": "0.64",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "EMIRATES BUSTANICA L.L.CAirport Road,Dubai Airport",
+            "EMIRATES BUSTANICA L.L.CDUBAI UAE"
+          ],
+          "breakdown": {
+            "phonetic": "0.250",
+            "tokenSet": "0.250",
+            "coreBrand": "0.702",
+            "jaroWinkler": "0.667",
+            "levenshtein": "0.667",
+            "nGramPrefix": "1.000",
+            "normalized1": "emirates bustanica llcairport road dubai airport",
+            "normalized2": "emirates bustanica llcdubai uae",
+            "withoutSuffix": "0.667"
+          },
+          "similarity": "63.9%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T13:02:41.341Z",
+      "reviewed_at": "2025-11-18T13:52:04.693Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 75
+    },
+    {
+      "id": 94,
+      "division": "FP",
+      "suggested_merge_name": "Zulal Water Factory",
+      "customer_group": [
+        "Zulal Water Factory ",
+        "Zulal Water Factory2nd Industrial City"
+      ],
+      "confidence_score": "0.66",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Zulal Water Factory ",
+            "Zulal Water Factory2nd Industrial City"
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.333",
+            "coreBrand": "0.711",
+            "jaroWinkler": "0.653",
+            "levenshtein": "0.653",
+            "nGramPrefix": "1.000",
+            "normalized1": "zulal water factory",
+            "normalized2": "zulal water factory2nd industrial city",
+            "withoutSuffix": "0.653"
+          },
+          "similarity": "65.9%"
+        }
+      ],
+      "admin_action": "REJECTED",
+      "suggested_at": "2025-11-18T13:02:41.337Z",
+      "reviewed_at": "2025-11-18T13:54:28.127Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Not a match",
+      "was_correct": false,
+      "created_rule_id": null
+    },
+    {
+      "id": 93,
+      "division": "FP",
+      "suggested_merge_name": "National Dairy",
+      "customer_group": [
+        "National Dairy ",
+        "NATIONAL DAIRY LLCAL AIN CITY"
+      ],
+      "confidence_score": "0.69",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "National Dairy ",
+            "NATIONAL DAIRY LLCAL AIN CITY"
+          ],
+          "breakdown": {
+            "phonetic": "0.400",
+            "tokenSet": "0.400",
+            "coreBrand": "0.750",
+            "jaroWinkler": "0.667",
+            "levenshtein": "0.667",
+            "nGramPrefix": "1.000",
+            "normalized1": "national dairy",
+            "normalized2": "national dairy llcal ain city",
+            "withoutSuffix": "0.667"
+          },
+          "similarity": "69.0%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T13:02:41.334Z",
+      "reviewed_at": "2025-11-18T13:54:41.040Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 76
+    },
+    {
+      "id": 92,
+      "division": "FP",
+      "suggested_merge_name": "TECHNICAL ALUMINIUM FOIL",
+      "customer_group": [
+        "TECHNICAL ALUMINIUM FOIL COMPANY ",
+        "TECHNICAL ALUMINIUM FOIL COMPANYNEW INDUSTRIAL AREA ST.,"
+      ],
+      "confidence_score": "0.70",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "TECHNICAL ALUMINIUM FOIL COMPANY ",
+            "TECHNICAL ALUMINIUM FOIL COMPANYNEW INDUSTRIAL AREA ST.,"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.429",
+            "coreBrand": "0.808",
+            "jaroWinkler": "0.618",
+            "levenshtein": "0.618",
+            "nGramPrefix": "1.000",
+            "normalized1": "technical aluminium foil",
+            "normalized2": "technical aluminium foil companynew industrial area st",
+            "withoutSuffix": "0.618"
+          },
+          "similarity": "70.5%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T13:02:41.330Z",
+      "reviewed_at": "2025-11-18T13:55:22.438Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 78
+    },
+    {
+      "id": 90,
+      "division": "FP",
+      "suggested_merge_name": "HEALTH CARE PRODUCT FZC600 M2 WAREHOUSE",
+      "customer_group": [
+        "HEALTH CARE PRODUCT (FZC)WAREHOUSE NO.U2-001 & U2-002",
+        "HEALTH CARE PRODUCT FZC600 M2 WAREHOUSE"
+      ],
+      "confidence_score": "0.72",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "HEALTH CARE PRODUCT (FZC)WAREHOUSE NO.U2-001 & U2-002",
+            "HEALTH CARE PRODUCT FZC600 M2 WAREHOUSE"
+          ],
+          "breakdown": {
+            "phonetic": "0.429",
+            "tokenSet": "0.333",
+            "coreBrand": "0.760",
+            "jaroWinkler": "0.806",
+            "levenshtein": "0.806",
+            "nGramPrefix": "1.000",
+            "normalized1": "health care product fzcwarehouse nou2 u2",
+            "normalized2": "health care product fzc600 m2 warehouse",
+            "withoutSuffix": "0.714"
+          },
+          "similarity": "71.7%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T13:02:41.325Z",
+      "reviewed_at": "2025-11-18T13:55:38.316Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 79
+    },
+    {
+      "id": 91,
+      "division": "FP",
+      "suggested_merge_name": "COSMOPLAST IND CO LLC (Trade)",
+      "customer_group": [
+        "COSMOPLAST IND CO LLC (Ecommerce) ",
+        "COSMOPLAST IND CO LLC (Trade) "
+      ],
+      "confidence_score": "0.71",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "COSMOPLAST IND CO LLC (Ecommerce) ",
+            "COSMOPLAST IND CO LLC (Trade) "
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "0.684",
+            "jaroWinkler": "0.684",
+            "levenshtein": "0.684",
+            "nGramPrefix": "1.000",
+            "normalized1": "cosmoplast ind ecommerce",
+            "normalized2": "cosmoplast ind trade",
+            "withoutSuffix": "0.684"
+          },
+          "similarity": "70.7%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T13:02:41.328Z",
+      "reviewed_at": "2025-11-18T13:55:14.234Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": null
+    },
+    {
+      "id": 97,
+      "division": "FP",
+      "suggested_merge_name": "BAHR AL SUWAIQ TRADING LLCAl Suwayq",
+      "customer_group": [
+        "BAHR AL SUWAIQ TRADING LLCAl Suwayq",
+        "BAHR AL SUWAIQ TRADINGAl-Suwaiq, North Batinah"
+      ],
+      "confidence_score": "0.61",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "BAHR AL SUWAIQ TRADING LLCAl Suwayq",
+            "BAHR AL SUWAIQ TRADINGAl-Suwaiq, North Batinah"
+          ],
+          "breakdown": {
+            "phonetic": "0.250",
+            "tokenSet": "0.333",
+            "coreBrand": "0.474",
+            "jaroWinkler": "0.687",
+            "levenshtein": "0.687",
+            "nGramPrefix": "1.000",
+            "normalized1": "bahr al suwaiq trading llcal suwayq",
+            "normalized2": "bahr al suwaiq tradingalsuwaiq north batinah",
+            "withoutSuffix": "0.687"
+          },
+          "similarity": "60.6%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T13:02:41.345Z",
+      "reviewed_at": "2025-11-18T13:13:56.937Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": null
+    },
+    {
+      "id": 103,
+      "division": "FP",
+      "suggested_merge_name": "Fedex Express",
+      "customer_group": [
+        "Fedex Express",
+        "FEDEX EXPRESS BAHRAIN W.L.LMUHARRAQ",
+        "FEDEX EXPRESS INTERNATIONALNext to Terminal 2 Airport"
+      ],
+      "confidence_score": "0.46",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Fedex Express",
+            "FEDEX EXPRESS BAHRAIN W.L.LMUHARRAQ"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "0.550",
+            "jaroWinkler": "0.550",
+            "levenshtein": "0.550",
+            "nGramPrefix": "1.000",
+            "normalized1": "fedex express",
+            "normalized2": "fedex express bahrain wllmuharraq",
+            "withoutSuffix": "0.550"
+          },
+          "similarity": "64.0%"
+        },
+        {
+          "pair": [
+            "Fedex Express",
+            "FEDEX EXPRESS INTERNATIONALNext to Terminal 2 Airport"
+          ],
+          "breakdown": {
+            "phonetic": "0.400",
+            "tokenSet": "0.286",
+            "coreBrand": "0.468",
+            "jaroWinkler": "0.386",
+            "levenshtein": "0.386",
+            "nGramPrefix": "1.000",
+            "normalized1": "fedex express",
+            "normalized2": "fedex express internationalnext to terminal 2 airport",
+            "withoutSuffix": "0.386"
+          },
+          "similarity": "36.2%"
+        },
+        {
+          "pair": [
+            "FEDEX EXPRESS BAHRAIN W.L.LMUHARRAQ",
+            "FEDEX EXPRESS INTERNATIONALNext to Terminal 2 Airport"
+          ],
+          "breakdown": {
+            "phonetic": "0.286",
+            "tokenSet": "0.222",
+            "coreBrand": "0.369",
+            "jaroWinkler": "0.347",
+            "levenshtein": "0.347",
+            "nGramPrefix": "1.000",
+            "normalized1": "fedex express bahrain wllmuharraq",
+            "normalized2": "fedex express internationalnext to terminal 2 airport",
+            "withoutSuffix": "0.347"
+          },
+          "similarity": "38.1%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T13:02:41.356Z",
+      "reviewed_at": "2025-11-18T13:03:40.798Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 70
+    },
+    {
+      "id": 102,
+      "division": "FP",
+      "suggested_merge_name": "ABU DHABI REFRESHMENTS",
+      "customer_group": [
+        "ABU DHABI POLYMERS CO.(BOROUGESHEIKH KHALIFA ENGRGY COMPLEX",
+        "ABU DHABI REFRESHMENTS CO. LLC "
+      ],
+      "confidence_score": "0.46",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "ABU DHABI POLYMERS CO.(BOROUGESHEIKH KHALIFA ENGRGY COMPLEX",
+            "ABU DHABI REFRESHMENTS CO. LLC "
+          ],
+          "breakdown": {
+            "phonetic": "0.250",
+            "tokenSet": "0.250",
+            "coreBrand": "0.370",
+            "jaroWinkler": "0.297",
+            "levenshtein": "0.297",
+            "nGramPrefix": "1.000",
+            "normalized1": "abu dhabi polymers companyborougesheikh khalifa engrgy complex",
+            "normalized2": "abu dhabi refreshments",
+            "withoutSuffix": "0.328"
+          },
+          "similarity": "46.5%"
+        }
+      ],
+      "admin_action": "REJECTED",
+      "suggested_at": "2025-11-18T13:02:41.355Z",
+      "reviewed_at": "2025-11-18T13:05:00.795Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Not a match",
+      "was_correct": false,
+      "created_rule_id": null
+    },
+    {
+      "id": 101,
+      "division": "FP",
+      "suggested_merge_name": "Jet Plastic",
+      "customer_group": [
+        "Jet Plastic ",
+        "Jet Plastic Factory LLC146, Al Nuaiemiyah,"
+      ],
+      "confidence_score": "0.49",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Jet Plastic ",
+            "Jet Plastic Factory LLC146, Al Nuaiemiyah,"
+          ],
+          "breakdown": {
+            "phonetic": "0.400",
+            "tokenSet": "0.333",
+            "coreBrand": "0.581",
+            "jaroWinkler": "0.419",
+            "levenshtein": "0.419",
+            "nGramPrefix": "1.000",
+            "normalized1": "jet plastic",
+            "normalized2": "jet plastic factory llc146 al nuaiemiyah",
+            "withoutSuffix": "0.419"
+          },
+          "similarity": "48.7%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T13:02:41.353Z",
+      "reviewed_at": "2025-11-18T13:05:05.802Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 71
+    },
+    {
+      "id": 100,
+      "division": "FP",
+      "suggested_merge_name": "SARL UNIVERS HYGIENE",
+      "customer_group": [
+        "SARL UNIVERS HYGIENE",
+        "SARL UNIVERS HYGIENEDIVISION 01 N 605 QUATRE CHEMI"
+      ],
+      "confidence_score": "0.50",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "SARL UNIVERS HYGIENE",
+            "SARL UNIVERS HYGIENEDIVISION 01 N 605 QUATRE CHEMI"
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.250",
+            "coreBrand": "0.708",
+            "jaroWinkler": "0.607",
+            "levenshtein": "0.607",
+            "nGramPrefix": "1.000",
+            "normalized1": "sarl univers hygiene",
+            "normalized2": "sarl univers hygienedivision 01 n quatre chemi",
+            "withoutSuffix": "0.576"
+          },
+          "similarity": "50.5%"
+        }
+      ],
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-18T13:02:41.352Z",
+      "reviewed_at": "2025-11-18T13:05:59.742Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": null,
+      "was_correct": true,
+      "created_rule_id": 72
+    },
+    {
+      "id": 99,
+      "division": "FP",
+      "suggested_merge_name": "MIDDLE EAST GALVANISINGPO BOX",
+      "customer_group": [
+        "MIDDLE EAST GALVANISINGPO BOX",
+        "MIDDLE EAST PLASTIC BAGS INDUSTRIES ",
+        "MIDDLE EAST RETAIL COMPANY(LLC)(BR) "
+      ],
+      "confidence_score": "0.54",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "MIDDLE EAST GALVANISINGPO BOX",
+            "MIDDLE EAST PLASTIC BAGS INDUSTRIES "
+          ],
+          "breakdown": {
+            "phonetic": "0.286",
+            "tokenSet": "0.286",
+            "coreBrand": "0.400",
+            "jaroWinkler": "0.400",
+            "levenshtein": "0.400",
+            "nGramPrefix": "1.000",
+            "normalized1": "middle east galvanisingpo box",
+            "normalized2": "middle east plastic bags industries",
+            "withoutSuffix": "0.400"
+          },
+          "similarity": "50.7%"
+        },
+        {
+          "pair": [
+            "MIDDLE EAST GALVANISINGPO BOX",
+            "MIDDLE EAST RETAIL COMPANY(LLC)(BR) "
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.333",
+            "coreBrand": "0.529",
+            "jaroWinkler": "0.385",
+            "levenshtein": "0.385",
+            "nGramPrefix": "1.000",
+            "normalized1": "middle east galvanisingpo box",
+            "normalized2": "middle east retail companyllcbr",
+            "withoutSuffix": "0.429"
+          },
+          "similarity": "54.8%"
+        },
+        {
+          "pair": [
+            "MIDDLE EAST PLASTIC BAGS INDUSTRIES ",
+            "MIDDLE EAST RETAIL COMPANY(LLC)(BR) "
+          ],
+          "breakdown": {
+            "phonetic": "0.286",
+            "tokenSet": "0.286",
+            "coreBrand": "0.621",
+            "jaroWinkler": "0.386",
+            "levenshtein": "0.386",
+            "nGramPrefix": "1.000",
+            "normalized1": "middle east plastic bags industries",
+            "normalized2": "middle east retail companyllcbr",
+            "withoutSuffix": "0.426"
+          },
+          "similarity": "55.5%"
+        }
+      ],
+      "admin_action": "REJECTED",
+      "suggested_at": "2025-11-18T13:02:41.349Z",
+      "reviewed_at": "2025-11-18T13:12:21.818Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Not a match",
+      "was_correct": false,
+      "created_rule_id": null
+    },
+    {
+      "id": 104,
+      "division": "FP",
+      "suggested_merge_name": "Ghadeer Water Co. [ Nestle - Jordan]",
+      "customer_group": [
+        "Ghadeer Mineral Water Co. Llc142393 Amman 11844",
+        "Ghadeer Mineral Water Co. Llcbassera Dam Road, Dibba, Fujai",
+        "Ghadeer Mineral Watersabd Al Rahman Al Naser Street",
+        "Ghadeer Water Co. [ Nestle - Jordan]"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-19T05:43:27.505Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-19T05:43:27.505Z",
+      "reviewed_at": "2025-11-19T05:43:39.756Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 81
+    },
+    {
+      "id": 98,
+      "division": "FP",
+      "suggested_merge_name": "MISC. CUSTOMER (TINU)",
+      "customer_group": [
+        "MISC. CUSTOMER (CHRISTOPHER DE LA C ",
+        "MISC. CUSTOMER (SOJY JOSE UKKEN) ",
+        "MISC. CUSTOMER (TINU) "
+      ],
+      "confidence_score": "0.59",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "MISC. CUSTOMER (CHRISTOPHER DE LA C ",
+            "MISC. CUSTOMER (SOJY JOSE UKKEN) "
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.222",
+            "coreBrand": "0.537",
+            "jaroWinkler": "0.431",
+            "levenshtein": "0.431",
+            "nGramPrefix": "1.000",
+            "normalized1": "misc customer christopher de la c",
+            "normalized2": "misc customer sojy jose ukken",
+            "withoutSuffix": "0.431"
+          },
+          "similarity": "54.2%"
+        },
+        {
+          "pair": [
+            "MISC. CUSTOMER (CHRISTOPHER DE LA C ",
+            "MISC. CUSTOMER (TINU) "
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.286",
+            "coreBrand": "0.595",
+            "jaroWinkler": "0.524",
+            "levenshtein": "0.524",
+            "nGramPrefix": "1.000",
+            "normalized1": "misc customer christopher de la c",
+            "normalized2": "misc customer tinu",
+            "withoutSuffix": "0.524"
+          },
+          "similarity": "61.0%"
+        },
+        {
+          "pair": [
+            "MISC. CUSTOMER (SOJY JOSE UKKEN) ",
+            "MISC. CUSTOMER (TINU) "
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.333",
+            "coreBrand": "0.647",
+            "jaroWinkler": "0.564",
+            "levenshtein": "0.564",
+            "nGramPrefix": "1.000",
+            "normalized1": "misc customer sojy jose ukken",
+            "normalized2": "misc customer tinu",
+            "withoutSuffix": "0.564"
+          },
+          "similarity": "62.0%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T13:02:41.347Z",
+      "reviewed_at": "2025-11-18T13:13:38.956Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 73
+    },
+    {
+      "id": 89,
+      "division": "FP",
+      "suggested_merge_name": "AJMAL PERFUMES MANUFACTURING AND",
+      "customer_group": [
+        "AJMAL PERFUMES CENTER (L.L.C.)PO BOX: 1082, SHOP NO.:3",
+        "AJMAL PERFUMES MANUFACTURING AND "
+      ],
+      "confidence_score": "0.75",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "AJMAL PERFUMES CENTER (L.L.C.)PO BOX: 1082, SHOP NO.:3",
+            "AJMAL PERFUMES MANUFACTURING AND "
+          ],
+          "breakdown": {
+            "phonetic": "0.400",
+            "tokenSet": "0.400",
+            "coreBrand": "1.000",
+            "jaroWinkler": "0.522",
+            "levenshtein": "0.522",
+            "nGramPrefix": "1.000",
+            "normalized1": "ajmal perfumes center",
+            "normalized2": "ajmal perfumes manufacturing and",
+            "withoutSuffix": "0.387"
+          },
+          "similarity": "74.9%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-18T13:02:41.320Z",
+      "reviewed_at": "2025-11-18T13:56:00.774Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 80
+    },
+    {
+      "id": 96,
+      "division": "FP",
+      "suggested_merge_name": "Al Ghadeer Mineral Water Bottling",
+      "customer_group": [
+        "Al Ghadeer Mineral Water Bottling ",
+        "GHADEER MINERAL WATER CO. LLC142393 AMMAN 11844",
+        "GHADEER MINERAL WATER CO. LLCBASSERA DAM ROAD, Dibba, Fujai",
+        "GHADEER MINERAL WATERSABD AL RAHMAN AL NASER STREET"
+      ],
+      "confidence_score": "0.61",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Al Ghadeer Mineral Water Bottling ",
+            "GHADEER MINERAL WATER CO. LLC142393 AMMAN 11844"
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.429",
+            "coreBrand": "0.679",
+            "jaroWinkler": "0.600",
+            "levenshtein": "0.600",
+            "nGramPrefix": "1.000",
+            "normalized1": "al ghadeer mineral water bottling",
+            "normalized2": "ghadeer mineral water llc142393 amman",
+            "withoutSuffix": "0.554"
+          },
+          "similarity": "66.8%"
+        },
+        {
+          "pair": [
+            "Al Ghadeer Mineral Water Bottling ",
+            "GHADEER MINERAL WATER CO. LLCBASSERA DAM ROAD, Dibba, Fujai"
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.300",
+            "coreBrand": "0.667",
+            "jaroWinkler": "0.493",
+            "levenshtein": "0.493",
+            "nGramPrefix": "1.000",
+            "normalized1": "al ghadeer mineral water bottling",
+            "normalized2": "ghadeer mineral water llcbassera dam road dibba fujai",
+            "withoutSuffix": "0.493"
+          },
+          "similarity": "60.0%"
+        },
+        {
+          "pair": [
+            "Al Ghadeer Mineral Water Bottling ",
+            "GHADEER MINERAL WATERSABD AL RAHMAN AL NASER STREET"
+          ],
+          "breakdown": {
+            "phonetic": "0.250",
+            "tokenSet": "0.333",
+            "coreBrand": "0.667",
+            "jaroWinkler": "0.535",
+            "levenshtein": "0.535",
+            "nGramPrefix": "1.000",
+            "normalized1": "al ghadeer mineral water bottling",
+            "normalized2": "ghadeer mineral watersabd al rahman al naser street",
+            "withoutSuffix": "0.535"
+          },
+          "similarity": "60.7%"
+        },
+        {
+          "pair": [
+            "GHADEER MINERAL WATER CO. LLC142393 AMMAN 11844",
+            "GHADEER MINERAL WATER CO. LLCBASSERA DAM ROAD, Dibba, Fujai"
+          ],
+          "breakdown": {
+            "phonetic": "0.300",
+            "tokenSet": "0.300",
+            "coreBrand": "0.764",
+            "jaroWinkler": "0.571",
+            "levenshtein": "0.571",
+            "nGramPrefix": "1.000",
+            "normalized1": "ghadeer mineral water llc142393 amman",
+            "normalized2": "ghadeer mineral water llcbassera dam road dibba fujai",
+            "withoutSuffix": "0.537"
+          },
+          "similarity": "63.6%"
+        },
+        {
+          "pair": [
+            "GHADEER MINERAL WATER CO. LLC142393 AMMAN 11844",
+            "GHADEER MINERAL WATERSABD AL RAHMAN AL NASER STREET"
+          ],
+          "breakdown": {
+            "phonetic": "0.222",
+            "tokenSet": "0.200",
+            "coreBrand": "0.655",
+            "jaroWinkler": "0.533",
+            "levenshtein": "0.533",
+            "nGramPrefix": "1.000",
+            "normalized1": "ghadeer mineral water llc142393 amman",
+            "normalized2": "ghadeer mineral watersabd al rahman al naser street",
+            "withoutSuffix": "0.500"
+          },
+          "similarity": "57.7%"
+        },
+        {
+          "pair": [
+            "GHADEER MINERAL WATER CO. LLCBASSERA DAM ROAD, Dibba, Fujai",
+            "GHADEER MINERAL WATERSABD AL RAHMAN AL NASER STREET"
+          ],
+          "breakdown": {
+            "phonetic": "0.167",
+            "tokenSet": "0.154",
+            "coreBrand": "0.679",
+            "jaroWinkler": "0.523",
+            "levenshtein": "0.523",
+            "nGramPrefix": "1.000",
+            "normalized1": "ghadeer mineral water llcbassera dam road dibba fujai",
+            "normalized2": "ghadeer mineral watersabd al rahman al naser street",
+            "withoutSuffix": "0.523"
+          },
+          "similarity": "56.9%"
+        }
+      ],
+      "admin_action": "REJECTED",
+      "suggested_at": "2025-11-18T13:02:41.342Z",
+      "reviewed_at": "2025-11-19T05:42:24.899Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Not a match",
+      "was_correct": false,
+      "created_rule_id": null
+    },
+    {
+      "id": 108,
+      "division": "FP",
+      "suggested_merge_name": "Abu Dhabi Refreshments",
+      "customer_group": [
+        "Abu Dhabi Polymers Co.(Borougesheikh Khalifa Engrgy Complex",
+        "Abu Dhabi Refreshments Co. Llc "
+      ],
+      "confidence_score": "0.46",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Abu Dhabi Polymers Co.(Borougesheikh Khalifa Engrgy Complex",
+            "Abu Dhabi Refreshments Co. Llc "
+          ],
+          "breakdown": {
+            "phonetic": "0.250",
+            "tokenSet": "0.250",
+            "coreBrand": "0.370",
+            "jaroWinkler": "0.297",
+            "levenshtein": "0.297",
+            "nGramPrefix": "1.000",
+            "normalized1": "abu dhabi polymers companyborougesheikh khalifa engrgy complex",
+            "normalized2": "abu dhabi refreshments",
+            "withoutSuffix": "0.328"
+          },
+          "similarity": "46.5%"
+        }
+      ],
+      "admin_action": "REJECTED",
+      "suggested_at": "2025-11-19T06:12:26.446Z",
+      "reviewed_at": "2025-11-19T06:12:54.847Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Not a match",
+      "was_correct": false,
+      "created_rule_id": null
+    },
+    {
+      "id": 106,
+      "division": "FP",
+      "suggested_merge_name": "Zulal Water Factory",
+      "customer_group": [
+        "Zulal Water Factory ",
+        "Zulal Water Factory2nd Industrial City"
+      ],
+      "confidence_score": "0.66",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Zulal Water Factory ",
+            "Zulal Water Factory2nd Industrial City"
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.333",
+            "coreBrand": "0.711",
+            "jaroWinkler": "0.653",
+            "levenshtein": "0.653",
+            "nGramPrefix": "1.000",
+            "normalized1": "zulal water factory",
+            "normalized2": "zulal water factory2nd industrial city",
+            "withoutSuffix": "0.653"
+          },
+          "similarity": "65.9%"
+        }
+      ],
+      "admin_action": "REJECTED",
+      "suggested_at": "2025-11-19T06:12:26.443Z",
+      "reviewed_at": "2025-11-19T06:13:11.276Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Not a match",
+      "was_correct": false,
+      "created_rule_id": null
+    },
+    {
+      "id": 105,
+      "division": "FP",
+      "suggested_merge_name": "Cosmoplast Ind Co Llc (Trade)",
+      "customer_group": [
+        "Cosmoplast Ind Co Llc (Ecommerce) ",
+        "Cosmoplast Ind Co Llc (Trade) "
+      ],
+      "confidence_score": "0.71",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Cosmoplast Ind Co Llc (Ecommerce) ",
+            "Cosmoplast Ind Co Llc (Trade) "
+          ],
+          "breakdown": {
+            "phonetic": "0.500",
+            "tokenSet": "0.500",
+            "coreBrand": "0.684",
+            "jaroWinkler": "0.684",
+            "levenshtein": "0.684",
+            "nGramPrefix": "1.000",
+            "normalized1": "cosmoplast ind ecommerce",
+            "normalized2": "cosmoplast ind trade",
+            "withoutSuffix": "0.684"
+          },
+          "similarity": "70.7%"
+        }
+      ],
+      "admin_action": "MODIFIED",
+      "suggested_at": "2025-11-19T06:12:26.437Z",
+      "reviewed_at": "2025-11-19T06:13:36.236Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Admin edited before approval",
+      "was_correct": false,
+      "created_rule_id": 82
+    },
+    {
+      "id": 109,
+      "division": "FP",
+      "suggested_merge_name": "Pearl Dairy Farms",
+      "customer_group": [
+        "Pearl Dairy Farms Limitedplot 62 Mukabya Road, Banda",
+        "Pearl Milk"
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-19T10:42:03.940Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-19T10:42:03.940Z",
+      "reviewed_at": "2025-11-19T11:20:28.193Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 83
+    },
+    {
+      "id": 110,
+      "division": "FP",
+      "suggested_merge_name": "Masafi Co. LLC",
+      "customer_group": [
+        "Masafi",
+        "Masafi Co. Llc-Dubai Br."
+      ],
+      "confidence_score": null,
+      "matching_algorithm": "MANUAL",
+      "match_details": {
+        "source": "MANUAL",
+        "createdAt": "2025-11-19T13:26:05.770Z",
+        "createdBy": "Admin"
+      },
+      "admin_action": "APPROVED",
+      "suggested_at": "2025-11-19T13:26:05.774Z",
+      "reviewed_at": "2025-11-20T04:01:42.044Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Manual suggestion provided by Admin",
+      "was_correct": true,
+      "created_rule_id": 84
+    },
+    {
+      "id": 107,
+      "division": "FP",
+      "suggested_merge_name": "Middle East Galvanisingpo Box",
+      "customer_group": [
+        "Middle East Galvanisingpo Box",
+        "Middle East Plastic Bags Industries ",
+        "Middle East Retail Company(Llc)(Br) "
+      ],
+      "confidence_score": "0.54",
+      "matching_algorithm": "MULTI_ALGORITHM",
+      "match_details": [
+        {
+          "pair": [
+            "Middle East Galvanisingpo Box",
+            "Middle East Plastic Bags Industries "
+          ],
+          "breakdown": {
+            "phonetic": "0.286",
+            "tokenSet": "0.286",
+            "coreBrand": "0.400",
+            "jaroWinkler": "0.400",
+            "levenshtein": "0.400",
+            "nGramPrefix": "1.000",
+            "normalized1": "middle east galvanisingpo box",
+            "normalized2": "middle east plastic bags industries",
+            "withoutSuffix": "0.400"
+          },
+          "similarity": "50.7%"
+        },
+        {
+          "pair": [
+            "Middle East Galvanisingpo Box",
+            "Middle East Retail Company(Llc)(Br) "
+          ],
+          "breakdown": {
+            "phonetic": "0.333",
+            "tokenSet": "0.333",
+            "coreBrand": "0.529",
+            "jaroWinkler": "0.385",
+            "levenshtein": "0.385",
+            "nGramPrefix": "1.000",
+            "normalized1": "middle east galvanisingpo box",
+            "normalized2": "middle east retail companyllcbr",
+            "withoutSuffix": "0.429"
+          },
+          "similarity": "54.8%"
+        },
+        {
+          "pair": [
+            "Middle East Plastic Bags Industries ",
+            "Middle East Retail Company(Llc)(Br) "
+          ],
+          "breakdown": {
+            "phonetic": "0.286",
+            "tokenSet": "0.286",
+            "coreBrand": "0.621",
+            "jaroWinkler": "0.386",
+            "levenshtein": "0.386",
+            "nGramPrefix": "1.000",
+            "normalized1": "middle east plastic bags industries",
+            "normalized2": "middle east retail companyllcbr",
+            "withoutSuffix": "0.426"
+          },
+          "similarity": "55.5%"
+        }
+      ],
+      "admin_action": "REJECTED",
+      "suggested_at": "2025-11-19T06:12:26.445Z",
+      "reviewed_at": "2025-11-19T06:13:02.945Z",
+      "reviewed_by": "Admin",
+      "feedback_notes": "Not a match",
+      "was_correct": false,
+      "created_rule_id": null
+    }
+  ]
+}

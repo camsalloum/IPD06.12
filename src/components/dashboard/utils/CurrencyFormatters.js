@@ -60,21 +60,22 @@ export const formatAEDPerKg = (value, options = {}) => {
 };
 
 /**
- * Format AED currency with code for exports/reports (CSV/Excel/API)
+ * Format currency with code for exports/reports (CSV/Excel/API)
  * @param {number} value - The numeric value to format
  * @param {Object} options - Formatting options
  * @param {number} options.dp - Decimal places (default: 2)
- * @returns {string} Formatted currency with "AED" code
+ * @param {string} options.currencyCode - Currency code (default: 'AED')
+ * @returns {string} Formatted currency with code
  */
 export const formatAEDCode = (value, options = {}) => {
-  const { dp = 2 } = options;
+  const { dp = 2, currencyCode = 'AED' } = options;
   
   if (value == null || isNaN(value)) {
-    return `AED 0.00`;
+    return `${currencyCode} 0.00`;
   }
   
   const formatted = value.toFixed(dp);
-  return `AED ${formatted}`;
+  return `${currencyCode} ${formatted}`;
 };
 
 /**

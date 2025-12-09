@@ -1,0 +1,52 @@
+[2025-11-14 10:26:40] [INFO] ========================================================================
+[2025-11-14 10:26:40] [INFO] AEBF Excel to SQL Transform & Upload Script
+[2025-11-14 10:26:40] [INFO] ========================================================================
+[2025-11-14 10:26:41] [INFO] Excel File: D:\Projects\IPD26.10\uploads\aebf-upload-1763101598594.xlsx
+[2025-11-14 10:26:41] [INFO] Division: FP
+[2025-11-14 10:26:41] [INFO] Upload Mode: replace
+[2025-11-14 10:26:41] [INFO] Uploaded By: Cam
+[2025-11-14 10:26:41] [INFO] Test Mode: False
+[2025-11-14 10:26:41] [INFO] ========================================================================
+[2025-11-14 10:26:41] [INFO] Checking prerequisites...
+[2025-11-14 10:26:41] [SUCCESS] Prerequisites check passed
+[2025-11-14 10:26:41] [INFO] Testing database connection...
+[2025-11-14 10:26:41] [SUCCESS] Database connection successful
+[2025-11-14 10:26:41] [INFO] PostgreSQL version: PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit 
+[2025-11-14 10:26:41] [INFO] Reading Excel file (first sheet)...
+[2025-11-14 10:28:19] [INFO] Excel has 23841 total rows
+[2025-11-14 10:28:19] [SUCCESS] Read 23841 rows from Excel (filtered to 23841 valid rows)
+[2025-11-14 10:28:19] [INFO] Upload type: Actual (separate file upload, not combined with Budget)
+[2025-11-14 10:28:19] [INFO] Validating Excel structure...
+[2025-11-14 10:28:19] [SUCCESS] Excel structure validation passed
+[2025-11-14 10:28:19] [INFO] Total rows: 23841
+[2025-11-14 10:28:19] [INFO] Transforming Excel data to SQL format...
+[2025-11-14 10:29:37] [SUCCESS] Transformed 23841 rows
+[2025-11-14 10:29:37] [INFO] Generating QC summary...
+[2025-11-14 10:29:45] [INFO] QC Summary:
+[2025-11-14 10:29:45] [INFO]   Total Records: 23841
+[2025-11-14 10:29:45] [INFO]   Years: 2020, 2021, 2022, 2023, 2024, 2025
+[2025-11-14 10:29:45] [INFO]   Months: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+[2025-11-14 10:29:45] [INFO]   Values Types: AMOUNT, KGS, MORM
+[2025-11-14 10:29:45] [INFO]   Total AMOUNT: 551194995.77
+[2025-11-14 10:29:45] [INFO]   Total KGS: 49153681.62
+[2025-11-14 10:29:45] [INFO]   Total MORM: 209047484.744071
+[2025-11-14 10:29:45] [INFO] Creating backup before REPLACE operation...
+[2025-11-14 10:29:45] [INFO] REPLACE mode will delete ALL existing data for division FP, type Actual
+[2025-11-14 10:29:47] [SUCCESS] Backup created: 10  records backed up (ALL existing FP Actual data)
+[2025-11-14 10:29:47] [INFO] Deleting ALL existing data for REPLACE mode...
+[2025-11-14 10:29:47] [INFO] WARNING: This will delete ALL FP Actual data, not just overlapping months
+[2025-11-14 10:29:47] [INFO] Records before delete: 10 
+[2025-11-14 10:29:48] [SUCCESS] Records deleted: 10 
+[2025-11-14 10:29:48] [SUCCESS] Records remaining: 0 
+[2025-11-14 10:29:48] [INFO] Uploading data in INSERT mode (batch size: 1000)...
+[2025-11-14 10:29:48] [INFO] Processing batch 1 of 24 (1000 rows)...
+[2025-11-14 10:29:49] [ERROR] Batch 1 failed: SQL execution error: Program 'psql.exe' failed to run: The filename or extension is too longAt D:\Projects\IPD26.10\scripts\transform-actual-to-sql.ps1:346 char:13
++             & $PSQL_PATH -h $PG_HOST -p $PG_PORT -U $PG_USER -d $PG_D ...
++             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.
+[2025-11-14 10:29:49] [INFO] ========================================================================
+[2025-11-14 10:29:49] [ERROR] Upload failed: SQL execution error: Program 'psql.exe' failed to run: The filename or extension is too longAt D:\Projects\IPD26.10\scripts\transform-actual-to-sql.ps1:346 char:13
++             & $PSQL_PATH -h $PG_HOST -p $PG_PORT -U $PG_USER -d $PG_D ...
++             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.
+[2025-11-14 10:29:49] [INFO] ========================================================================
+[2025-11-14 10:29:49] [INFO] Writing audit log...
+[2025-11-14 10:29:50] [SUCCESS] Audit log written successfully

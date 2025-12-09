@@ -239,16 +239,7 @@ router.get('/countries-by-sales-rep', async (req, res) => {
   }
 });
 
-// POST /product-performance - Get product performance data
-router.post('/product-performance', async (req, res) => {
-  try {
-    const performanceData = await fpDataService.getProductPerformance(req.body);
-    res.json({ success: true, data: performanceData });
-  } catch (error) {
-    logger.error('Error fetching FP product performance', { error: error.message });
-    res.status(500).json({ success: false, error: 'Failed to fetch product performance' });
-  }
-});
+// NOTE: /product-performance route is handled by fpPerformanceRoutes for comprehensive data
 
 // GET /all-customers - Get all customers
 router.get('/all-customers', async (req, res) => {

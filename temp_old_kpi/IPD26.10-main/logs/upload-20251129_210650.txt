@@ -1,0 +1,56 @@
+**********************
+PowerShell transcript start
+Start time: 20251129210651
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll D:\Projects\IPD26.10\upload-to-github.ps1
+Process ID: 2976
+PSVersion: 7.5.4
+PSEdition: Core
+GitCommitId: 7.5.4
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+[INFO] Working directory: D:\Projects\IPD26.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'src/components/MasterData/AEBF/BudgetTab.js', LF will be replaced by CRLF the next time
+ Git touches it
+warning: in the working copy of 'FINAL_FP_Narek_Koroukian_2026_20251129_204634.html', LF will be replaced by CRLF the ne
+xt time Git touches it
+warning: in the working copy of 'server/routes/aebf.js.temp', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'to_be_deleted/BACKUP_SUMMARY.json', LF will be replaced by CRLF the next time Git touch
+es it
+warning: in the working copy of 'to_be_deleted/customer_merge_rules_backup.json', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'to_be_deleted/customer_similarity_cache_backup.json', LF will be replaced by CRLF the n
+ext time Git touches it
+warning: in the working copy of 'to_be_deleted/database_upload_log_backup.json', LF will be replaced by CRLF the next ti
+me Git touches it
+warning: in the working copy of 'to_be_deleted/division_customer_merge_rules_backup.json', LF will be replaced by CRLF t
+he next time Git touches it
+warning: in the working copy of 'to_be_deleted/merge_rule_notifications_backup.json', LF will be replaced by CRLF the ne
+xt time Git touches it
+warning: in the working copy of 'to_be_deleted/merge_rule_rejections_backup.json', LF will be replaced by CRLF the next
+time Git touches it
+warning: in the working copy of 'to_be_deleted/merge_rule_suggestions_backup.json', LF will be replaced by CRLF the next
+ time Git touches it
+warning: in the working copy of 'to_be_deleted/sales_rep_budget_backup.json', LF will be replaced by CRLF the next time
+Git touches it
+warning: in the working copy of 'to_be_deleted/sales_rep_budget_draft_backup.json', LF will be replaced by CRLF the next
+ time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+PowerShell transcript end
+End time: 20251129210706
+**********************

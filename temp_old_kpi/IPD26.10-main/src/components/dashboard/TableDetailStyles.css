@@ -1,0 +1,107 @@
+.table-detail {
+  width: 100%;
+  min-height: 500px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(15, 40, 87, 0.08);
+  overflow: visible; /* Changed from hidden to allow sticky headers */
+}
+
+.table-detail__wrapper {
+  width: 100%;
+  padding: 8px 4px; /* Reduced padding - minimal gaps */
+  overflow-x: hidden; /* No horizontal scroll as requested */
+  overflow-y: auto;   /* Enable vertical scrolling */
+  max-height: 78vh;   /* Increased height to use more screen */
+  position: relative; /* Required for sticky positioning context */
+}
+
+/* Chart variant needs more height */
+.table-detail--chart {
+  min-height: 700px;
+}
+
+/* Ensure proper display in overlay */
+.divisional-dashboard__overlay .table-detail {
+  background: transparent;
+  box-shadow: none;
+  overflow: visible; /* Allow sticky headers */
+  margin: 0;
+}
+
+.divisional-dashboard__overlay .table-detail__wrapper {
+  padding: 1px 0; /* 1px vertical padding */
+  overflow-x: hidden; /* No horizontal scroll */
+  overflow-y: auto;   /* Vertical scroll for sticky headers */
+  max-height: 78vh;   /* Increased height to maximize screen usage */
+  position: relative;
+}
+
+/* Fix table overflow in overlay */
+.divisional-dashboard__overlay .table-detail table {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Override pl-table-container styles when inside table-detail */
+/* Let the wrapper handle scrolling, not the table container */
+.table-detail__wrapper .pl-table-container {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  max-height: none !important;
+}
+
+/* ========================================
+   OVERLAY-SPECIFIC STYLES FOR ALL TABLES
+   Remove padding/margin to match P&L table
+   ======================================== */
+
+/* P&L Table */
+.divisional-dashboard__overlay .pl-table-view {
+  padding: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Product Group Table */
+.divisional-dashboard__overlay .pg-table-view {
+  padding: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Sales by Sales Rep Table */
+.divisional-dashboard__overlay .sbsr-table-view {
+  padding: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Sales by Customer Table */
+.divisional-dashboard__overlay .table-view {
+  padding: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Sales by Country Chart */
+.divisional-dashboard__overlay .chart-layout {
+  padding: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Generic: Remove padding/margin from all direct children in overlay */
+.divisional-dashboard__overlay .table-detail__wrapper > div {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Generic table container overrides */
+.divisional-dashboard__overlay .table-detail__wrapper [class*="table-container"] {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .table-detail__wrapper {
+    padding: 16px;
+  }
+}
+

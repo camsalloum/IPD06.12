@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as echarts from 'echarts';
 import CurrencySymbol from '../../dashboard/CurrencySymbol';
+import { useCurrency } from '../../../contexts/CurrencyContext';
 import './BarChart.css';
 import './SalesVolumeChart.css';
 
@@ -38,6 +39,21 @@ const BarChart = ({ data, periods, basePeriod, hideHeader = false, hideSalesPerK
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [barPositions, setBarPositions] = useState([]);
+  const { companyCurrency, isUAEDirham } = useCurrency();
+  
+  // Dynamic currency symbol for ECharts - use SVG for AED, text for others
+  const getCurrencyForChart = (color = '#222') => {
+    if (isUAEDirham()) {
+      return {
+        useImage: true,
+        image: getUAESymbolImageDataURL(color)
+      };
+    }
+    return {
+      useImage: false,
+      symbol: companyCurrency.symbol
+    };
+  };
 
   // Helper function to create period key that matches ChartContainer logic
   const createPeriodKey = (period) => {
@@ -253,17 +269,19 @@ const BarChart = ({ data, periods, basePeriod, hideHeader = false, hideSalesPerK
               color: '#222',
                 formatter: function(params) {
                   const value = params.value;
+                  const currencyInfo = getCurrencyForChart('#222');
+                  const currencyPrefix = currencyInfo.useImage ? '{currency|}' : currencyInfo.symbol;
                   if (value >= 1000000) {
                     const millions = (value / 1000000).toFixed(1);
-                    return '{uae|} {num|' + millions + 'M}';
+                    return currencyPrefix + ' {num|' + millions + 'M}';
                   } else if (value >= 1000) {
                     const thousands = (value / 1000).toFixed(1);
-                    return '{uae|} {num|' + thousands + 'K}';
+                    return currencyPrefix + ' {num|' + thousands + 'K}';
                   }
-                  return '{uae|} {num|' + value + '}';
+                  return currencyPrefix + ' {num|' + value + '}';
                 },
                 rich: {
-                  uae: {
+                  currency: isUAEDirham() ? {
                     width: 16,
                     height: 16,
                     lineHeight: 18,
@@ -273,6 +291,12 @@ const BarChart = ({ data, periods, basePeriod, hideHeader = false, hideSalesPerK
                     backgroundColor: {
                       image: getUAESymbolImageDataURL('#222')
                     }
+                  } : {
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    color: '#222',
+                    verticalAlign: 'middle',
+                    lineHeight: 18
                   },
                   num: {
                     fontSize: 18,

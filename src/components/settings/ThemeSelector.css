@@ -199,10 +199,17 @@
 }
 
 /* Color Swatches */
+.color-swatches-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 16px;
+  gap: 12px;
+}
+
 .color-swatches {
   display: flex;
   gap: 8px;
-  padding: 0 16px 16px;
 }
 
 .swatch {
@@ -216,6 +223,197 @@
 
 .swatch:hover {
   transform: scale(1.15);
+}
+
+/* Customize Button */
+.customize-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-textSecondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.customize-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.customize-btn:hover {
+  background: var(--color-primaryLight);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.customize-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+/* Customized Badge */
+.customized-badge {
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  background: var(--color-primaryLight);
+  color: var(--color-primary);
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Theme Card Selectable Area */
+.theme-card-selectable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-card-selectable:hover {
+  opacity: 0.95;
+}
+
+/* Expanded Theme Card */
+.theme-card.expanded {
+  grid-column: 1 / -1;
+}
+
+/* Color Picker Panel */
+.color-picker-panel {
+  overflow: hidden;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surfaceHover);
+}
+
+.color-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.color-picker-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.reset-colors-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--color-error);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-error);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-colors-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.reset-colors-btn:hover {
+  background: var(--color-error);
+  color: white;
+}
+
+/* Color Picker Grid */
+.color-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+/* Color Picker Item */
+.color-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.color-picker-item:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.color-picker-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.color-picker-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.color-picker-description {
+  font-size: 0.7rem;
+  color: var(--color-textMuted);
+}
+
+.color-picker-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-picker-preview {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  overflow: visible;
+  transition: all 0.2s ease;
+}
+
+.color-picker-preview:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.color-picker-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+.color-picker-value {
+  font-size: 0.7rem;
+  font-family: 'Monaco', 'Menlo', monospace;
+  color: var(--color-textMuted);
+  min-width: 65px;
+  text-align: right;
 }
 
 /* Dark theme adjustments */
@@ -266,3 +464,199 @@
 .theme-card.active {
   animation: themeSelected 0.3s ease;
 }
+
+/* Smart Hint */
+.smart-hint {
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  margin-top: 8px !important;
+  font-style: italic;
+}
+
+/* Pending badge */
+.pending-badge {
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+  font-weight: 500;
+  margin-left: 6px;
+  animation: pulseOrange 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseOrange {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Theme card with pending changes */
+.theme-card.has-pending {
+  border-color: #ff9800;
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3);
+}
+
+/* Pending swatch indicator */
+.swatch.pending {
+  animation: swatchPulse 1s ease-in-out infinite;
+  box-shadow: 0 0 0 2px #ff9800;
+}
+
+@keyframes swatchPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Color picker item pending state */
+.color-picker-item.pending {
+  background: rgba(255, 152, 0, 0.1);
+  border-left: 3px solid #ff9800;
+  padding-left: 12px;
+}
+
+.pending-dot {
+  color: #ff9800;
+  margin-left: 6px;
+  font-size: 0.7rem;
+  animation: pulseOrange 1s ease-in-out infinite;
+}
+
+/* Color picker actions container */
+.color-picker-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Reset button always visible */
+.reset-colors-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.reset-colors-btn.disabled:hover {
+  background: transparent;
+  color: var(--color-textMuted);
+}
+
+/* Pending changes bar */
+.pending-changes-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 193, 7, 0.1));
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.pending-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.pending-icon {
+  color: #ff9800;
+  font-size: 0.7rem;
+  animation: pulseOrange 1s ease-in-out infinite;
+}
+
+.pending-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cancel-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-textMuted);
+}
+
+.cancel-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-textMuted);
+}
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  border: none;
+  color: white;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.save-btn:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+  transform: translateY(-1px);
+}
+
+.save-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Smart contrast info */
+.smart-contrast-info {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.1), rgba(var(--color-accent-rgb), 0.05));
+  border-radius: 8px;
+  border-left: 3px solid var(--color-primary);
+}
+
+.smart-contrast-info p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-textMuted);
+  line-height: 1.5;
+}
+
+.smart-contrast-info strong {
+  color: var(--color-text);
+}
+
+/* Save notification */
+.save-notification {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.save-notification.success {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+}
+
+.save-notification.reset {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+  color: white;
+}
+

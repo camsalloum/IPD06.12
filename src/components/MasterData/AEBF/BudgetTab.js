@@ -7,6 +7,7 @@ import { useCurrency } from '../../../contexts/CurrencyContext';
 import axios from 'axios';
 import countryCoordinates from '../../dashboard/countryCoordinates';
 import CurrencySymbol from '../../dashboard/CurrencySymbol';
+import UAEDirhamSymbol from '../../dashboard/UAEDirhamSymbol';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import BulkImportTab from './BulkImportTab';
@@ -441,7 +442,11 @@ const BudgetTab = () => {
     // From existing rows with budget data
     dataToCount.forEach(row => {
       for (let month = 1; month <= 12; month++) {
-        const key = `${row.customer}|${row.country}|${row.productGroup}|${month}`;
+        // For All Sales Reps mode, use salesRep|customer|country|productGroup|month format
+        // For single sales rep mode, use customer|country|productGroup|month format
+        const key = isAllSalesReps && row.salesRep
+          ? `${row.salesRep}|${row.customer}|${row.country}|${row.productGroup}|${month}`
+          : `${row.customer}|${row.country}|${row.productGroup}|${month}`;
         if (htmlBudgetData[key] && parseFloat(htmlBudgetData[key]) > 0) {
           customersWithBudget.add(row.customer);
           break;
@@ -1745,11 +1750,11 @@ const BudgetTab = () => {
                             </div>
                             <div>
                               <div style={{ fontSize: '20px', fontWeight: 700 }}>{(checkResponse.data.totals.amount / 1000)?.toLocaleString(undefined, {maximumFractionDigits: 0})}K</div>
-                              <div style={{ fontSize: '11px', opacity: 0.9 }}>Total Amount (<UAEDirhamSymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
+                              <div style={{ fontSize: '11px', opacity: 0.9 }}>Total Amount (<CurrencySymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
                             </div>
                             <div>
                               <div style={{ fontSize: '20px', fontWeight: 700 }}>{(checkResponse.data.totals.morm / 1000)?.toLocaleString(undefined, {maximumFractionDigits: 0})}K</div>
-                              <div style={{ fontSize: '11px', opacity: 0.9 }}>Total MoRM (<UAEDirhamSymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
+                              <div style={{ fontSize: '11px', opacity: 0.9 }}>Total MoRM (<CurrencySymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
                             </div>
                           </div>
                         </div>
@@ -1889,11 +1894,11 @@ const BudgetTab = () => {
                         </div>
                         <div>
                           <div style={{ fontSize: '20px', fontWeight: 700 }}>{(checkResponse.data.totals.amount / 1000)?.toLocaleString(undefined, {maximumFractionDigits: 0})}K</div>
-                          <div style={{ fontSize: '11px', opacity: 0.9 }}>Total Amount (<UAEDirhamSymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
+                          <div style={{ fontSize: '11px', opacity: 0.9 }}>Total Amount (<CurrencySymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
                         </div>
                         <div>
                           <div style={{ fontSize: '20px', fontWeight: 700 }}>{(checkResponse.data.totals.morm / 1000)?.toLocaleString(undefined, {maximumFractionDigits: 0})}K</div>
-                          <div style={{ fontSize: '11px', opacity: 0.9 }}>Total MoRM (<UAEDirhamSymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
+                          <div style={{ fontSize: '11px', opacity: 0.9 }}>Total MoRM (<CurrencySymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
                         </div>
                       </div>
                     </div>
@@ -2235,8 +2240,8 @@ const BudgetTab = () => {
                 <p><strong>Budget values submitted:</strong></p>
                 <ul style={{ paddingLeft: 20, marginTop: 8 }}>
                   <li>MT: {(totalKgsValue / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MT</li>
-                  <li>Amount: <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {totalAmountValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
-                  <li>MoRM: <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {totalMormValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
+                  <li>Amount: <CurrencySymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {totalAmountValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
+                  <li>MoRM: <CurrencySymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {totalMormValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
                 </ul>
                 <p style={{ marginTop: 8, fontSize: '12px', color: '#8c8c8c' }}>Total records: {totalRecords}</p>
                 {failedReps.length > 0 && (
@@ -2337,8 +2342,8 @@ const BudgetTab = () => {
               <p><strong>Budget values submitted:</strong></p>
               <ul style={{ paddingLeft: 20, marginTop: 8 }}>
                 <li>MT: {((response.data.valueTotals?.kgs || 0) / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MT</li>
-                <li>Amount: <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {(response.data.valueTotals?.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
-                <li>MoRM: <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {(response.data.valueTotals?.morm || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
+                <li>Amount: <CurrencySymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {(response.data.valueTotals?.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
+                <li>MoRM: <CurrencySymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {(response.data.valueTotals?.morm || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
               </ul>
               <p style={{ marginTop: 12, fontSize: '12px', color: '#8c8c8c' }}>
                 Total records: {response.data.recordsInserted?.total || 0} | Pricing data used from year: {response.data.pricingYear}
@@ -2873,11 +2878,11 @@ const BudgetTab = () => {
                   <p style={{ fontWeight: 500, marginBottom: 8 }}>Budget Totals Imported:</p>
                   <ul style={{ marginLeft: 20, marginTop: 4 }}>
                     <li><strong>Volume:</strong> {(importData.budgetTotals?.volumeMT || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} MT</li>
-                    <li><strong>Amount:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.amount || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
-                    <li><strong>MoRM:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.morm || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
+                    <li><strong>Amount:</strong> <CurrencySymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.amount || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
+                    <li><strong>MoRM:</strong> <CurrencySymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.morm || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
                     {importData.budgetTotals?.servicesCharges > 0 && (
                       <li style={{ color: '#1890ff', fontStyle: 'italic' }}>
-                        <strong>Services Charges:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.servicesCharges || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M (included in Amount/MoRM)
+                        <strong>Services Charges:</strong> <CurrencySymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.servicesCharges || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M (included in Amount/MoRM)
                       </li>
                     )}
                   </ul>
@@ -2986,11 +2991,11 @@ const BudgetTab = () => {
                 <p style={{ fontWeight: 500, marginBottom: 8 }}>Budget Totals Imported:</p>
                 <ul style={{ marginLeft: 20, marginTop: 4 }}>
                   <li><strong>Volume:</strong> {(importData.budgetTotals?.volumeMT || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} MT</li>
-                  <li><strong>Amount:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.amount || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
-                  <li><strong>MoRM:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.morm || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
+                  <li><strong>Amount:</strong> <CurrencySymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.amount || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
+                  <li><strong>MoRM:</strong> <CurrencySymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.morm || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
                   {importData.budgetTotals?.servicesCharges > 0 && (
                     <li style={{ color: '#1890ff', fontStyle: 'italic' }}>
-                      <strong>Services Charges:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.servicesCharges || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M (included in Amount/MoRM)
+                      <strong>Services Charges:</strong> <CurrencySymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.servicesCharges || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M (included in Amount/MoRM)
                     </li>
                   )}
                 </ul>
@@ -4117,19 +4122,26 @@ const BudgetTab = () => {
       {/* Year Summary Cards */}
       {yearSummary && yearSummary.length > 0 && (
         <Row gutter={16} style={{ marginBottom: '16px', padding: '0 10px' }}>
-          {yearSummary.map((item) => (
-            <Col span={8} key={item.values_type}>
-              <Card size="small">
-                <Statistic
-                  title={item.values_type}
-                  value={item.total_values}
-                  precision={0}
-                  valueStyle={{ color: '#3f8600', fontSize: '20px' }}
-                  suffix={<span style={{ fontSize: '12px', color: '#666' }}>({item.record_count} records)</span>}
-                />
-              </Card>
-            </Col>
-          ))}
+          {yearSummary.map((item) => {
+            const isCurrencyValue = item.values_type === 'AMOUNT' || item.values_type === 'Amount' || 
+                                    item.values_type === 'MORM' || item.values_type === 'MoRM';
+            return (
+              <Col span={8} key={item.values_type}>
+                <Card size="small">
+                  <Statistic
+                    title={isCurrencyValue ? (
+                      <span><CurrencySymbol style={{ width: '12px', height: '12px', marginRight: '4px' }} />{item.values_type}</span>
+                    ) : item.values_type}
+                    value={item.total_values}
+                    precision={0}
+                    prefix={isCurrencyValue ? <CurrencySymbol style={{ width: '14px', height: '14px' }} /> : null}
+                    valueStyle={{ color: '#3f8600', fontSize: '20px' }}
+                    suffix={<span style={{ fontSize: '12px', color: '#666' }}>({item.record_count} records)</span>}
+                  />
+                </Card>
+              </Col>
+            );
+          })}
         </Row>
       )}
 

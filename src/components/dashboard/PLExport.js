@@ -574,20 +574,14 @@ export const capturePLTable = async () => {
         if (text.includes('per')) {
           // Check if there's a currency symbol in the original HTML
           const originalHTML = th.innerHTML;
-          if (originalHTML.includes('Đ') || originalHTML.includes('AED') || originalHTML.includes('د.إ')) {
+          if (originalHTML.includes('Đ') || originalHTML.includes('AED') || originalHTML.includes('د.إ') || originalHTML.includes('$') || originalHTML.includes('€') || originalHTML.includes('£')) {
             th.innerHTML = 'Đ / Kg';
           } else {
             th.innerHTML = '/ Kg';
           }
         }
       }
-      // Add currency symbol if needed
-      if (text === 'Amount' || text.includes('AED')) {
-        const currentText = th.textContent.trim();
-        if (!currentText.includes('AED')) {
-          th.innerHTML = `${currentText}<br/><small>AED</small>`;
-        }
-      }
+      // Currency symbol handling is now done via the CurrencySymbol component in the table itself
     });
 
     // Preserve colgroup for column widths

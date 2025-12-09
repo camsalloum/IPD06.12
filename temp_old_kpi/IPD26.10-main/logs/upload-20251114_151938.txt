@@ -1,0 +1,56 @@
+**********************
+PowerShell transcript start
+Start time: 20251114151938
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll D:\Projects\IPD26.10\upload-to-github.ps1
+Process ID: 36460
+PSVersion: 7.5.3
+PSEdition: Core
+GitCommitId: 7.5.3
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+[INFO] Working directory: D:\Projects\IPD26.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+ time Git touches it
+warning: in the working copy of 'src/components/dashboard/PLTableStyles.css', LF will be replaced by CRLF the next time
+Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesByCountryTableStyles.css', LF will be replaced by CRLF th
+e next time Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesByCustomerTableNew.js', LF will be replaced by CRLF the n
+ext time Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesBySaleRepTable.js', LF will be replaced by CRLF the next
+time Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesBySalesRepDivisional.js', LF will be replaced by CRLF the
+ next time Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesCountryChart.js', LF will be replaced by CRLF the next ti
+me Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesRepHTMLExport.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/utils/sharedStyles.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'md files/COMPREHENSIVE_HTML_EXPORT_PROTECTION_RULES.md', LF will be replaced by CRLF th
+e next time Git touches it
+warning: in the working copy of 'md files/Estimate-FY-from-YTD.md', LF will be replaced by CRLF the next time Git touche
+s it
+warning: in the working copy of 'md files/MULTICHART-MOBILE-TABLET-RESPONSIVE-PLAN.md', LF will be replaced by CRLF the
+next time Git touches it
+error: invalid path 'nul'
+error: unable to add 'nul' to index
+fatal: adding files failed
+[WARN] Updating remote 'origin' from https://github.com/camS74/IPD26.10.git -> https://github.com/camS74/IPD22.10.git
+[INFO] Pushing to origin/main...
+
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+PowerShell transcript end
+End time: 20251114151953
+**********************

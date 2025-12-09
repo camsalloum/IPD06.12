@@ -1,0 +1,39 @@
+[2025-11-13 17:11:17] [INFO] ========================================================================
+[2025-11-13 17:11:17] [INFO] AEBF Excel to SQL Transform & Upload Script
+[2025-11-13 17:11:17] [INFO] ========================================================================
+[2025-11-13 17:11:17] [INFO] Excel File: D:\Projects\IPD26.10\uploads\aebf-upload-1763039475872.xlsx
+[2025-11-13 17:11:17] [INFO] Division: FP
+[2025-11-13 17:11:17] [INFO] Upload Mode: replace
+[2025-11-13 17:11:17] [INFO] Uploaded By: cam
+[2025-11-13 17:11:17] [INFO] Test Mode: False
+[2025-11-13 17:11:17] [INFO] ========================================================================
+[2025-11-13 17:11:17] [INFO] Checking prerequisites...
+[2025-11-13 17:11:17] [SUCCESS] Prerequisites check passed
+[2025-11-13 17:11:17] [INFO] Testing database connection...
+[2025-11-13 17:11:17] [SUCCESS] Database connection successful
+[2025-11-13 17:11:17] [INFO] PostgreSQL version: PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit 
+[2025-11-13 17:11:17] [INFO] Reading Excel file (first sheet)...
+[2025-11-13 17:11:19] [INFO] Excel has 51 total rows
+[2025-11-13 17:11:19] [SUCCESS] Read 51 rows from Excel (filtered to 10 valid rows)
+[2025-11-13 17:11:19] [INFO] Upload type: Actual (separate file upload, not combined with Budget)
+[2025-11-13 17:11:19] [INFO] Validating Excel structure...
+[2025-11-13 17:11:19] [SUCCESS] Excel structure validation passed
+[2025-11-13 17:11:19] [INFO] Total rows: 10
+[2025-11-13 17:11:19] [INFO] Transforming Excel data to SQL format...
+[2025-11-13 17:11:19] [SUCCESS] Transformed 10 rows
+[2025-11-13 17:11:19] [INFO] Generating QC summary...
+[2025-11-13 17:11:19] [INFO] QC Summary:
+[2025-11-13 17:11:19] [INFO]   Total Records: 10
+[2025-11-13 17:11:19] [INFO]   Years: 2020
+[2025-11-13 17:11:19] [INFO]   Months: 1
+[2025-11-13 17:11:19] [INFO]   Values Types: AMOUNT, KGS, MORM
+[2025-11-13 17:11:19] [INFO]   Total AMOUNT: 231909
+[2025-11-13 17:11:19] [INFO]   Total KGS: 27632.3
+[2025-11-13 17:11:19] [INFO]   Total MORM: 91939.544
+[2025-11-13 17:11:19] [INFO] Creating backup before REPLACE operation...
+[2025-11-13 17:11:19] [INFO] REPLACE mode will delete ALL existing data for division FP, type Actual
+[2025-11-13 17:11:20] [INFO] ========================================================================
+[2025-11-13 17:11:20] [ERROR] Upload failed: SQL execution error: ERROR:  duplicate key value violates unique constraint "fp_data_excel_backup_pkey"
+[2025-11-13 17:11:20] [INFO] ========================================================================
+[2025-11-13 17:11:20] [INFO] Writing audit log...
+[2025-11-13 17:11:20] [WARNING] Failed to write audit log: SQL execution error: ERROR:  column "records_affected" of relation "aebf_upload_audit" does not exist

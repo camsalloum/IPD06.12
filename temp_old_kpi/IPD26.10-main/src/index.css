@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: black;
+  background-color: white;
+}
+
+code {
+  font-family: 'Courier New', monospace;
+  color: black;
+  background-color: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 3px;
+}

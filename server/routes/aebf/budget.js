@@ -611,7 +611,8 @@ router.get('/budget-years', queryLimiter, cacheMiddleware({ ttl: CacheTTL.VERY_L
     const result = await divisionPool.query(query, [division]);
     const years = result.rows.map(row => row.budget_year);
     
-    successResponse(res, { years });
+    // Return in legacy format (not using successResponse wrapper)
+    res.json({ success: true, years });
 }));
 
 /**
@@ -652,21 +653,33 @@ router.post('/budget-sales-rep-recap', queryLimiter, validationRules.budgetSales
     
     const result = await divisionPool.query(query, [division, parseInt(budgetYear), salesRep]);
     
-    const recap = {
-      Amount: 0,
-      KGS: 0,
-      MoRM: 0
+    // Build recap in legacy format (array of objects with values_type, total_values, record_count)
+    const recapMap = {
+      'Amount': { values_type: 'Amount', total_values: 0, record_count: 0 },
+      'KGS': { values_type: 'KGS', total_values: 0, record_count: 0 },
+      'MoRM': { values_type: 'MoRM', total_values: 0, record_count: 0 }
     };
     
     result.rows.forEach(row => {
-      recap[row.values_type] = parseFloat(row.total_values) || 0;
+      recapMap[row.values_type] = {
+        values_type: row.values_type,
+        total_values: parseFloat(row.total_values) || 0,
+        record_count: parseInt(row.record_count) || 0
+      };
     });
     
-    successResponse(res, {
+    const recap = [
+      recapMap['Amount'],
+      recapMap['KGS'],
+      recapMap['MoRM']
+    ];
+    
+    // Return in legacy format (not using successResponse wrapper)
+    res.json({
+      success: true,
       recap,
       salesRep,
-      budgetYear: parseInt(budgetYear),
-      division
+      budgetYear: parseInt(budgetYear)
     });
 }));
 

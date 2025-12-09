@@ -3,7 +3,8 @@ import axios from 'axios';
 
 const ThemeContext = createContext();
 
-export const themes = {
+// Default theme definitions
+export const defaultThemes = {
   light: {
     name: 'Light Professional',
     description: 'Clean white & blue business look',
@@ -31,6 +32,7 @@ export const themes = {
       tabBg: '#f1f5f9',
       overlay: 'rgba(255, 255, 255, 0.15)',
       cardGradient: 'linear-gradient(145deg, #ffffff 0%, #f7fafc 100%)',
+      cardBanner: 'linear-gradient(to right, #1e3a8a, #3b82f6, #60a5fa)',
     }
   },
   dark: {
@@ -60,6 +62,7 @@ export const themes = {
       tabBg: '#334155',
       overlay: 'rgba(255, 255, 255, 0.08)',
       cardGradient: 'linear-gradient(145deg, #1e293b 0%, #0f172a 100%)',
+      cardBanner: 'linear-gradient(to right, #1e3a5f, #3b82f6, #60a5fa)',
     }
   },
   colorful: {
@@ -69,26 +72,27 @@ export const themes = {
     colors: {
       primary: '#8b5cf6',
       primaryHover: '#7c3aed',
-      primaryLight: '#ede9fe',
+      primaryLight: '#ddd6fe',
       secondary: '#06b6d4',
-      accent: '#14b8a6',
-      background: '#faf5ff',
+      accent: '#f472b6',
+      background: '#fdf4ff',
       surface: '#ffffff',
-      surfaceHover: '#f5f3ff',
-      text: '#1e1b4b',
-      textSecondary: '#6366f1',
-      textMuted: '#a78bfa',
-      border: '#e9d5ff',
+      surfaceHover: '#faf5ff',
+      text: '#3b0764',
+      textSecondary: '#7c3aed',
+      textMuted: '#a855f7',
+      border: '#d8b4fe',
       borderLight: '#f3e8ff',
-      success: '#10b981',
+      success: '#22c55e',
       warning: '#f59e0b',
-      error: '#ef4444',
-      shadow: 'rgba(139, 92, 246, 0.15)',
-      gradient: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #14b8a6 100%)',
-      tabActive: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)',
-      tabBg: '#f3e8ff',
-      overlay: 'rgba(139, 92, 246, 0.15)',
-      cardGradient: 'linear-gradient(145deg, #ffffff 0%, #faf5ff 100%)',
+      error: '#f43f5e',
+      shadow: 'rgba(139, 92, 246, 0.25)',
+      gradient: 'linear-gradient(135deg, #c026d3 0%, #8b5cf6 35%, #06b6d4 70%, #14b8a6 100%)',
+      tabActive: 'linear-gradient(135deg, #c026d3 0%, #8b5cf6 100%)',
+      tabBg: '#f5d0fe',
+      overlay: 'rgba(192, 38, 211, 0.2)',
+      cardGradient: 'linear-gradient(145deg, #ffffff 0%, #fdf4ff 50%, #fae8ff 100%)',
+      cardBanner: 'linear-gradient(to right, #c026d3, #8b5cf6, #06b6d4)',
     }
   },
   classic: {
@@ -118,9 +122,28 @@ export const themes = {
       tabBg: '#e5e7eb',
       overlay: 'rgba(0, 0, 0, 0.05)',
       cardGradient: 'linear-gradient(145deg, #ffffff 0%, #f9fafb 100%)',
+      cardBanner: 'linear-gradient(to right, #1f2937, #4b5563, #9ca3af)',
     }
   }
 };
+
+// Editable color keys that users can customize
+export const editableColorKeys = [
+  { key: 'primary', label: 'Primary', description: 'Main brand color' },
+  { key: 'accent', label: 'Accent', description: 'Secondary highlight color' },
+  { key: 'background', label: 'Background', description: 'Page background' },
+  { key: 'surface', label: 'Surface', description: 'Card/panel background' },
+  { key: 'text', label: 'Text', description: 'Main text color' },
+  { key: 'success', label: 'Success', description: 'Positive indicators' },
+  { key: 'warning', label: 'Warning', description: 'Warning indicators' },
+  { key: 'error', label: 'Error', description: 'Error indicators' },
+];
+
+// Deep clone themes for modification
+const cloneThemes = (themes) => JSON.parse(JSON.stringify(themes));
+
+// Export themes as a mutable reference
+export let themes = cloneThemes(defaultThemes);
 
 export const ThemeProvider = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState(() => {
@@ -128,31 +151,56 @@ export const ThemeProvider = ({ children }) => {
     const saved = localStorage.getItem('app-theme');
     return saved || 'light';
   });
+  
+  const [customColors, setCustomColors] = useState(() => {
+    // Load custom colors from localStorage
+    const saved = localStorage.getItem('custom-theme-colors');
+    return saved ? JSON.parse(saved) : {};
+  });
   const [isLoadedFromServer, setIsLoadedFromServer] = useState(false);
 
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
+  // Get merged theme colors (default + custom overrides)
+  const getMergedThemeColors = useCallback((themeName) => {
+    const defaultTheme = defaultThemes[themeName];
+    if (!defaultTheme) return null;
+    
+    const themeCustomColors = customColors[themeName] || {};
+    return {
+      ...defaultTheme.colors,
+      ...themeCustomColors
+    };
+  }, [customColors]);
+
   // Apply theme to DOM
   const applyTheme = useCallback((themeName) => {
-    const theme = themes[themeName];
-    if (!theme) {
+    const baseTheme = defaultThemes[themeName];
+    if (!baseTheme) {
       console.warn('Theme not found:', themeName);
       return;
     }
 
+    const mergedColors = getMergedThemeColors(themeName);
     const root = document.documentElement;
     
     // Apply CSS variables
-    Object.entries(theme.colors).forEach(([key, value]) => {
+    Object.entries(mergedColors).forEach(([key, value]) => {
       root.style.setProperty(`--color-${key}`, value);
     });
+
+    // Update the themes object with custom colors
+    themes[themeName] = {
+      ...baseTheme,
+      colors: mergedColors
+    };
 
     // Apply theme class to body
     document.body.className = `theme-${themeName}`;
     
     // Also save to localStorage for quick load on next visit
     localStorage.setItem('app-theme', themeName);
-  }, []);
+  }, [getMergedThemeColors]);
 
   // Load theme from server when user is logged in
   const loadThemeFromServer = useCallback(async () => {
@@ -185,19 +233,68 @@ export const ThemeProvider = ({ children }) => {
       if (!token) return;
 
       await axios.put(`${API_BASE_URL}/api/auth/preferences`, 
-        { theme: themeName },
+        { theme: themeName, customColors: customColors },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log('Theme saved to server:', themeName);
     } catch (error) {
       console.error('Failed to save theme to server:', error.message);
     }
-  }, [API_BASE_URL]);
+  }, [API_BASE_URL, customColors]);
 
-  // Apply theme on initial load and whenever it changes
+  // Update a specific color for a theme
+  const updateThemeColor = useCallback((themeName, colorKey, colorValue) => {
+    setCustomColors(prev => {
+      const newCustomColors = {
+        ...prev,
+        [themeName]: {
+          ...(prev[themeName] || {}),
+          [colorKey]: colorValue
+        }
+      };
+      
+      // Save to localStorage
+      localStorage.setItem('custom-theme-colors', JSON.stringify(newCustomColors));
+      
+      return newCustomColors;
+    });
+    
+    // If updating current theme, apply changes immediately
+    if (themeName === currentTheme) {
+      const root = document.documentElement;
+      root.style.setProperty(`--color-${colorKey}`, colorValue);
+    }
+  }, [currentTheme]);
+
+  // Reset a theme to default colors
+  const resetThemeColors = useCallback((themeName) => {
+    setCustomColors(prev => {
+      const newCustomColors = { ...prev };
+      delete newCustomColors[themeName];
+      
+      // Save to localStorage
+      localStorage.setItem('custom-theme-colors', JSON.stringify(newCustomColors));
+      
+      return newCustomColors;
+    });
+    
+    // If resetting current theme, reapply default colors
+    if (themeName === currentTheme) {
+      const defaultTheme = defaultThemes[themeName];
+      const root = document.documentElement;
+      Object.entries(defaultTheme.colors).forEach(([key, value]) => {
+        root.style.setProperty(`--color-${key}`, value);
+      });
+      
+      // Update themes object
+      themes[themeName] = { ...defaultTheme };
+    }
+  }, [currentTheme]);
+
+  // Apply theme on initial load and whenever it changes or custom colors change
   useEffect(() => {
     applyTheme(currentTheme);
-  }, [currentTheme, applyTheme]);
+  }, [currentTheme, applyTheme, customColors]);
 
   // Load theme from server on mount
   useEffect(() => {
@@ -206,20 +303,36 @@ export const ThemeProvider = ({ children }) => {
 
   // Change theme (saves to both localStorage and server)
   const changeTheme = useCallback((themeName) => {
-    if (themes[themeName]) {
+    if (defaultThemes[themeName]) {
       setCurrentTheme(themeName);
       applyTheme(themeName);
       saveThemeToServer(themeName);
     }
   }, [applyTheme, saveThemeToServer]);
 
+  // Get the current theme with merged colors
+  const getCurrentTheme = useCallback(() => {
+    const baseTheme = defaultThemes[currentTheme];
+    if (!baseTheme) return null;
+    
+    return {
+      ...baseTheme,
+      colors: getMergedThemeColors(currentTheme)
+    };
+  }, [currentTheme, getMergedThemeColors]);
+
   return (
     <ThemeContext.Provider value={{ 
       currentTheme, 
       changeTheme, 
       loadThemeFromServer,
-      theme: themes[currentTheme],
-      themes 
+      theme: getCurrentTheme(),
+      themes,
+      defaultThemes,
+      customColors,
+      updateThemeColor,
+      resetThemeColors,
+      getMergedThemeColors
     }}>
       {children}
     </ThemeContext.Provider>

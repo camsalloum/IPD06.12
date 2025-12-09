@@ -1,0 +1,25 @@
+[2025-11-13 15:40:25] [INFO] ========================================================================
+[2025-11-13 15:40:25] [INFO] AEBF Excel to SQL Transform & Upload Script
+[2025-11-13 15:40:25] [INFO] ========================================================================
+[2025-11-13 15:40:25] [INFO] Excel File: D:\Projects\IPD26.10\uploads\aebf-upload-1763034024342.xlsx
+[2025-11-13 15:40:25] [INFO] Division: FP
+[2025-11-13 15:40:25] [INFO] Upload Mode: upsert
+[2025-11-13 15:40:25] [INFO] Uploaded By: cam
+[2025-11-13 15:40:25] [INFO] Test Mode: False
+[2025-11-13 15:40:25] [INFO] ========================================================================
+[2025-11-13 15:40:25] [INFO] Checking prerequisites...
+[2025-11-13 15:40:26] [SUCCESS] Prerequisites check passed
+[2025-11-13 15:40:26] [INFO] Testing database connection...
+[2025-11-13 15:40:26] [SUCCESS] Database connection successful
+[2025-11-13 15:40:26] [INFO] PostgreSQL version: PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit 
+[2025-11-13 15:40:26] [INFO] Reading Excel file...
+[2025-11-13 15:40:28] [SUCCESS] Read 51 rows from Excel
+[2025-11-13 15:40:28] [INFO] Validating Excel structure...
+[2025-11-13 15:40:28] [SUCCESS] Excel structure validation passed
+[2025-11-13 15:40:28] [INFO] Total rows: 51
+[2025-11-13 15:40:28] [INFO] Transforming Excel data to SQL format...
+[2025-11-13 15:40:28] [SUCCESS] Transformed 51 rows
+[2025-11-13 15:40:28] [INFO] Generating QC summary...
+[2025-11-13 15:40:28] [INFO] ========================================================================
+[2025-11-13 15:40:28] [ERROR] Upload failed: Property "year" cannot be found.
+[2025-11-13 15:40:28] [INFO] ========================================================================

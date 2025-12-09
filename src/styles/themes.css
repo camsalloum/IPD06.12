@@ -323,11 +323,71 @@ body {
 /* Colorful Theme */
 .theme-colorful .tab-button.active {
   background: var(--color-tabActive);
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 15px rgba(192, 38, 211, 0.4);
 }
 
 .theme-colorful .tabs-container:hover {
-  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
+  box-shadow: 0 10px 25px rgba(192, 38, 211, 0.2);
+}
+
+/* Colorful Theme - Enhanced Visual Distinctions */
+.theme-colorful .tabs-container {
+  border: 1px solid var(--color-border);
+  background: linear-gradient(135deg, #ffffff 0%, #fdf4ff 100%);
+}
+
+.theme-colorful .tab-button:hover {
+  background: linear-gradient(135deg, #fae8ff 0%, #f5d0fe 100%);
+}
+
+.theme-colorful .ant-btn-primary,
+.theme-colorful button[type="submit"] {
+  background: linear-gradient(135deg, #c026d3 0%, #8b5cf6 100%) !important;
+  border: none !important;
+}
+
+.theme-colorful .ant-btn-primary:hover,
+.theme-colorful button[type="submit"]:hover {
+  background: linear-gradient(135deg, #a21caf 0%, #7c3aed 100%) !important;
+}
+
+.theme-colorful .ant-card {
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 20px rgba(192, 38, 211, 0.1);
+}
+
+.theme-colorful .ant-card:hover {
+  box-shadow: 0 8px 30px rgba(192, 38, 211, 0.2);
+  border-color: #d8b4fe;
+}
+
+.theme-colorful .ant-table-thead > tr > th {
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%) !important;
+  border-bottom: 2px solid #d8b4fe !important;
+}
+
+.theme-colorful .ant-menu-item-selected {
+  background: linear-gradient(135deg, #fae8ff 0%, #f5d0fe 100%) !important;
+}
+
+.theme-colorful .ant-input:focus,
+.theme-colorful .ant-select-focused .ant-select-selector {
+  border-color: #c026d3 !important;
+  box-shadow: 0 0 0 2px rgba(192, 38, 211, 0.2) !important;
+}
+
+.theme-colorful h1, 
+.theme-colorful h2, 
+.theme-colorful h3 {
+  background: linear-gradient(135deg, #c026d3 0%, #8b5cf6 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.theme-colorful .sidebar,
+.theme-colorful .ant-layout-sider {
+  background: linear-gradient(180deg, #fdf4ff 0%, #fae8ff 100%) !important;
 }
 
 /* Classic Theme */

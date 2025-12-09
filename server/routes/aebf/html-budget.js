@@ -133,42 +133,234 @@ router.post('/html-budget-customers-all', queryLimiter, cacheMiddleware({ ttl: C
   const { division, actualYear, salesReps } = req.body;
   
   await ensureHtmlBudgetIndexes(division);
+  
+  // Helper functions  
+  const norm = (s) => (s || '').toString().trim().toLowerCase();
+  const toProperCase = (str) => {
+    if (!str) return '';
+    return str.toLowerCase().replace(/(?:^|\s|[-/])\w/g, (match) => match.toUpperCase());
+  };
     
-    const mergeRules = await DivisionMergeRulesService.listRules(division);
-    const activeMergeRules = mergeRules.filter(r => r.status === 'ACTIVE' && r.is_active === true);
-    
-    const divisionPool = getPoolForDivision(division);
-    const tables = getTableNames(division);
-    
-    // Simplified query for aggregated customer data
-    const query = `
-      SELECT 
-        TRIM(customername) as customer,
-        TRIM(countryname) as country,
-        TRIM(productgroup) as productgroup,
-        month,
-        SUM(CASE WHEN UPPER(values_type) = 'KGS' THEN values ELSE 0 END) / 1000.0 as mt_value
-      FROM public.${tables.dataExcel}
-      WHERE UPPER(division) = UPPER($1)
-        AND year = $2
-        AND UPPER(type) = 'ACTUAL'
-        AND UPPER(TRIM(salesrepname)) = ANY($3::text[])
-      GROUP BY TRIM(customername), TRIM(countryname), TRIM(productgroup), month
-      HAVING SUM(CASE WHEN UPPER(values_type) = 'KGS' THEN values ELSE 0 END) > 0
-      ORDER BY TRIM(customername), TRIM(productgroup), month
-    `;
-    
-    const result = await divisionPool.query(query, [
-      division,
-      parseInt(actualYear),
-      salesReps.map(sr => sr.toUpperCase())
-    ]);
-    
-    successResponse(res, {
-      customers: result.rows,
-      actualYear: parseInt(actualYear),
-      salesReps
+  const mergeRules = await DivisionMergeRulesService.listRules(division);
+  const activeMergeRules = mergeRules.filter(r => r.status === 'ACTIVE' && r.is_active === true);
+  
+  // Build customer merge map
+  const customerMergeMap = new Map();
+  activeMergeRules.forEach(rule => {
+    const mergedName = rule.merged_customer_name;
+    const originalCustomers = Array.isArray(rule.original_customers) 
+      ? rule.original_customers 
+      : (typeof rule.original_customers === 'string' 
+          ? JSON.parse(rule.original_customers) 
+          : []);
+    originalCustomers.forEach(original => {
+      customerMergeMap.set(norm(original), mergedName);
     });
+  });
+    
+  const divisionPool = getPoolForDivision(division);
+  const tables = getTableNames(division);
+  
+  // Query Actual sales data for all sales reps
+  const query = `
+    SELECT 
+      TRIM(salesrepname) as salesrep,
+      TRIM(customername) as customer,
+      TRIM(countryname) as country,
+      TRIM(productgroup) as productgroup,
+      month,
+      SUM(CASE WHEN UPPER(values_type) = 'KGS' THEN values ELSE 0 END) / 1000.0 as mt_value,
+      SUM(CASE WHEN UPPER(values_type) = 'AMOUNT' THEN values ELSE 0 END) as amount_value,
+      SUM(CASE WHEN UPPER(values_type) = 'MORM' THEN values ELSE 0 END) as morm_value
+    FROM public.${tables.dataExcel}
+    WHERE UPPER(division) = UPPER($1)
+      AND year = $2
+      AND UPPER(type) = 'ACTUAL'
+      AND TRIM(UPPER(salesrepname)) = ANY($3::text[])
+      AND customername IS NOT NULL
+      AND TRIM(customername) != ''
+      AND countryname IS NOT NULL
+      AND TRIM(countryname) != ''
+      AND productgroup IS NOT NULL
+      AND TRIM(productgroup) != ''
+      AND UPPER(TRIM(productgroup)) != 'SERVICES CHARGES'
+    GROUP BY TRIM(salesrepname), TRIM(customername), TRIM(countryname), TRIM(productgroup), month
+    ORDER BY TRIM(salesrepname), TRIM(customername), TRIM(countryname), TRIM(productgroup), month
+  `;
+  
+  // Normalize salesReps to uppercase for matching
+  const normalizedSalesReps = salesReps.map(sr => (sr || '').toString().trim().toUpperCase());
+  
+  const result = await divisionPool.query(query, [
+    division,
+    parseInt(actualYear),
+    normalizedSalesReps
+  ]);
+  
+  // Transform to table structure with monthlyActual per salesRep
+  const customerMap = {};
+  result.rows.forEach(row => {
+    const normalizedCustomer = norm(row.customer);
+    const displayCustomerName = customerMergeMap.get(normalizedCustomer) || toProperCase(row.customer);
+    const displayCountry = toProperCase(row.country);
+    const displayProductGroup = toProperCase(row.productgroup);
+    // Convert salesRep to Proper Case for consistent display
+    const displaySalesRep = toProperCase(row.salesrep);
+    
+    // Key includes salesRep for "All Sales Reps" mode
+    const key = `${displaySalesRep}|${displayCustomerName}|${displayCountry}|${displayProductGroup}`;
+    if (!customerMap[key]) {
+      customerMap[key] = {
+        salesRep: displaySalesRep,
+        customer: displayCustomerName,
+        country: displayCountry,
+        productGroup: displayProductGroup,
+        monthlyActual: {},
+        monthlyActualAmount: {},
+        monthlyActualMorm: {},
+      };
+    }
+    const existingMt = customerMap[key].monthlyActual[row.month] || 0;
+    const existingAmount = customerMap[key].monthlyActualAmount[row.month] || 0;
+    const existingMorm = customerMap[key].monthlyActualMorm[row.month] || 0;
+    customerMap[key].monthlyActual[row.month] = existingMt + (parseFloat(row.mt_value) || 0);
+    customerMap[key].monthlyActualAmount[row.month] = existingAmount + (parseFloat(row.amount_value) || 0);
+    customerMap[key].monthlyActualMorm[row.month] = existingMorm + (parseFloat(row.morm_value) || 0);
+  });
+  
+  // Convert to array with all 12 months
+  let data = Object.values(customerMap).map(item => {
+    const monthlyActual = {};
+    const monthlyActualAmount = {};
+    const monthlyActualMorm = {};
+    for (let month = 1; month <= 12; month++) {
+      monthlyActual[month] = item.monthlyActual[month] || 0;
+      monthlyActualAmount[month] = item.monthlyActualAmount[month] || 0;
+      monthlyActualMorm[month] = item.monthlyActualMorm[month] || 0;
+    }
+    return { ...item, monthlyActual, monthlyActualAmount, monthlyActualMorm };
+  });
+  
+  // Load budget data for ALL sales reps (not filtered by salesReps param)
+  // This ensures we show budgets for all reps in the division
+  const budgetYear = parseInt(actualYear) + 1;
+  logger.info(`📊 Loading budget data for ALL sales reps / ${budgetYear}`);
+  
+  const budgetQuery = `
+    SELECT 
+      TRIM(salesrepname) as salesrep,
+      TRIM(customername) as customer,
+      TRIM(countryname) as country,
+      TRIM(productgroup) as productgroup,
+      month,
+      SUM(values) / 1000.0 as mt_value
+    FROM ${tables.salesRepBudget}
+    WHERE UPPER(division) = UPPER($1)
+      AND budget_year = $2
+      AND UPPER(type) = 'BUDGET'
+      AND UPPER(values_type) = 'KGS'
+    GROUP BY TRIM(salesrepname), TRIM(customername), TRIM(countryname), TRIM(productgroup), month
+    ORDER BY TRIM(salesrepname), TRIM(customername), TRIM(countryname), TRIM(productgroup), month
+  `;
+  
+  const budgetResult = await divisionPool.query(budgetQuery, [division, budgetYear]);
+  logger.info(`✅ Found ${budgetResult.rows.length} budget records (all sales reps)`);
+  
+  // Build budget map and track budget-only customers
+  const budgetMap = {};
+  const budgetOnlyCustomers = new Set();
+  
+  budgetResult.rows.forEach(row => {
+    // Apply proper case formatting and merge rules to budget data
+    const budgetSalesRep = toProperCase(row.salesrep);
+    const normalizedCustomer = norm(row.customer);
+    const budgetCustomer = customerMergeMap.get(normalizedCustomer) || toProperCase(row.customer);
+    const budgetCountry = toProperCase(row.country);
+    const budgetProductGroup = toProperCase(row.productgroup);
+    
+    // Key format: customer|country|productGroup|month (legacy format)
+    const key = `${budgetCustomer}|${budgetCountry}|${budgetProductGroup}|${row.month}`;
+    budgetMap[key] = (budgetMap[key] || 0) + (parseFloat(row.mt_value) || 0);
+    
+    // Also store with salesRep prefix for "All Sales Reps" mode
+    const keyWithSalesRep = `${budgetSalesRep}|${budgetCustomer}|${budgetCountry}|${budgetProductGroup}|${row.month}`;
+    budgetMap[keyWithSalesRep] = (budgetMap[keyWithSalesRep] || 0) + (parseFloat(row.mt_value) || 0);
+    
+    // Track customer keys for budget-only customers
+    const customerKey = `${budgetSalesRep}|${budgetCustomer}|${budgetCountry}|${budgetProductGroup}`;
+    budgetOnlyCustomers.add(customerKey);
+  });
+  
+  // Add budget-only customers (those with budget but no actuals)
+  budgetOnlyCustomers.forEach(customerKey => {
+    const normalizedBudgetKey = customerKey.toLowerCase();
+    const exists = data.some(item => {
+      const itemKey = `${item.salesRep}|${item.customer}|${item.country}|${item.productGroup}`.toLowerCase();
+      return itemKey === normalizedBudgetKey;
+    });
+    
+    if (!exists) {
+      const [salesRep, customer, country, productGroup] = customerKey.split('|');
+      const monthlyActual = {};
+      for (let month = 1; month <= 12; month++) {
+        monthlyActual[month] = 0;
+      }
+      data.push({
+        salesRep,
+        customer,
+        country,
+        productGroup,
+        monthlyActual,
+        monthlyActualAmount: {},
+        monthlyActualMorm: {},
+      });
+    }
+  });
+  
+  // Sort data
+  data.sort((a, b) => {
+    const repCompare = (a.salesRep || '').localeCompare(b.salesRep || '');
+    if (repCompare !== 0) return repCompare;
+    const nameCompare = a.customer.localeCompare(b.customer);
+    if (nameCompare !== 0) return nameCompare;
+    const countryCompare = a.country.localeCompare(b.country);
+    if (countryCompare !== 0) return countryCompare;
+    return a.productGroup.localeCompare(b.productGroup);
+  });
+  
+  // Load pricing data
+  const pricingYear = parseInt(actualYear);
+  const pricingQuery = `
+    SELECT 
+      TRIM(product_group) as product_group,
+      COALESCE(asp_round, 0) as selling_price,
+      COALESCE(morm_round, 0) as morm
+    FROM ${tables.pricingRounding}
+    WHERE UPPER(division) = UPPER($1) AND year = $2
+  `;
+  const pricingResult = await divisionPool.query(pricingQuery, [division, pricingYear]);
+  
+  const pricingMap = {};
+  pricingResult.rows.forEach(row => {
+    pricingMap[row.product_group.toLowerCase()] = {
+      sellingPrice: parseFloat(row.selling_price) || 0,
+      morm: parseFloat(row.morm) || 0
+    };
+  });
+  
+  logger.info(`📊 Total rows in response: ${data.length} (all sales reps combined), pricing: ${Object.keys(pricingMap).length} product groups`);
+  
+  // Return in legacy format for frontend compatibility
+  res.json({
+    success: true,
+    data,
+    budgetData: budgetMap,
+    pricingData: pricingMap,
+    pricingYear,
+    actualYear: parseInt(actualYear),
+    salesReps,
+    isAllSalesReps: true,
+  });
 }));
 
 /**

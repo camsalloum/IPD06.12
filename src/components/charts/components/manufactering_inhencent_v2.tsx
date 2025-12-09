@@ -1,6 +1,7 @@
 
 import React, { useEffect } from 'react';
 import ReactECharts from 'echarts-for-react';
+import { useCurrency } from '../../../contexts/CurrencyContext';
 
 /**
  * Manufacturing Cost Chart — Enhanced Readability (V2)
@@ -95,6 +96,16 @@ const ManufacturingCostChartV2: React.FC<Props> = ({
   style,
   labelMode = 'max-only'
 }) => {
+  const { companyCurrency, isUAEDirham } = useCurrency();
+  
+  // Dynamic currency symbol for HTML labels
+  const getCurrencySymbolHTML = (color = 'currentColor', size = '1em') => {
+    if (isUAEDirham()) {
+      return getUAEDirhamSVG(color, size);
+    }
+    return `<span style="font-weight:bold;margin-right:0.15em;">${companyCurrency.symbol}</span>`;
+  };
+  
   useEffect(() => { loadUAESymbolFont(); }, []);
 
   if (!selectedPeriods || selectedPeriods.length === 0 || typeof computeCellValue !== 'function') {
@@ -201,7 +212,7 @@ const ManufacturingCostChartV2: React.FC<Props> = ({
           if (!datum || !datum.amount) return '';
           // Show label only for max bar (unless labelMode === 'all')
           if (labelMode !== 'all' && maxSeriesByLedger[params.name] !== pn) return '';
-          return `${getUAEDirhamSVG(textColor)} ${(datum.amount/1_000_000).toFixed(2)}M`;
+          return `${getCurrencySymbolHTML(textColor)} ${(datum.amount/1_000_000).toFixed(2)}M`;
         },
         backgroundColor: lightChip,
         padding: [2,6],
@@ -246,7 +257,7 @@ const ManufacturingCostChartV2: React.FC<Props> = ({
             `<div style="display:flex;align-items:center;margin:2px 0;">
               <span style="width:10px;height:10px;border-radius:2px;background:${it.color};margin-right:6px;"></span>
               <span style="min-width:160px;font-weight:600">${it.seriesName}</span>
-              <span style="margin-left:auto;">${getUAEDirhamSVG('#333')} ${(datum.amount/1_000_000).toFixed(2)}M&nbsp;&nbsp;|&nbsp;&nbsp;${datum.percentOfSales.toFixed(1)}%/Sls&nbsp;&nbsp;|&nbsp;&nbsp;${getUAEDirhamSVG('#333')} ${datum.perKg.toFixed(1)}/kg</span>
+              <span style="margin-left:auto;">${getCurrencySymbolHTML('#333')} ${(datum.amount/1_000_000).toFixed(2)}M&nbsp;&nbsp;|&nbsp;&nbsp;${datum.percentOfSales.toFixed(1)}%/Sls&nbsp;&nbsp;|&nbsp;&nbsp;${getCurrencySymbolHTML('#333')} ${datum.perKg.toFixed(1)}/kg</span>
             </div>`
           );
         });

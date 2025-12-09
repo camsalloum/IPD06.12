@@ -2,6 +2,7 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { useFilter } from '../../contexts/FilterContext';
 import { useExcelData } from '../../contexts/ExcelDataContext';
+import { useCurrency } from '../../contexts/CurrencyContext';
 import { buildInsights } from './analysis/insightEngine';
 import { exportWriteup } from './export/exportWriteup';
 import { renderMarkdownToSafeHtml } from './renderer/markdownRenderer';
@@ -21,6 +22,8 @@ export default function WriteUpViewV2() {
 
   const { selectedDivision } = useExcelData();
   const { columnOrder, basePeriodIndex } = useFilter();
+  const { companyCurrency } = useCurrency();
+  const currencyCode = companyCurrency?.code || 'AED';
 
   // Division names
   const divisionNames = {
@@ -228,10 +231,10 @@ export default function WriteUpViewV2() {
 
       {factPack && (
         <div className="metric-cards">
-          <Metric title="Sales (AED)" value={fmtAed(factPack?.kpi?.sales)} />
-          <Metric title="GP (AED)" value={fmtAed(factPack?.kpi?.gp)} />
+          <Metric title={`Sales (${currencyCode})`} value={fmtAed(factPack?.kpi?.sales)} />
+          <Metric title={`GP (${currencyCode})`} value={fmtAed(factPack?.kpi?.gp)} />
           <Metric title="GP %" value={`${(factPack?.kpi?.gp_pct ?? 0).toFixed(1)}%`} />
-          <Metric title="EBITDA (AED)" value={fmtAed(factPack?.kpi?.ebitda)} />
+          <Metric title={`EBITDA (${currencyCode})`} value={fmtAed(factPack?.kpi?.ebitda)} />
         </div>
       )}
 

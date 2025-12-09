@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useFilter } from '../../contexts/FilterContext';
 import { useExcelData } from '../../contexts/ExcelDataContext';
+import { useCurrency } from '../../contexts/CurrencyContext';
 import { computeCellValue as sharedComputeCellValue } from '../../utils/computeCellValue';
 import './WriteUpView.css';
 
@@ -122,6 +123,8 @@ const downloadBlob = (blob, filename) => {
 const WriteUpView = ({ tableData, selectedPeriods }) => {
   const { excelData, selectedDivision } = useExcelData();
   const { basePeriodIndex, columnOrder } = useFilter();
+  const { companyCurrency } = useCurrency();
+  const currencyCode = companyCurrency?.code || 'AED';
   
   // Main state
   const [writeup, setWriteup] = useState('');
@@ -438,7 +441,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
       aiText += `**EXECUTIVE SUMMARY**\n`;
       aiText += `• Base Period: ${basePeriodName}\n`;
       aiText += `• Comparison Periods: ${comparisonPeriods.length} period(s) selected\n`;
-      aiText += `• Sales: ${formatCurrency(baseData.sales)} (${formatMT(baseData.salesVolume)} MT at ${baseData.salesVolume > 0 ? (baseData.sales / baseData.salesVolume).toFixed(2) : '0.00'} AED/kg)\n`;
+      aiText += `• Sales: ${formatCurrency(baseData.sales)} (${formatMT(baseData.salesVolume)} MT at ${baseData.salesVolume > 0 ? (baseData.sales / baseData.salesVolume).toFixed(2) : '0.00'} ${currencyCode}/kg)\n`;
       aiText += `• Gross Profit: ${formatCurrency(baseData.grossProfit)} (${metrics.grossMargin.toFixed(1)}% margin)\n`;
       aiText += `• Net Profit: ${formatCurrency(baseData.netProfit)} (${metrics.netMargin.toFixed(1)}% margin)\n`;
       aiText += `• EBIT: ${formatCurrency(ebit)} (${ebitMargin.toFixed(1)}% margin)\n`;
@@ -460,12 +463,12 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
           aiText += `• **${getComparisonLabel(basePeriod, period)}:**\n`;
           aiText += `  - Sales Amount: ${formatCurrency(compSales)} → ${formatCurrency(baseData.sales)} (${salesChange >= 0 ? '+' : ''}${salesChange.toFixed(1)}%)\n`;
           aiText += `  - Sales Volume: ${formatMT(compVolume)} MT → ${formatMT(baseData.salesVolume)} MT (${volumeChange >= 0 ? '+' : ''}${volumeChange.toFixed(1)}%)\n`;
-          aiText += `  - Price per kg: ${compPricePerKg.toFixed(2)} → ${metrics.pricePerKg.toFixed(2)} AED/kg (${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(1)}%)\n`;
+          aiText += `  - Price per kg: ${compPricePerKg.toFixed(2)} → ${metrics.pricePerKg.toFixed(2)} ${currencyCode}/kg (${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(1)}%)\n`;
           aiText += `  - **Performance:** ${Math.abs(salesChange) > 15 ? 'MAJOR' : Math.abs(salesChange) > 8 ? 'MODERATE' : 'STABLE'} sales change\n`;
         });
       } else {
         aiText += `• Sales Amount: ${formatCurrency(baseData.sales)} (${formatMT(baseData.salesVolume)} MT)\n`;
-        aiText += `• Price per kg: ${baseData.salesVolume > 0 ? (baseData.sales / baseData.salesVolume).toFixed(2) : '0.00'} AED/kg\n`;
+        aiText += `• Price per kg: ${baseData.salesVolume > 0 ? (baseData.sales / baseData.salesVolume).toFixed(2) : '0.00'} ${currencyCode}/kg\n`;
         aiText += `• **Note:** Select additional periods for comparative analysis\n`;
       }
       aiText += `\n`;
@@ -478,7 +481,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
       
       aiText += `• **Base Period Material Performance:**\n`;
       aiText += `  - Material Cost: ${formatCurrency(baseData.material)} (${metrics.materialRatio.toFixed(1)}% of sales)\n`;
-      aiText += `  - Material Cost per kg: ${materialPerKg.toFixed(2)} AED/kg\n`;
+      aiText += `  - Material Cost per kg: ${materialPerKg.toFixed(2)} ${currencyCode}/kg\n`;
       aiText += `  - Margin over Material: ${formatCurrency(marginOverMaterialAmount)} (${marginOverMaterial.toFixed(1)}%)\n`;
       
       if (comparisonPeriods.length > 0) {
@@ -499,7 +502,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
           aiText += `• **${getComparisonLabel(basePeriod, period)}:**\n`;
           aiText += `  - Material Cost: ${formatCurrency(compMaterial)} → ${formatCurrency(baseData.material)} (${materialCostChange >= 0 ? '+' : ''}${materialCostChange.toFixed(1)}%)\n`;
           aiText += `  - Material % of Sales: ${compMaterialRatio.toFixed(1)}% → ${metrics.materialRatio.toFixed(1)}% (${materialRatioChange >= 0 ? '+' : ''}${materialRatioChange.toFixed(1)}%)\n`;
-          aiText += `  - Material AED/kg: ${compMaterialPerKg.toFixed(2)} → ${materialPerKg.toFixed(2)}\n`;
+          aiText += `  - Material ${currencyCode}/kg: ${compMaterialPerKg.toFixed(2)} → ${materialPerKg.toFixed(2)}\n`;
           aiText += `  - Margin over Material: ${formatCurrency(compMarginAmount)} → ${formatCurrency(marginOverMaterialAmount)} (${marginChange >= 0 ? '+' : ''}${marginChange.toFixed(1)}%)\n`;
           aiText += `  - **Impact:** ${Math.abs(materialRatioChange) > 10 ? 'MAJOR' : Math.abs(materialRatioChange) > 5 ? 'MODERATE' : 'MINOR'} material efficiency change\n`;
         });
@@ -512,7 +515,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
       
       aiText += `• **Base Period Manufacturing Performance:**\n`;
       aiText += `  - Total Manufacturing Cost: ${formatCurrency(baseData.mfgExpenses)} (${metrics.mfgRatio.toFixed(1)}% of sales)\n`;
-      aiText += `  - Manufacturing Cost per kg: ${mfgCostPerKg.toFixed(2)} AED/kg\n`;
+      aiText += `  - Manufacturing Cost per kg: ${mfgCostPerKg.toFixed(2)} ${currencyCode}/kg\n`;
       aiText += `  - Key Cost Components:\n`;
       aiText += `    * Labor: ${formatCurrency(baseData.labor)} (${metrics.laborRatio.toFixed(1)}% of sales)\n`;
       aiText += `    * Electricity: ${formatCurrency(baseData.electricity)} (${metrics.electricityRatio.toFixed(1)}% of sales)\n`;
@@ -541,7 +544,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
           aiText += `• **${getComparisonLabel(basePeriod, period)}:**\n`;
           aiText += `  - Manufacturing Cost: ${formatCurrency(compMfg)} → ${formatCurrency(baseData.mfgExpenses)} (${mfgCostChange >= 0 ? '+' : ''}${mfgCostChange.toFixed(1)}%)\n`;
           aiText += `  - Manufacturing % of Sales: ${compMfgRatio.toFixed(1)}% → ${metrics.mfgRatio.toFixed(1)}% (${mfgRatioChange >= 0 ? '+' : ''}${mfgRatioChange.toFixed(1)}%)\n`;
-          aiText += `  - Manufacturing AED/kg: ${compMfgPerKg.toFixed(2)} → ${mfgCostPerKg.toFixed(2)} (${mfgPerKgChange >= 0 ? '+' : ''}${mfgPerKgChange.toFixed(1)}%)\n`;
+          aiText += `  - Manufacturing ${currencyCode}/kg: ${compMfgPerKg.toFixed(2)} → ${mfgCostPerKg.toFixed(2)} (${mfgPerKgChange >= 0 ? '+' : ''}${mfgPerKgChange.toFixed(1)}%)\n`;
           aiText += `  - **Impact:** ${Math.abs(mfgRatioChange) > 15 ? 'CRITICAL' : Math.abs(mfgRatioChange) > 8 ? 'SIGNIFICANT' : 'MODERATE'} manufacturing efficiency change\n`;
         });
       }
@@ -553,7 +556,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
       
       aiText += `• **Base Period Gross Profit Performance:**\n`;
       aiText += `  - Gross Profit: ${formatCurrency(baseData.grossProfit)} (${metrics.grossMargin.toFixed(1)}% of sales)\n`;
-      aiText += `  - Gross Profit per kg: ${grossProfitPerKg.toFixed(2)} AED/kg\n`;
+      aiText += `  - Gross Profit per kg: ${grossProfitPerKg.toFixed(2)} ${currencyCode}/kg\n`;
       
       if (comparisonPeriods.length > 0) {
         comparisonPeriods.forEach(period => {
@@ -571,7 +574,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
           aiText += `• **${getComparisonLabel(basePeriod, period)}:**\n`;
           aiText += `  - Gross Profit: ${formatCurrency(compGrossProfit)} → ${formatCurrency(baseData.grossProfit)} (${grossProfitChange >= 0 ? '+' : ''}${grossProfitChange.toFixed(1)}%)\n`;
           aiText += `  - Gross Margin %: ${compGrossMargin.toFixed(1)}% → ${metrics.grossMargin.toFixed(1)}% (${grossMarginChange >= 0 ? '+' : ''}${grossMarginChange.toFixed(1)}%)\n`;
-          aiText += `  - Gross Profit AED/kg: ${compGrossProfitPerKg.toFixed(2)} → ${grossProfitPerKg.toFixed(2)} (${grossProfitPerKgChange >= 0 ? '+' : ''}${grossProfitPerKgChange.toFixed(1)}%)\n`;
+          aiText += `  - Gross Profit ${currencyCode}/kg: ${compGrossProfitPerKg.toFixed(2)} → ${grossProfitPerKg.toFixed(2)} (${grossProfitPerKgChange >= 0 ? '+' : ''}${grossProfitPerKgChange.toFixed(1)}%)\n`;
           aiText += `  - **Impact:** ${Math.abs(grossMarginChange) > 15 ? 'MAJOR' : Math.abs(grossMarginChange) > 8 ? 'MODERATE' : 'MINOR'} gross profitability change\n`;
         });
       }
@@ -583,7 +586,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
       
       aiText += `• **Base Period Below GP Expenses:**\n`;
       aiText += `  - Total Below GP Expenses: ${formatCurrency(baseData.belowGP)} (${metrics.belowGPRatio.toFixed(1)}% of sales)\n`;
-      aiText += `  - Below GP Expenses per kg: ${belowGPPerKg.toFixed(2)} AED/kg\n`;
+      aiText += `  - Below GP Expenses per kg: ${belowGPPerKg.toFixed(2)} ${currencyCode}/kg\n`;
       aiText += `  - Key Components:\n`;
       aiText += `    * Admin Expenses: ${formatCurrency(baseData.admin)} (${metrics.adminRatio.toFixed(1)}% of sales)\n`;
       
@@ -606,7 +609,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
           aiText += `• **${getComparisonLabel(basePeriod, period)}:**\n`;
           aiText += `  - Below GP Expenses: ${formatCurrency(compBelowGP)} → ${formatCurrency(baseData.belowGP)} (${belowGPChange >= 0 ? '+' : ''}${belowGPChange.toFixed(1)}%)\n`;
           aiText += `  - Below GP % of Sales: ${compBelowGPRatio.toFixed(1)}% → ${metrics.belowGPRatio.toFixed(1)}% (${belowGPRatioChange >= 0 ? '+' : ''}${belowGPRatioChange.toFixed(1)}%)\n`;
-          aiText += `  - Below GP AED/kg: ${compBelowGPPerKg.toFixed(2)} → ${belowGPPerKg.toFixed(2)} (${belowGPPerKgChange >= 0 ? '+' : ''}${belowGPPerKgChange.toFixed(1)}%)\n`;
+          aiText += `  - Below GP ${currencyCode}/kg: ${compBelowGPPerKg.toFixed(2)} → ${belowGPPerKg.toFixed(2)} (${belowGPPerKgChange >= 0 ? '+' : ''}${belowGPPerKgChange.toFixed(1)}%)\n`;
           aiText += `  - **Impact:** ${Math.abs(belowGPRatioChange) > 20 ? 'HIGH' : Math.abs(belowGPRatioChange) > 10 ? 'MODERATE' : 'LOW'} overhead cost impact\n`;
         });
       }
@@ -618,7 +621,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
       
       aiText += `• **Base Period Total Expenses:**\n`;
       aiText += `  - Total Expenses: ${formatCurrency(metrics.totalCosts)} (${metrics.totalCostRatio.toFixed(1)}% of sales)\n`;
-      aiText += `  - Total Expenses per kg: ${totalExpensesPerKg.toFixed(2)} AED/kg\n`;
+      aiText += `  - Total Expenses per kg: ${totalExpensesPerKg.toFixed(2)} ${currencyCode}/kg\n`;
       aiText += `  - Breakdown: Material ${metrics.materialRatio.toFixed(1)}% + Manufacturing ${metrics.mfgRatio.toFixed(1)}% + Below GP ${metrics.belowGPRatio.toFixed(1)}%\n`;
       
       if (comparisonPeriods.length > 0) {
@@ -640,7 +643,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
           aiText += `• **${getComparisonLabel(basePeriod, period)}:**\n`;
           aiText += `  - Total Expenses: ${formatCurrency(compTotalCosts)} → ${formatCurrency(metrics.totalCosts)} (${totalExpensesChange >= 0 ? '+' : ''}${totalExpensesChange.toFixed(1)}%)\n`;
           aiText += `  - Total Expenses % of Sales: ${compTotalCostRatio.toFixed(1)}% → ${metrics.totalCostRatio.toFixed(1)}% (${totalExpensesRatioChange >= 0 ? '+' : ''}${totalExpensesRatioChange.toFixed(1)}%)\n`;
-          aiText += `  - Total Expenses AED/kg: ${compTotalExpensesPerKg.toFixed(2)} → ${totalExpensesPerKg.toFixed(2)} (${totalExpensesPerKgChange >= 0 ? '+' : ''}${totalExpensesPerKgChange.toFixed(1)}%)\n`;
+          aiText += `  - Total Expenses ${currencyCode}/kg: ${compTotalExpensesPerKg.toFixed(2)} → ${totalExpensesPerKg.toFixed(2)} (${totalExpensesPerKgChange >= 0 ? '+' : ''}${totalExpensesPerKgChange.toFixed(1)}%)\n`;
           aiText += `  - **Overall Cost Control:** ${Math.abs(totalExpensesRatioChange) > 10 ? 'NEEDS ATTENTION' : Math.abs(totalExpensesRatioChange) > 5 ? 'MONITOR CLOSELY' : 'STABLE'}\n`;
         });
       }
@@ -656,7 +659,7 @@ const WriteUpView = ({ tableData, selectedPeriods }) => {
       aiText += `  - Net Profit: ${formatCurrency(baseData.netProfit)} (${metrics.netMargin.toFixed(1)}% margin)\n`;
       aiText += `  - EBIT: ${formatCurrency(ebit)} (${ebitMargin.toFixed(1)}% margin)\n`;
       aiText += `  - EBITDA: ${formatCurrency(baseData.ebitda)} (${metrics.ebitdaMargin.toFixed(1)}% margin)\n`;
-      aiText += `  - Per kg: Net ${netProfitPerKg.toFixed(2)}, EBIT ${ebitPerKg.toFixed(2)}, EBITDA ${ebitdaPerKg.toFixed(2)} AED/kg\n`;
+      aiText += `  - Per kg: Net ${netProfitPerKg.toFixed(2)}, EBIT ${ebitPerKg.toFixed(2)}, EBITDA ${ebitdaPerKg.toFixed(2)} ${currencyCode}/kg\n`;
       
       // Business Strength Explanations
       aiText += `\n**BUSINESS STRENGTH INDICATORS:**\n`;

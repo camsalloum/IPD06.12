@@ -3,6 +3,7 @@ import { Table, Button, Space, message, Modal, Spin, Tag, Statistic, Row, Col, C
 import { DownloadOutlined, ReloadOutlined, CalculatorOutlined, CheckCircleOutlined, PercentageOutlined, PlusOutlined, MinusOutlined, DeleteOutlined, WarningOutlined } from '@ant-design/icons';
 import { useExcelData } from '../../../contexts/ExcelDataContext';
 import { useFilter } from '../../../contexts/FilterContext';
+import CurrencySymbol from '../../dashboard/CurrencySymbol';
 import axios from 'axios';
 
 const { Search } = Input;
@@ -500,23 +501,30 @@ const EstimateTab = () => {
       {/* Summary Cards */}
       {yearSummary && yearSummary.length > 0 && (
         <Row gutter={16} style={{ marginBottom: '20px', padding: '0 10px' }}>
-          {yearSummary.map((item) => (
-            <Col span={8} key={item.values_type}>
-              <Card>
-                <Statistic
-                  title={item.values_type}
-                  value={Math.round(item.total_values)}
-                  precision={0}
-                  valueStyle={{ color: '#3f8600' }}
-                  suffix={
-                    <span style={{ fontSize: '14px', color: '#999' }}>
-                      ({item.record_count.toLocaleString()} records)
-                    </span>
-                  }
-                />
-              </Card>
-            </Col>
-          ))}
+          {yearSummary.map((item) => {
+            const isCurrencyValue = item.values_type === 'AMOUNT' || item.values_type === 'Amount' || 
+                                    item.values_type === 'MORM' || item.values_type === 'MoRM';
+            return (
+              <Col span={8} key={item.values_type}>
+                <Card>
+                  <Statistic
+                    title={isCurrencyValue ? (
+                      <span><CurrencySymbol style={{ width: '12px', height: '12px', marginRight: '4px' }} />{item.values_type}</span>
+                    ) : item.values_type}
+                    value={Math.round(item.total_values)}
+                    precision={0}
+                    prefix={isCurrencyValue ? <CurrencySymbol style={{ width: '14px', height: '14px' }} /> : null}
+                    valueStyle={{ color: '#3f8600' }}
+                    suffix={
+                      <span style={{ fontSize: '14px', color: '#999' }}>
+                        ({item.record_count.toLocaleString()} records)
+                      </span>
+                    }
+                  />
+                </Card>
+              </Col>
+            );
+          })}
         </Row>
       )}
 
