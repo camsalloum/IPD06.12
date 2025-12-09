@@ -1,0 +1,53 @@
+**********************
+PowerShell transcript start
+Start time: 20251121161413
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll D:\Projects\IPD26.10\upload-to-github.ps1
+Process ID: 48236
+PSVersion: 7.5.3
+PSEdition: Core
+GitCommitId: 7.5.3
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+[INFO] Working directory: D:\Projects\IPD26.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'server/database/HCMDataService.js', LF will be replaced by CRLF the next time Git touch
+es it
+warning: in the working copy of 'server/database/ProductPricingRoundingService.js', LF will be replaced by CRLF the next
+ time Git touches it
+warning: in the working copy of 'server/database/SBDataService.js', LF will be replaced by CRLF the next time Git touche
+s it
+warning: in the working copy of 'server/database/TFDataService.js', LF will be replaced by CRLF the next time Git touche
+s it
+warning: in the working copy of 'server/database/fpDataService.js', LF will be replaced by CRLF the next time Git touche
+s it
+warning: in the working copy of 'server/routes/aebf.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/server.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/MasterData/AEBF/BudgetTab.js', LF will be replaced by CRLF the next time
+ Git touches it
+warning: in the working copy of 'src/components/dashboard/MaterialPercentageManager.css', LF will be replaced by CRLF th
+e next time Git touches it
+warning: in the working copy of 'src/components/dashboard/ProductGroupPricingManager.jsx', LF will be replaced by CRLF t
+he next time Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesByCustomerTableNew.js', LF will be replaced by CRLF the n
+ext time Git touches it
+warning: in the working copy of 'bug_analysis_report.md', LF will be replaced by CRLF the next time Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+   66e5dbe..ffe008a  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+PowerShell transcript end
+End time: 20251121161432
+**********************

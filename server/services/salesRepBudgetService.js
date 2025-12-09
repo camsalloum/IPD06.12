@@ -212,10 +212,10 @@ const fetchPricingMap = async (client, division, divisionCode, pricingYear) => {
       const key = normalizeProductGroupKey(row.product_group);
       map[key] = {
         sellingPrice: row.asp_round !== null && row.asp_round !== undefined
-          ? Math.round(parseFloat(row.asp_round))
+          ? parseFloat(row.asp_round)
           : null,
         morm: row.morm_round !== null && row.morm_round !== undefined
-          ? Math.round(parseFloat(row.morm_round))
+          ? parseFloat(row.morm_round)
           : null
       };
       return map;

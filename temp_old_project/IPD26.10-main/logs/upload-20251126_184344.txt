@@ -1,0 +1,56 @@
+**********************
+PowerShell transcript start
+Start time: 20251126184344
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll D:\Projects\IPD26.10\upload-to-github.ps1
+Process ID: 25120
+PSVersion: 7.5.4
+PSEdition: Core
+GitCommitId: 7.5.4
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+[INFO] Working directory: D:\Projects\IPD26.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'src/components/dashboard/TableView.js', LF will be replaced by CRLF the next time Git t
+ouches it
+warning: in the working copy of 'src/utils/sharedStyles.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'BUDGET_Divisional_FP_2026_20251126_164645.html', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/dashboard/BelowGPExpensesDetail.js', LF will be replaced by CRLF the nex
+t time Git touches it
+warning: in the working copy of 'src/components/dashboard/CombinedTrendsDetail.js', LF will be replaced by CRLF the next
+ time Git touches it
+warning: in the working copy of 'src/components/dashboard/ManufacturingCostDetail.js', LF will be replaced by CRLF the n
+ext time Git touches it
+warning: in the working copy of 'src/components/dashboard/PLFinancialDetail.js', LF will be replaced by CRLF the next ti
+me Git touches it
+warning: in the working copy of 'src/components/dashboard/ProductGroupDetail.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesCountryDetail.js', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesCustomerDetail.js', LF will be replaced by CRLF the next
+time Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesRepDetail.js', LF will be replaced by CRLF the next time
+Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesVolumeDetail.css', LF will be replaced by CRLF the next t
+ime Git touches it
+warning: in the working copy of 'src/components/dashboard/SalesVolumeDetail.js', LF will be replaced by CRLF the next ti
+me Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+PowerShell transcript end
+End time: 20251126184352
+**********************

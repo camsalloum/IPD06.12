@@ -1,0 +1,37 @@
+[2025-11-13 16:00:34] [INFO] ========================================================================
+[2025-11-13 16:00:34] [INFO] AEBF Excel to SQL Transform & Upload Script
+[2025-11-13 16:00:34] [INFO] ========================================================================
+[2025-11-13 16:00:34] [INFO] Excel File: D:\Projects\IPD26.10\uploads\aebf-upload-1763035231523.xlsx
+[2025-11-13 16:00:34] [INFO] Division: FP
+[2025-11-13 16:00:34] [INFO] Upload Mode: upsert
+[2025-11-13 16:00:34] [INFO] Uploaded By: cam
+[2025-11-13 16:00:34] [INFO] Test Mode: False
+[2025-11-13 16:00:34] [INFO] ========================================================================
+[2025-11-13 16:00:34] [INFO] Checking prerequisites...
+[2025-11-13 16:00:34] [SUCCESS] Prerequisites check passed
+[2025-11-13 16:00:34] [INFO] Testing database connection...
+[2025-11-13 16:00:35] [SUCCESS] Database connection successful
+[2025-11-13 16:00:35] [INFO] PostgreSQL version: PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit 
+[2025-11-13 16:00:35] [INFO] Reading Excel file...
+[2025-11-13 16:00:37] [SUCCESS] Read 51 rows from Excel
+[2025-11-13 16:00:37] [INFO] Validating Excel structure...
+[2025-11-13 16:00:37] [SUCCESS] Excel structure validation passed
+[2025-11-13 16:00:37] [INFO] Total rows: 51
+[2025-11-13 16:00:37] [INFO] Transforming Excel data to SQL format...
+[2025-11-13 16:00:37] [SUCCESS] Transformed 51 rows
+[2025-11-13 16:00:37] [INFO] Generating QC summary...
+[2025-11-13 16:00:37] [INFO] QC Summary:
+[2025-11-13 16:00:37] [INFO]   Total Records: 51
+[2025-11-13 16:00:37] [INFO]   Years: 0, 2020
+[2025-11-13 16:00:37] [INFO]   Months: 0, 1
+[2025-11-13 16:00:37] [INFO]   Values Types: AMOUNT, KGS, MORM
+[2025-11-13 16:00:37] [INFO]   Total AMOUNT: 231909
+[2025-11-13 16:00:37] [INFO]   Total KGS: 27632.3
+[2025-11-13 16:00:37] [INFO]   Total MORM: 91939.544
+[2025-11-13 16:00:37] [INFO] Uploading data in UPSERT mode (batch size: 1000)...
+[2025-11-13 16:00:37] [INFO] Processing batch 1 of 1 (51 rows)...
+[2025-11-13 16:00:37] [INFO] ========================================================================
+[2025-11-13 16:00:37] [ERROR] Upload failed: You cannot call a method on a null-valued expression.
+[2025-11-13 16:00:37] [INFO] ========================================================================
+[2025-11-13 16:00:37] [INFO] Writing audit log...
+[2025-11-13 16:00:38] [WARNING] Failed to write audit log: SQL execution error: ERROR:  column "records_affected" of relation "aebf_upload_audit" does not exist

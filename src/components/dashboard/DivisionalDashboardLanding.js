@@ -1,7 +1,7 @@
 import React, { useMemo, useState, Suspense, useEffect, useCallback } from 'react';
 import './DivisionalDashboardLanding.css';
 import { useFilter } from '../../contexts/FilterContext';
-import UAEDirhamSymbol from './UAEDirhamSymbol';
+import CurrencySymbol from './CurrencySymbol';
 
 // Lazy load all detail components
 const LazyKPIExecutiveSummary = React.lazy(() => import('./KPIExecutiveSummary'));
@@ -330,7 +330,7 @@ const DivisionalDashboardLanding = ({ onCardSelect }) => {
                   {/* Show currency symbol only for table cards */}
                   {['pl-financial', 'product-group', 'sales-rep', 'sales-customer', 'sales-country'].includes(activeCard) && (
                     <div className="divisional-dashboard__overlay-currency">
-                      <UAEDirhamSymbol style={{ width: 32, height: 32, color: '#ffffff' }} />
+                      <CurrencySymbol style={{ width: 32, height: 32, color: '#ffffff' }} />
                     </div>
                   )}
                 </div>

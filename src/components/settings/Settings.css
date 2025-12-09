@@ -1153,3 +1153,143 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Custom Currency Dropdown Styles */
+.currency-dropdown-container {
+  position: relative;
+  width: 100%;
+}
+
+.currency-dropdown-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+}
+
+.currency-dropdown-selected:hover {
+  border-color: var(--color-primary);
+  background: var(--color-surfaceHover);
+}
+
+.currency-dropdown-selected.open {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primaryAlpha);
+}
+
+.currency-dropdown-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.currency-dropdown-placeholder {
+  color: var(--color-textMuted);
+  font-size: 14px;
+}
+
+.currency-dropdown-arrow {
+  transition: transform 0.2s ease;
+  color: var(--color-textSecondary);
+}
+
+.currency-dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.currency-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 10px 40px var(--color-shadow);
+  z-index: 1000;
+  max-height: 350px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.currency-dropdown-search {
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.currency-dropdown-search input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--color-background);
+  color: var(--color-text);
+  transition: all 0.2s ease;
+}
+
+.currency-dropdown-search input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primaryAlpha);
+}
+
+.currency-dropdown-search input::placeholder {
+  color: var(--color-textMuted);
+}
+
+.currency-dropdown-options {
+  overflow-y: auto;
+  max-height: 280px;
+  padding: 8px;
+}
+
+.currency-dropdown-option {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  gap: 8px;
+}
+
+.currency-dropdown-option:hover {
+  background: var(--color-primaryAlpha);
+}
+
+.currency-dropdown-option.selected {
+  background: var(--color-primary);
+  color: white;
+}
+
+.currency-dropdown-option.selected .currency-code {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.currency-country-name {
+  flex: 1;
+  font-size: 14px;
+}
+
+.currency-code {
+  font-size: 12px;
+  color: var(--color-textMuted);
+  font-weight: 500;
+}
+
+.currency-dropdown-no-results {
+  padding: 20px;
+  text-align: center;
+  color: var(--color-textMuted);
+  font-size: 14px;
+}

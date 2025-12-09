@@ -1,0 +1,34 @@
+[2025-11-13 16:17:57] [INFO] ========================================================================
+[2025-11-13 16:17:57] [INFO] AEBF Excel to SQL Transform & Upload Script
+[2025-11-13 16:17:57] [INFO] ========================================================================
+[2025-11-13 16:17:57] [INFO] Excel File: D:\Projects\IPD26.10\server\data\fp_data_actual_test.xlsx
+[2025-11-13 16:17:57] [INFO] Division: FP
+[2025-11-13 16:17:57] [INFO] Upload Mode: upsert
+[2025-11-13 16:17:57] [INFO] Uploaded By: cam
+[2025-11-13 16:17:57] [INFO] Test Mode: True
+[2025-11-13 16:17:57] [INFO] ========================================================================
+[2025-11-13 16:17:57] [INFO] Checking prerequisites...
+[2025-11-13 16:17:57] [SUCCESS] Prerequisites check passed
+[2025-11-13 16:17:57] [INFO] Testing database connection...
+[2025-11-13 16:17:57] [SUCCESS] Database connection successful
+[2025-11-13 16:17:57] [INFO] PostgreSQL version: PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit 
+[2025-11-13 16:17:57] [INFO] Reading Excel file...
+[2025-11-13 16:17:57] [SUCCESS] Read 51 rows from Excel
+[2025-11-13 16:17:57] [INFO] Validating Excel structure...
+[2025-11-13 16:17:57] [SUCCESS] Excel structure validation passed
+[2025-11-13 16:17:57] [INFO] Total rows: 51
+[2025-11-13 16:17:57] [INFO] Transforming Excel data to SQL format...
+[2025-11-13 16:17:57] [SUCCESS] Transformed 51 rows
+[2025-11-13 16:17:57] [INFO] Generating QC summary...
+[2025-11-13 16:17:58] [INFO] QC Summary:
+[2025-11-13 16:17:58] [INFO]   Total Records: 51
+[2025-11-13 16:17:58] [INFO]   Years: 0, 2020
+[2025-11-13 16:17:58] [INFO]   Months: 0, 1
+[2025-11-13 16:17:58] [INFO]   Values Types: AMOUNT, KGS, MORM
+[2025-11-13 16:17:58] [INFO]   Total AMOUNT: 231909
+[2025-11-13 16:17:58] [INFO]   Total KGS: 27632.3
+[2025-11-13 16:17:58] [INFO]   Total MORM: 91939.544
+[2025-11-13 16:17:58] [INFO] ========================================================================
+[2025-11-13 16:17:58] [INFO] TEST MODE - No data will be uploaded to database
+[2025-11-13 16:17:58] [INFO] ========================================================================
+[2025-11-13 16:17:58] [SUCCESS] Validation completed successfully. Data is ready for upload.

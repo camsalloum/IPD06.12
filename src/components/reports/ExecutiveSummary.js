@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getRegionForCountry } from '../dashboard/CountryReference';
 import { useFilter } from '../../contexts/FilterContext';
 import { formatCustomRangeDisplay } from '../../utils/periodHelpers';
-import UAEDirhamSymbol from '../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../dashboard/CurrencySymbol';
 import '../dashboard/KPIExecutiveSummary.css';
 import './ExecutiveSummary.css';
 
@@ -307,7 +307,7 @@ const ExecutiveSummary = ({ performanceMetrics, reportData, kgsData, amountData,
     }
     
     if (isCurrency) {
-      return <><UAEDirhamSymbol />{formatted}</>;
+      return <><CurrencySymbol />{formatted}</>;
     }
     return formatted;
   };

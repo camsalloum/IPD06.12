@@ -472,6 +472,20 @@ const validationRules = {
       .notEmpty().withMessage('Division is required')
       .isIn(validDivisions).withMessage(`Division must be one of: ${validDivisions.join(', ')}`),
     handleValidationErrors
+  ],
+
+  // Import HTML budget
+  importHtmlBudget: [
+    body('htmlContent')
+      .notEmpty().withMessage('HTML content is required'),
+    body('currentDivision')
+      .trim()
+      .notEmpty().withMessage('Current division is required')
+      .isIn(validDivisions).withMessage(`Division must be one of: ${validDivisions.join(', ')}`),
+    body('currentSalesRep')
+      .optional()
+      .trim(),
+    handleValidationErrors
   ]
 };
 

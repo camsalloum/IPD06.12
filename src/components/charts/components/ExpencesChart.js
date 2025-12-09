@@ -1,5 +1,5 @@
 import React from 'react';
-import UAEDirhamSymbol from '../../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../../dashboard/CurrencySymbol';
 import './CombinedTrends.css';
 
 // Color scheme definitions (MUST MATCH ColumnConfigGrid.js exactly)
@@ -109,13 +109,13 @@ const ExpencesChart = ({ tableData, selectedPeriods, computeCellValue, style, hi
               }}>
               <div className="trend-card-title" style={{ color: card.textColor }}>{card.periodName}</div>
               <div className="trend-card-value" style={{ color: card.textColor }}>
-                <UAEDirhamSymbol style={{ color: card.textColor, fontSize: 22 }} />
+                <CurrencySymbol style={{ color: card.textColor, fontSize: 22 }} />
                 {card.value ? (card.value / 1000000).toFixed(2) + 'M' : '0.00M'}
               </div>
               <div className="trend-card-metrics" style={{ color: card.textColor }}>
                 <div>{card.percentOfSales.toFixed(1)}%/Sls</div>
                 <div>
-                  <UAEDirhamSymbol style={{ color: card.textColor, fontSize: 12 }} />
+                  <CurrencySymbol style={{ color: card.textColor, fontSize: 12 }} />
                   {card.perKg.toFixed(1)}/kg
                 </div>
               </div>

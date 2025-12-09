@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import UAEDirhamSymbol from '../../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../../dashboard/CurrencySymbol';
 import './ModernMarginGauge.css';
 
 
@@ -93,12 +93,12 @@ const SingleGauge = ({ value, absoluteValue, perKgValue, title, color = '#288cfa
         
         {/* Absolute value as main display */}
         <div className="gauge-absolute" style={{ fontSize: 28, fontWeight: 'bold', color: safeColor, marginBottom: 5 }}>
-          <UAEDirhamSymbol /> {absoluteValue}
+          <CurrencySymbol /> {absoluteValue}
         </div>
 
         {/* Per kg value with correct format: Đ xx.xx per kg */}
         <div className="gauge-perkg" style={{ fontSize: 16, fontWeight: 'bold', color: safeColor, marginBottom: 5 }}>
-          <UAEDirhamSymbol /> {perKgValue} per kg
+          <CurrencySymbol /> {perKgValue} per kg
         </div>
       </div>
       

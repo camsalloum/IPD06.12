@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 import { useFilter } from '../../contexts/FilterContext';
-import UAEDirhamSymbol from '../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../dashboard/CurrencySymbol';
 
 /**
  * ProductGroupKeyFacts - Enhanced with V3 Business Logic
@@ -9,7 +9,7 @@ import UAEDirhamSymbol from '../dashboard/UAEDirhamSymbol';
  * - Robust period detection with intelligent budget finding
  * - Materiality scoring using budget share × actual share
  * - Budget-focused analysis (ignores zero-budget items)
- * - Proper AED currency formatting
+ * - Proper currency formatting using company settings
  * - Configurable thresholds for business rules
  * - Name-keyed merge for safer data alignment
  * - Run-rate analysis and YTD tracking
@@ -46,12 +46,12 @@ const formatNumber = (num, type = 'default') => {
   }
 
   if (type === 'amount') {
-    // UAE Dirham formatting with proper symbol for millions display
+    // Currency formatting with proper symbol for millions display
     const millions = num / 1000000;
     if (millions >= 1) {
       return (
         <>
-          <UAEDirhamSymbol />
+          <CurrencySymbol />
           {millions.toFixed(1)}M
         </>
       );
@@ -60,14 +60,14 @@ const formatNumber = (num, type = 'default') => {
     if (thousands >= 1) {
       return (
         <>
-          <UAEDirhamSymbol />
+          <CurrencySymbol />
           {thousands.toFixed(0)}K
         </>
       );
     }
     return (
       <>
-        <UAEDirhamSymbol />
+        <CurrencySymbol />
         {Math.round(num).toLocaleString()}
       </>
     );
@@ -77,7 +77,7 @@ const formatNumber = (num, type = 'default') => {
     // ASP formatting without compact notation to avoid awkward currency/kg combinations
     return (
       <>
-        <UAEDirhamSymbol />
+        <CurrencySymbol />
         {Math.round(num).toLocaleString()}
       </>
     );

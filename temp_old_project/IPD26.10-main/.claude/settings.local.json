@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nul)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(psql:*)",
+      "Bash(taskkill:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"restart-servers-win.ps1\")",
+      "Bash(del check-indexes.js check-pricing-indexes.js)",
+      "Bash(dir:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npm audit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

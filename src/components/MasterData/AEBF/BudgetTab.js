@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Table, Button, Space, Upload, Select, Radio, Modal, Spin, Tag, Statistic, Row, Col, Card, Tabs, Input, App } from 'antd';
-import { UploadOutlined, DownloadOutlined, ReloadOutlined, FileExcelOutlined, WarningOutlined, CheckCircleOutlined, SearchOutlined, PlusOutlined, DeleteOutlined, LockOutlined } from '@ant-design/icons';
+import { UploadOutlined, DownloadOutlined, ReloadOutlined, FileExcelOutlined, WarningOutlined, CheckCircleOutlined, SearchOutlined, PlusOutlined, DeleteOutlined, LockOutlined, CloseOutlined } from '@ant-design/icons';
 import { useExcelData } from '../../../contexts/ExcelDataContext';
 import { useFilter } from '../../../contexts/FilterContext';
+import { useCurrency } from '../../../contexts/CurrencyContext';
 import axios from 'axios';
 import countryCoordinates from '../../dashboard/countryCoordinates';
-import UAEDirhamSymbol from '../../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../../dashboard/CurrencySymbol';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import BulkImportTab from './BulkImportTab';
@@ -38,6 +39,7 @@ const BudgetTab = () => {
   
   const { selectedDivision } = useExcelData();
   const { basePeriodIndex, columnOrder } = useFilter();
+  const { companyCurrency } = useCurrency(); // Get company currency for export
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 50, total: 0 });
@@ -1134,9 +1136,10 @@ const BudgetTab = () => {
       
       if (response.data.success) {
         const productGroups = response.data.data
-          .map(item => item.pgcombine || item.product_group || item)
+          .map(item => item.pgcombine || item.productgroup || item.product_group || (typeof item === 'string' ? item : null))
           .filter(pg => {
-            const pgUpper = (pg || '').toString().trim().toUpperCase();
+            if (!pg || typeof pg !== 'string') return false;
+            const pgUpper = pg.toString().trim().toUpperCase();
             return pgUpper !== 'SERVICES CHARGES' && pgUpper !== 'SERVICE CHARGES';
           });
         setAllProductGroups([...new Set(productGroups)].sort());
@@ -1161,9 +1164,10 @@ const BudgetTab = () => {
       
       if (response.data.success) {
         const productGroups = response.data.data
-          .map(item => item.pgcombine || item.product_group || item)
+          .map(item => item.pgcombine || item.productgroup || item.product_group || (typeof item === 'string' ? item : null))
           .filter(pg => {
-            const pgUpper = (pg || '').toString().trim().toUpperCase();
+            if (!pg || typeof pg !== 'string') return false;
+            const pgUpper = pg.toString().trim().toUpperCase();
             return pgUpper !== 'SERVICES CHARGES' && pgUpper !== 'SERVICE CHARGES';
           });
         setHtmlProductGroups([...new Set(productGroups)].sort());
@@ -1579,8 +1583,8 @@ const BudgetTab = () => {
           console.log('📄 File read successfully, size:', htmlContent.length, 'characters');
           
           // Validate filename format - accept both BUDGET_ and FINAL_ prefixes
-          // Pattern: (BUDGET|FINAL)_[anything]_[4digits]_[8digits]_[6digits].html
-          const filenamePattern = /^(BUDGET|FINAL)_(.+)_(\d{4})_(\d{8})_(\d{6})\.html$/;
+          // Pattern: (BUDGET|FINAL)_[anything]_[4digits]_[8digits]_[4-6digits].html
+          const filenamePattern = /^(BUDGET|FINAL)_(.+)_(\d{4})_(\d{8})_(\d{4,6})\.html$/;
           const match = file.name.match(filenamePattern);
           
           if (!match) {
@@ -1741,11 +1745,11 @@ const BudgetTab = () => {
                             </div>
                             <div>
                               <div style={{ fontSize: '20px', fontWeight: 700 }}>{(checkResponse.data.totals.amount / 1000)?.toLocaleString(undefined, {maximumFractionDigits: 0})}K</div>
-                              <div style={{ fontSize: '11px', opacity: 0.9 }}>Total Amount (AED)</div>
+                              <div style={{ fontSize: '11px', opacity: 0.9 }}>Total Amount (<UAEDirhamSymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
                             </div>
                             <div>
                               <div style={{ fontSize: '20px', fontWeight: 700 }}>{(checkResponse.data.totals.morm / 1000)?.toLocaleString(undefined, {maximumFractionDigits: 0})}K</div>
-                              <div style={{ fontSize: '11px', opacity: 0.9 }}>Total MoRM (AED)</div>
+                              <div style={{ fontSize: '11px', opacity: 0.9 }}>Total MoRM (<UAEDirhamSymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
                             </div>
                           </div>
                         </div>
@@ -1885,11 +1889,11 @@ const BudgetTab = () => {
                         </div>
                         <div>
                           <div style={{ fontSize: '20px', fontWeight: 700 }}>{(checkResponse.data.totals.amount / 1000)?.toLocaleString(undefined, {maximumFractionDigits: 0})}K</div>
-                          <div style={{ fontSize: '11px', opacity: 0.9 }}>Total Amount (AED)</div>
+                          <div style={{ fontSize: '11px', opacity: 0.9 }}>Total Amount (<UAEDirhamSymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
                         </div>
                         <div>
                           <div style={{ fontSize: '20px', fontWeight: 700 }}>{(checkResponse.data.totals.morm / 1000)?.toLocaleString(undefined, {maximumFractionDigits: 0})}K</div>
-                          <div style={{ fontSize: '11px', opacity: 0.9 }}>Total MoRM (AED)</div>
+                          <div style={{ fontSize: '11px', opacity: 0.9 }}>Total MoRM (<UAEDirhamSymbol style={{ width: '0.85em', height: '0.85em', verticalAlign: 'middle' }} />)</div>
                         </div>
                       </div>
                     </div>
@@ -2156,9 +2160,9 @@ const BudgetTab = () => {
         
         message.loading({ content: `Submitting budgets for ${salesRepsList.length} sales reps...`, key: 'submitBudget' });
         
-        let totalKgs = 0;
-        let totalAmount = 0;
-        let totalMorm = 0;
+        let totalKgsValue = 0;
+        let totalAmountValue = 0;
+        let totalMormValue = 0;
         let totalRecords = 0;
         let failedReps = [];
         let successReps = [];
@@ -2188,9 +2192,9 @@ const BudgetTab = () => {
             
             if (response.data.success) {
               successReps.push(salesRep);
-              totalKgs += response.data.recordsInserted?.kgs || 0;
-              totalAmount += response.data.recordsInserted?.amount || 0;
-              totalMorm += response.data.recordsInserted?.morm || 0;
+              totalKgsValue += response.data.valueTotals?.kgs || 0;
+              totalAmountValue += response.data.valueTotals?.amount || 0;
+              totalMormValue += response.data.valueTotals?.morm || 0;
               totalRecords += response.data.recordsInserted?.total || 0;
               if (response.data.warnings) {
                 allWarnings.push(...response.data.warnings.map(w => `${salesRep}: ${w}`));
@@ -2228,15 +2232,13 @@ const BudgetTab = () => {
                     <span key={idx} style={{ display: 'inline-block', margin: '2px 4px', padding: '2px 8px', background: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: 4, fontSize: 12 }}>{rep}</span>
                   ))}
                 </div>
-                <p><strong>Total records inserted into database:</strong></p>
+                <p><strong>Budget values submitted:</strong></p>
                 <ul style={{ paddingLeft: 20, marginTop: 8 }}>
-                  <li>KGS: {totalKgs} records</li>
-                  <li>Amount: {totalAmount} records</li>
-                  <li>MoRM: {totalMorm} records</li>
-                  <li style={{ fontWeight: 500, marginTop: 8 }}>
-                    Total: {totalRecords} records
-                  </li>
+                  <li>MT: {(totalKgsValue / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MT</li>
+                  <li>Amount: <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {totalAmountValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
+                  <li>MoRM: <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {totalMormValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
                 </ul>
+                <p style={{ marginTop: 8, fontSize: '12px', color: '#8c8c8c' }}>Total records: {totalRecords}</p>
                 {failedReps.length > 0 && (
                   <div style={{ marginTop: 16, padding: 12, background: '#fff2f0', borderRadius: 4, border: '1px solid #ffccc7' }}>
                     <p style={{ fontWeight: 500, marginBottom: 4, color: '#cf1322' }}>❌ Failed ({failedReps.length}):</p>
@@ -2332,17 +2334,14 @@ const BudgetTab = () => {
           width: 500,
           content: (
             <div>
-              <p><strong>Records inserted into database:</strong></p>
+              <p><strong>Budget values submitted:</strong></p>
               <ul style={{ paddingLeft: 20, marginTop: 8 }}>
-                <li>KGS: {response.data.recordsInserted.kgs} records</li>
-                <li>Amount: {response.data.recordsInserted.amount} records</li>
-                <li>MoRM: {response.data.recordsInserted.morm} records</li>
-                <li style={{ fontWeight: 500, marginTop: 8 }}>
-                  Total: {response.data.recordsInserted.total} records
-                </li>
+                <li>MT: {((response.data.valueTotals?.kgs || 0) / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MT</li>
+                <li>Amount: <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {(response.data.valueTotals?.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
+                <li>MoRM: <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {(response.data.valueTotals?.morm || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</li>
               </ul>
               <p style={{ marginTop: 12, fontSize: '12px', color: '#8c8c8c' }}>
-                Pricing data used from year: {response.data.pricingYear}
+                Total records: {response.data.recordsInserted?.total || 0} | Pricing data used from year: {response.data.pricingYear}
               </p>
               {response.data.warnings && response.data.warnings.length > 0 && (
                 <div style={{ marginTop: 16, padding: 12, background: '#fff7e6', borderRadius: 4, border: '1px solid #ffd591' }}>
@@ -2515,6 +2514,7 @@ const BudgetTab = () => {
           mergedCustomers: htmlMergedCustomers,
           countries: htmlCountries,
           productGroups: htmlProductGroups,
+          currency: companyCurrency, // Pass company currency for export
         },
         { responseType: 'blob' }
       );
@@ -2522,13 +2522,14 @@ const BudgetTab = () => {
       // Generate filename with year, date, and time
       const now = new Date();
       const dateStr = now.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
-      const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, ''); // HHMMSS
+      const timeStr = String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0'); // HHMM
       const dateTime = `${dateStr}_${timeStr}`;
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `BUDGET_${selectedDivision}_${effectiveSalesRep.replace(/\\s+/g, '_')}_${htmlFilters.actualYear}_${dateTime}.html`);
+      const budgetYear = Number(htmlFilters.actualYear) + 1;
+      link.setAttribute('download', `BUDGET_${selectedDivision}_${effectiveSalesRep.replace(/\s+/g, '_')}_${budgetYear}_${dateTime}.html`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -2704,13 +2705,14 @@ const BudgetTab = () => {
       
       const now = new Date();
       const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
-      const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '');
+      const timeStr = String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
       const dateTime = `${dateStr}_${timeStr}`;
       
+      const divisionalBudgetYear = Number(divisionalHtmlFilters.actualYear) + 1;
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `BUDGET_Divisional_${selectedDivision}_${divisionalHtmlFilters.actualYear}_${dateTime}.html`);
+      link.setAttribute('download', `BUDGET_Divisional_${selectedDivision}_${divisionalBudgetYear}_${dateTime}.html`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -2851,9 +2853,12 @@ const BudgetTab = () => {
               return Promise.resolve();
             }
           });
-        } else if (checkResponse.data.success) {
+        } else if (checkResponse.data.success || checkResponse.data.data?.success) {
           // No existing budget - first call already imported successfully
           message.destroy(DIVISIONAL_IMPORT_MESSAGE_KEY);
+          
+          // Get the actual data (may be nested under .data)
+          const importData = checkResponse.data.data || checkResponse.data;
           
           // Show detailed success modal
           modal.success({
@@ -2861,38 +2866,41 @@ const BudgetTab = () => {
             content: (
               <div>
                 <div style={{ background: '#f6ffed', padding: 12, borderRadius: 4, marginBottom: 16, border: '1px solid #b7eb8f' }}>
-                  <p><strong>Division:</strong> {checkResponse.data.metadata?.division}</p>
-                  <p><strong>Budget Year:</strong> {checkResponse.data.metadata?.budgetYear}</p>
+                  <p><strong>Division:</strong> {importData.metadata?.division}</p>
+                  <p><strong>Budget Year:</strong> {importData.metadata?.budgetYear}</p>
                 </div>
                 <div style={{ marginBottom: 16 }}>
-                  <p style={{ fontWeight: 500, marginBottom: 8 }}>Records Summary:</p>
-                  <p><strong>Inserted:</strong></p>
+                  <p style={{ fontWeight: 500, marginBottom: 8 }}>Budget Totals Imported:</p>
                   <ul style={{ marginLeft: 20, marginTop: 4 }}>
-                    <li>KGS: {checkResponse.data.recordsInserted?.kgs || 0}</li>
-                    <li>Amount: {checkResponse.data.recordsInserted?.amount || 0}</li>
-                    <li>MoRM: {checkResponse.data.recordsInserted?.morm || 0}</li>
-                    <li><strong>Total: {checkResponse.data.recordsInserted?.total || 0}</strong></li>
+                    <li><strong>Volume:</strong> {(importData.budgetTotals?.volumeMT || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} MT</li>
+                    <li><strong>Amount:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.amount || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
+                    <li><strong>MoRM:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.morm || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
+                    {importData.budgetTotals?.servicesCharges > 0 && (
+                      <li style={{ color: '#1890ff', fontStyle: 'italic' }}>
+                        <strong>Services Charges:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.servicesCharges || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M (included in Amount/MoRM)
+                      </li>
+                    )}
                   </ul>
                 </div>
-                <p><strong>Pricing Year Used:</strong> {checkResponse.data.pricingYear}</p>
-                {checkResponse.data.warnings && checkResponse.data.warnings.length > 0 && (
+                <p style={{ fontSize: '12px', color: '#666' }}><strong>Records:</strong> {importData.recordsInserted?.total || 0} | <strong>Pricing Year:</strong> {importData.pricingYear}</p>
+                {importData.warnings && importData.warnings.length > 0 && (
                   <div style={{ marginTop: 16, padding: 12, background: '#fff7e6', borderRadius: 4, border: '1px solid #ffd591' }}>
                     <p style={{ fontWeight: 500, marginBottom: 4, color: '#d46b08' }}>⚠️ Warnings:</p>
                     <ul style={{ margin: 0, paddingLeft: 20, fontSize: '12px' }}>
-                      {checkResponse.data.warnings.map((warning, idx) => (
+                      {importData.warnings.map((warning, idx) => (
                         <li key={idx}>{warning}</li>
                       ))}
                     </ul>
                   </div>
                 )}
-                {checkResponse.data.skippedRecords > 0 && (
+                {importData.skippedRecords > 0 && (
                   <div style={{ marginTop: 12, padding: 12, background: '#fff1f0', borderRadius: 4, border: '1px solid #ffccc7' }}>
                     <p style={{ fontWeight: 500, marginBottom: 8, color: '#cf1322', fontSize: '12px' }}>
-                      ⚠️ {checkResponse.data.skippedRecords} invalid record(s) were skipped
+                      ⚠️ {importData.skippedRecords} invalid record(s) were skipped
                     </p>
-                    {checkResponse.data.errors && checkResponse.data.errors.length > 0 && (
+                    {importData.errors && importData.errors.length > 0 && (
                       <div style={{ maxHeight: 150, overflowY: 'auto', fontSize: '11px' }}>
-                        {checkResponse.data.errors.slice(0, 5).map((err, idx) => (
+                        {importData.errors.slice(0, 5).map((err, idx) => (
                           <div key={idx} style={{ marginBottom: 4, padding: '4px 8px', background: '#fff', borderRadius: 2 }}>
                             <strong>Row {err.index + 1}:</strong> {err.reason}
                             {err.suggestion && (
@@ -2900,9 +2908,9 @@ const BudgetTab = () => {
                             )}
                           </div>
                         ))}
-                        {checkResponse.data.errors.length > 5 && (
+                        {importData.errors.length > 5 && (
                           <p style={{ color: '#999', margin: '4px 0 0 0' }}>
-                            ... and {checkResponse.data.errors.length - 5} more errors
+                            ... and {importData.errors.length - 5} more errors
                           </p>
                         )}
                       </div>
@@ -2959,47 +2967,53 @@ const BudgetTab = () => {
         confirmReplace: true
       });
       
-      if (response.data.success) {
+      // Get the actual data (may be nested under .data)
+      const importData = response.data.data || response.data;
+      
+      if (response.data.success || importData.success) {
         message.destroy(DIVISIONAL_IMPORT_MESSAGE_KEY);
         
-        // Show detailed success modal similar to sales rep import
+        // Show detailed success modal with budget totals
         modal.success({
           title: '✅ Divisional Budget Imported Successfully',
           content: (
             <div>
               <div style={{ background: '#f6ffed', padding: 12, borderRadius: 4, marginBottom: 16, border: '1px solid #b7eb8f' }}>
-                <p><strong>Division:</strong> {response.data.metadata?.division}</p>
-                <p><strong>Budget Year:</strong> {response.data.metadata?.budgetYear}</p>
+                <p><strong>Division:</strong> {importData.metadata?.division}</p>
+                <p><strong>Budget Year:</strong> {importData.metadata?.budgetYear}</p>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <p style={{ fontWeight: 500, marginBottom: 8 }}>Records Summary:</p>
-                <p><strong>Inserted (new):</strong></p>
+                <p style={{ fontWeight: 500, marginBottom: 8 }}>Budget Totals Imported:</p>
                 <ul style={{ marginLeft: 20, marginTop: 4 }}>
-                  <li>KGS: {response.data.recordsInserted?.kgs || 0}</li>
-                  <li>Amount: {response.data.recordsInserted?.amount || 0}</li>
-                  <li>MoRM: {response.data.recordsInserted?.morm || 0}</li>
-                  <li><strong>Total: {response.data.recordsInserted?.total || 0}</strong></li>
+                  <li><strong>Volume:</strong> {(importData.budgetTotals?.volumeMT || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} MT</li>
+                  <li><strong>Amount:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.amount || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
+                  <li><strong>MoRM:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.morm || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M</li>
+                  {importData.budgetTotals?.servicesCharges > 0 && (
+                    <li style={{ color: '#1890ff', fontStyle: 'italic' }}>
+                      <strong>Services Charges:</strong> <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em', verticalAlign: 'middle' }} /> {((importData.budgetTotals?.servicesCharges || 0) / 1000000).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}M (included in Amount/MoRM)
+                    </li>
+                  )}
                 </ul>
               </div>
-              <p><strong>Pricing Year Used:</strong> {response.data.pricingYear}</p>
-              {response.data.warnings && response.data.warnings.length > 0 && (
+              <p style={{ fontSize: '12px', color: '#666' }}><strong>Records:</strong> {importData.recordsInserted?.total || 0} | <strong>Pricing Year:</strong> {importData.pricingYear}</p>
+              {importData.warnings && importData.warnings.length > 0 && (
                 <div style={{ marginTop: 16, padding: 12, background: '#fff7e6', borderRadius: 4, border: '1px solid #ffd591' }}>
                   <p style={{ fontWeight: 500, marginBottom: 4, color: '#d46b08' }}>⚠️ Warnings:</p>
                   <ul style={{ margin: 0, paddingLeft: 20, fontSize: '12px' }}>
-                    {response.data.warnings.map((warning, idx) => (
+                    {importData.warnings.map((warning, idx) => (
                       <li key={idx}>{warning}</li>
                     ))}
                   </ul>
                 </div>
               )}
-              {response.data.skippedRecords > 0 && (
+              {importData.skippedRecords > 0 && (
                 <div style={{ marginTop: 12, padding: 12, background: '#fff1f0', borderRadius: 4, border: '1px solid #ffccc7' }}>
                   <p style={{ fontWeight: 500, marginBottom: 8, color: '#cf1322', fontSize: '12px' }}>
-                    ⚠️ {response.data.skippedRecords} invalid record(s) were skipped
+                    ⚠️ {importData.skippedRecords} invalid record(s) were skipped
                   </p>
-                  {response.data.errors && response.data.errors.length > 0 && (
+                  {importData.errors && importData.errors.length > 0 && (
                     <div style={{ maxHeight: 150, overflowY: 'auto', fontSize: '11px' }}>
-                      {response.data.errors.slice(0, 5).map((err, idx) => (
+                      {importData.errors.slice(0, 5).map((err, idx) => (
                         <div key={idx} style={{ marginBottom: 4, padding: '4px 8px', background: '#fff', borderRadius: 2 }}>
                           <strong>Row {err.index + 1}:</strong> {err.reason}
                           {err.suggestion && (
@@ -3007,9 +3021,9 @@ const BudgetTab = () => {
                           )}
                         </div>
                       ))}
-                      {response.data.errors.length > 5 && (
+                      {importData.errors.length > 5 && (
                         <p style={{ color: '#999', margin: '4px 0 0 0' }}>
-                          ... and {response.data.errors.length - 5} more errors
+                          ... and {importData.errors.length - 5} more errors
                         </p>
                       )}
                     </div>
@@ -3022,8 +3036,8 @@ const BudgetTab = () => {
         });
         
         // Auto-switch actualYear filter if division matches
-        if (selectedDivision === response.data.metadata?.division) {
-          const targetActualYear = response.data.metadata.budgetYear - 1;
+        if (selectedDivision === importData.metadata?.division) {
+          const targetActualYear = importData.metadata.budgetYear - 1;
           const isSameYear = divisionalHtmlFilters.actualYear === targetActualYear;
           
           // Auto-switch actualYear
@@ -3440,7 +3454,7 @@ const BudgetTab = () => {
     }
     return (
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-        <UAEDirhamSymbol style={{ width: '0.9em', height: '0.9em' }} />
+        <CurrencySymbol style={{ width: '0.9em', height: '0.9em' }} />
         {formattedNumber}
       </span>
     );
@@ -4532,7 +4546,7 @@ const BudgetTab = () => {
                 <h2 style={{ margin: 0, marginBottom: '4px', fontSize: '20px', fontWeight: 600 }}>
                   Product Group Analysis - {selectedDivision}
                 </h2>
-                <div style={{ color: '#666', fontSize: '14px' }}>(<UAEDirhamSymbol />)</div>
+                <div style={{ color: '#666', fontSize: '14px' }}>(<CurrencySymbol />)</div>
               </div>
               <div style={{ width: '250px' }}>
                 <Select
@@ -5331,7 +5345,7 @@ const BudgetTab = () => {
               border: '1px solid #e8e8e8',
             }}>
               <div style={{ fontSize: '12px', fontWeight: 600, color: '#666', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <UAEDirhamSymbol style={{ width: '14px', height: '14px' }} /> Amount
+                <CurrencySymbol style={{ width: '14px', height: '14px' }} /> Amount
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '24px' }}>
                 <div>
@@ -5827,7 +5841,7 @@ const BudgetTab = () => {
                         backgroundColor: '#d4edda',
                       }}
                     >
-                      Total Actual Amount (<UAEDirhamSymbol style={{ width: '12px', height: '12px' }} />)
+                      Total Actual Amount (<CurrencySymbol style={{ width: '12px', height: '12px' }} />)
                     </td>
                     {Array.from({ length: 12 }, (_, i) => {
                       const month = i + 1;
@@ -5873,7 +5887,7 @@ const BudgetTab = () => {
                         backgroundColor: '#ffe0b2',
                       }}
                     >
-                      Total Actual MoRM (<UAEDirhamSymbol style={{ width: '12px', height: '12px' }} />)
+                      Total Actual MoRM (<CurrencySymbol style={{ width: '12px', height: '12px' }} />)
                     </td>
                     {Array.from({ length: 12 }, (_, i) => {
                       const month = i + 1;
@@ -5966,7 +5980,7 @@ const BudgetTab = () => {
                         backgroundColor: '#d4edda',
                       }}
                     >
-                      Total Budget Amount (<UAEDirhamSymbol style={{ width: '12px', height: '12px' }} />)
+                      Total Budget Amount (<CurrencySymbol style={{ width: '12px', height: '12px' }} />)
                     </td>
                     {Array.from({ length: 12 }, (_, i) => {
                       const month = i + 1;
@@ -6013,7 +6027,7 @@ const BudgetTab = () => {
                         backgroundColor: '#ffe0b2',
                       }}
                     >
-                      Total Budget MoRM (<UAEDirhamSymbol style={{ width: '12px', height: '12px' }} />)
+                      Total Budget MoRM (<CurrencySymbol style={{ width: '12px', height: '12px' }} />)
                     </td>
                     {Array.from({ length: 12 }, (_, i) => {
                       const month = i + 1;
@@ -6255,7 +6269,7 @@ const BudgetTab = () => {
               border: '1px solid #e8e8e8',
             }}>
               <div style={{ fontSize: '12px', fontWeight: 600, color: '#666', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <UAEDirhamSymbol style={{ width: '14px', height: '14px' }} /> Amount
+                <CurrencySymbol style={{ width: '14px', height: '14px' }} /> Amount
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '24px' }}>
                 <div>
@@ -6835,7 +6849,10 @@ const BudgetTab = () => {
                      </React.Fragment>
                    ))}
                    {/* Custom Rows (Budget only, no Actual row) */}
-                   {htmlCustomRows.map((customRow) => (
+                   {/* In All Sales Reps mode, only show custom rows for selected targetSalesRep */}
+                   {htmlCustomRows
+                     .filter(customRow => !isAllSalesReps || customRow.salesRep === targetSalesRep)
+                     .map((customRow) => (
                      <tr key={`custom-${customRow.id}`} style={{ backgroundColor: '#FFFFB8' }}>
                        <td style={{ 
                          padding: '8px', 
@@ -6852,7 +6869,7 @@ const BudgetTab = () => {
                          {customRow.isNewCustomer && !customRow.customer ? (
                            <Space.Compact style={{ width: '100%' }}>
                              <Input
-                               placeholder="Enter new customer name"
+                               placeholder="Type customer name here..."
                                value={newCustomerInputs[customRow.id] || ''}
                                onChange={(e) => {
                                  setNewCustomerInputs(prev => ({
@@ -6882,7 +6899,15 @@ const BudgetTab = () => {
                                    });
                                  }
                                }}
-                               style={{ flex: 1, fontWeight: 600 }}
+                               style={{ 
+                                 flex: 1, 
+                                 fontWeight: 600,
+                                 border: '2px solid #1890ff',
+                                 borderRadius: '4px',
+                                 backgroundColor: '#f0f9ff',
+                                 boxShadow: '0 0 0 3px rgba(24,144,255,0.15)',
+                                 textAlign: 'left',
+                               }}
                                autoFocus
                              />
                              <Button
@@ -6891,6 +6916,7 @@ const BudgetTab = () => {
                                icon={<DeleteOutlined />}
                                onClick={() => handleRemoveCustomRow(customRow.id)}
                                size="small"
+                               title="Remove row"
                              />
                            </Space.Compact>
                          ) : customRow.customer ? (
@@ -7084,7 +7110,11 @@ const BudgetTab = () => {
                        </td>
                      </tr>
                    ))}
-                   {filteredHtmlTableData.length === 0 && htmlCustomRows.length === 0 && !htmlTableLoading && (
+                   {filteredHtmlTableData.length === 0 && 
+                    (isAllSalesReps 
+                      ? htmlCustomRows.filter(r => r.salesRep === targetSalesRep).length === 0 
+                      : htmlCustomRows.length === 0) && 
+                    !htmlTableLoading && (
                      <tr>
                        <td colSpan={isAllSalesReps ? 17 : 16} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                          {htmlFilters.actualYear && htmlFilters.salesRep 
@@ -7154,7 +7184,7 @@ const BudgetTab = () => {
                        }}
                        colSpan={isAllSalesReps ? 4 : 3}
                      >
-                       Total Actual Amount (<UAEDirhamSymbol style={{ width: '12px', height: '12px' }} />)
+                       Total Actual Amount (<CurrencySymbol style={{ width: '12px', height: '12px' }} />)
                      </td>
                      {Array.from({ length: 12 }, (_, i) => {
                        const month = i + 1;
@@ -7202,7 +7232,7 @@ const BudgetTab = () => {
                        }}
                        colSpan={isAllSalesReps ? 4 : 3}
                      >
-                       Total Actual MoRM (<UAEDirhamSymbol style={{ width: '12px', height: '12px' }} />)
+                       Total Actual MoRM (<CurrencySymbol style={{ width: '12px', height: '12px' }} />)
                      </td>
                      {Array.from({ length: 12 }, (_, i) => {
                        const month = i + 1;
@@ -7295,7 +7325,7 @@ const BudgetTab = () => {
                        }}
                        colSpan={isAllSalesReps ? 4 : 3}
                      >
-                       Total Budget Amount (<UAEDirhamSymbol style={{ width: '12px', height: '12px' }} />)
+                       Total Budget Amount (<CurrencySymbol style={{ width: '12px', height: '12px' }} />)
                      </td>
                      {Array.from({ length: 12 }, (_, i) => {
                        const month = i + 1;
@@ -7343,7 +7373,7 @@ const BudgetTab = () => {
                        }}
                        colSpan={isAllSalesReps ? 4 : 3}
                      >
-                       Total Budget MoRM (<UAEDirhamSymbol style={{ width: '12px', height: '12px' }} />)
+                       Total Budget MoRM (<CurrencySymbol style={{ width: '12px', height: '12px' }} />)
                      </td>
                      {Array.from({ length: 12 }, (_, i) => {
                        const month = i + 1;

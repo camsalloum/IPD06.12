@@ -1,14 +1,137 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCurrency, currencyMapping, getCountryList } from '../../contexts/CurrencyContext';
 import axios from 'axios';
 import PeriodConfiguration from './PeriodConfiguration';
 import MasterDataSettings from './MasterDataSettings';
 import ThemeSelector from './ThemeSelector';
+import UAEDirhamSymbol from '../dashboard/UAEDirhamSymbol';
 import './Settings.css';
+
+// Custom Currency Dropdown Component with SVG support for UAE Dirham
+const CurrencyDropdown = ({ value, onChange, countries, currencyMapping }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef(null);
+  const searchRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isOpen && searchRef.current) {
+      searchRef.current.focus();
+    }
+  }, [isOpen]);
+
+  const filteredCountries = countries.filter(country => 
+    country.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    currencyMapping[country]?.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    currencyMapping[country]?.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const renderCurrencySymbol = (country) => {
+    const curr = currencyMapping[country];
+    if (!curr) return null;
+    
+    // Use UAEDirhamSymbol SVG for UAE
+    if (curr.code === 'AED') {
+      return <UAEDirhamSymbol style={{ width: '1.2em', height: '1.2em', verticalAlign: 'middle', marginRight: '0.3em' }} />;
+    }
+    
+    // For other currencies, show text symbol
+    return <span style={{ marginRight: '0.3em', fontWeight: '600' }}>{curr.symbol}</span>;
+  };
+
+  const getDisplayText = (country) => {
+    const curr = currencyMapping[country];
+    if (!curr) return country;
+    return `${country} - ${curr.code}`;
+  };
+
+  const selectedCurrency = currencyMapping[value];
+
+  return (
+    <div className="currency-dropdown-container" ref={dropdownRef}>
+      <div 
+        className={`currency-dropdown-selected ${isOpen ? 'open' : ''}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {value ? (
+          <div className="currency-dropdown-value">
+            {renderCurrencySymbol(value)}
+            <span>{getDisplayText(value)}</span>
+          </div>
+        ) : (
+          <span className="currency-dropdown-placeholder">Select Country for Currency...</span>
+        )}
+        <svg 
+          className={`currency-dropdown-arrow ${isOpen ? 'open' : ''}`}
+          width="12" 
+          height="12" 
+          viewBox="0 0 12 12" 
+          fill="currentColor"
+        >
+          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+      
+      {isOpen && (
+        <div className="currency-dropdown-menu">
+          <div className="currency-dropdown-search">
+            <input
+              ref={searchRef}
+              type="text"
+              placeholder="Search country or currency..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+          <div className="currency-dropdown-options">
+            {filteredCountries.length === 0 ? (
+              <div className="currency-dropdown-no-results">No currencies found</div>
+            ) : (
+              filteredCountries.map((country) => {
+                const curr = currencyMapping[country];
+                return (
+                  <div
+                    key={country}
+                    className={`currency-dropdown-option ${value === country ? 'selected' : ''}`}
+                    onClick={() => {
+                      onChange(country);
+                      setIsOpen(false);
+                      setSearchTerm('');
+                    }}
+                  >
+                    {renderCurrencySymbol(country)}
+                    <span className="currency-country-name">{country}</span>
+                    <span className="currency-code">({curr.code})</span>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Settings = () => {
   const { user, token, updatePreferences, refreshUser } = useAuth();
+  const { companyCurrency: globalCurrency, setCurrencyByCountry, setCompanyCurrency: setGlobalCurrency } = useCurrency();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('company');
   
@@ -24,6 +147,7 @@ const Settings = () => {
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
   const [currentLogo, setCurrentLogo] = useState(null);
+  const [selectedCurrencyCountry, setSelectedCurrencyCountry] = useState('United Arab Emirates');
   
   // Division settings
   const [divisions, setDivisions] = useState([]);
@@ -68,6 +192,12 @@ const Settings = () => {
         setCurrentLogo(settings.logoUrl);
         setDivisions(settings.divisions || []);
         
+        // Load currency setting
+        if (settings.currency && settings.currency.country) {
+          setSelectedCurrencyCountry(settings.currency.country);
+          setGlobalCurrency(settings.currency);
+        }
+        
         // Load division names
         const divs = settings.divisions || [];
         const nameMap = {};
@@ -84,7 +214,6 @@ const Settings = () => {
       return [];
     }
   };
-
   const loadUserPreferences = async (loadedDivisions = []) => {
     // ALWAYS set user divisions first, regardless of auth status
     if (user?.role === 'admin') {
@@ -211,6 +340,15 @@ const Settings = () => {
       if (logoFile) {
         formData.append('logo', logoFile);
       }
+      
+      // Add currency if selected
+      if (selectedCurrencyCountry && currencyMapping[selectedCurrencyCountry]) {
+        const currencyData = {
+          country: selectedCurrencyCountry,
+          ...currencyMapping[selectedCurrencyCountry]
+        };
+        formData.append('currency', JSON.stringify(currencyData));
+      }
 
       const response = await axios.post(
         `${API_BASE_URL}/api/settings/company`,
@@ -228,6 +366,12 @@ const Settings = () => {
         setCurrentLogo(response.data.settings.logoUrl);
         setLogoFile(null);
         setLogoPreview(null);
+        
+        // Update global currency context
+        if (response.data.settings.currency) {
+          setGlobalCurrency(response.data.settings.currency);
+        }
+        
         setTimeout(() => window.location.reload(), 2000);
       }
     } catch (error) {
@@ -541,6 +685,19 @@ const Settings = () => {
                       placeholder="Enter your company name"
                       className="form-input"
                     />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label htmlFor="companyCurrency">Company Currency</label>
+                    <CurrencyDropdown
+                      value={selectedCurrencyCountry}
+                      onChange={setSelectedCurrencyCountry}
+                      countries={getCountryList()}
+                      currencyMapping={currencyMapping}
+                    />
+                    <p className="help-text">
+                      This currency symbol will be used everywhere in the application for all amount-related figures.
+                    </p>
                   </div>
 
                   <div className="form-group full-width">

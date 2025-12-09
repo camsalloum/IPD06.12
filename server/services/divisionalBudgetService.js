@@ -200,10 +200,10 @@ const fetchPricingMap = async (client, division, divisionCode, pricingYear) => {
       const key = normalizeProductGroupKey(row.product_group);
       map[key] = {
         sellingPrice: row.asp_round !== null && row.asp_round !== undefined
-          ? Math.round(parseFloat(row.asp_round))
+          ? parseFloat(row.asp_round)
           : null,
         morm: row.morm_round !== null && row.morm_round !== undefined
-          ? Math.round(parseFloat(row.morm_round))
+          ? parseFloat(row.morm_round)
           : null
       };
       return map;
@@ -363,13 +363,26 @@ const saveDivisionalBudget = async (client, options) => {
     }
   }
 
-  // Calculate stats for response (approximate since we don't track individual types in batch)
+  // Calculate stats for response
   const insertedKGS = validRecords.length;
   const insertedAmount = rowsToUpsert.filter(r => r[4] === 'Amount').length;
   const insertedMoRM = rowsToUpsert.filter(r => r[4] === 'MoRM').length;
+  
+  // Calculate actual budget totals (sum of values)
+  const totalKgs = validRecords.reduce((sum, r) => sum + (r.value || 0), 0);
+  const totalMT = totalKgs / 1000; // Convert KGS to MT
+  const totalAmount = rowsToUpsert
+    .filter(r => r[4] === 'Amount')
+    .reduce((sum, r) => sum + (r[5] || 0), 0);
+  const totalMoRM = rowsToUpsert
+    .filter(r => r[4] === 'MoRM')
+    .reduce((sum, r) => sum + (r[5] || 0), 0);
 
   logger.info(`✅ Divisional budget saved successfully:`);
   logger.info(`   - Processed/Upserted: ${insertedCount} records`);
+  logger.info(`   - Total Volume: ${totalMT.toFixed(2)} MT`);
+  logger.info(`   - Total Amount: ${(totalAmount / 1000000).toFixed(2)}M`);
+  logger.info(`   - Total MoRM: ${(totalMoRM / 1000000).toFixed(2)}M`);
 
   return {
     metadata: {
@@ -387,6 +400,13 @@ const saveDivisionalBudget = async (client, options) => {
       amount: insertedAmount,
       morm: insertedMoRM,
       total: insertedCount
+    },
+    // Actual budget value totals
+    budgetTotals: {
+      volumeMT: totalMT,
+      volumeKGS: totalKgs,
+      amount: totalAmount,
+      morm: totalMoRM
     },
     pricingYear,
     pricingDataAvailable: Object.keys(pricingMap).length,

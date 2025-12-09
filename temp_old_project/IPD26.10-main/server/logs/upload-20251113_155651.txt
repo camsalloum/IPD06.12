@@ -1,0 +1,23 @@
+[2025-11-13 15:56:51] [INFO] ========================================================================
+[2025-11-13 15:56:52] [INFO] AEBF Excel to SQL Transform & Upload Script
+[2025-11-13 15:56:52] [INFO] ========================================================================
+[2025-11-13 15:56:52] [INFO] Excel File: D:\Projects\IPD26.10\uploads\aebf-upload-1763035010711.xlsx
+[2025-11-13 15:56:52] [INFO] Division: FP
+[2025-11-13 15:56:52] [INFO] Upload Mode: upsert
+[2025-11-13 15:56:52] [INFO] Uploaded By: cam
+[2025-11-13 15:56:52] [INFO] Test Mode: False
+[2025-11-13 15:56:52] [INFO] ========================================================================
+[2025-11-13 15:56:52] [INFO] Checking prerequisites...
+[2025-11-13 15:56:52] [SUCCESS] Prerequisites check passed
+[2025-11-13 15:56:52] [INFO] Testing database connection...
+[2025-11-13 15:56:53] [SUCCESS] Database connection successful
+[2025-11-13 15:56:53] [INFO] PostgreSQL version: PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit 
+[2025-11-13 15:56:53] [INFO] Reading Excel file...
+[2025-11-13 15:56:56] [SUCCESS] Read 51 rows from Excel
+[2025-11-13 15:56:56] [INFO] Validating Excel structure...
+[2025-11-13 15:56:56] [SUCCESS] Excel structure validation passed
+[2025-11-13 15:56:56] [INFO] Total rows: 51
+[2025-11-13 15:56:56] [INFO] Transforming Excel data to SQL format...
+[2025-11-13 15:56:56] [INFO] ========================================================================
+[2025-11-13 15:56:56] [ERROR] Upload failed: You cannot call a method on a null-valued expression.
+[2025-11-13 15:56:56] [INFO] ========================================================================

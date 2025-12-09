@@ -211,7 +211,9 @@ router.post('/divisional-html-budget-data', queryLimiter, cacheMiddleware({ ttl:
     
     servicesBudgetResult.rows.forEach(row => {
       const key = `Services Charges|${row.month}|${row.metric}`;
-      servicesChargesBudget[key] = parseFloat(row.value) || 0;
+      // Database stores full value, frontend expects value in k (thousands)
+      // Divide by 1000 to convert from full AED to k for frontend display
+      servicesChargesBudget[key] = (parseFloat(row.value) || 0) / 1000;
     });
   } catch (error) {
     logger.warn('No existing budget data found:', error.message);
@@ -315,26 +317,32 @@ router.post('/import-divisional-budget-html', asyncHandler(async (req, res) => {
   const budgetYear = parseInt(budgetYearMatch[1]);
   const actualYear = actualYearMatch ? parseInt(actualYearMatch[1]) : budgetYear - 1;
   
-  // Parse budget values from input fields
-  // Format for regular products: name="budget_ProductGroup|Month" value="123"
-  // Format for Services Charges: name="budget_Services Charges|Month|AMOUNT" value="123"
-  const regularBudgetPattern = /name="budget_([^|]+)\|(\d+)"\s+value="([^"]*)"/gi;
-  const servicesChargesPattern = /name="budget_Services Charges\|(\d+)\|AMOUNT"\s+value="([^"]*)"/gi;
-  
+  // Parse budget values - handle both input elements and static TD elements
+  // Structure: actual-row with data-pg="ProductGroup" followed by budget-row with 12 monthly values
   const parsedRecords = [];
   const servicesChargesRecords = [];
+  
+  // Method 1: Parse from input elements (unfilled/editable HTML)
+  const inputPattern = /<input[^>]*data-group="([^"]+)"[^>]*data-month="(\d+)"[^>]*value="([^"]*)"[^>]*\/?>/gi;
   let match;
   
-  // Parse regular product group budget entries
-  while ((match = regularBudgetPattern.exec(htmlContent)) !== null) {
+  while ((match = inputPattern.exec(htmlContent)) !== null) {
     const productGroup = match[1];
     const month = parseInt(match[2]);
     const value = match[3].trim();
     
-    // Skip Services Charges - they're parsed separately with the other pattern
-    if (productGroup.toUpperCase() === 'SERVICES CHARGES') continue;
+    // Check if this is a Services Charges input with AMOUNT metric
+    const isServicesCharges = productGroup.toUpperCase() === 'SERVICES CHARGES';
+    const hasAmountMetric = match[0].includes('data-metric="AMOUNT"');
     
-    if (value && !isNaN(parseFloat(value))) {
+    if (isServicesCharges && hasAmountMetric) {
+      if (value && !isNaN(parseFloat(value))) {
+        servicesChargesRecords.push({
+          month,
+          amountValue: Math.round(parseFloat(value) * 1000)
+        });
+      }
+    } else if (!isServicesCharges && value && !isNaN(parseFloat(value))) {
       parsedRecords.push({
         productGroup,
         month,
@@ -343,16 +351,68 @@ router.post('/import-divisional-budget-html', asyncHandler(async (req, res) => {
     }
   }
   
-  // Parse Services Charges budget entries (stored as AMOUNT × 1000)
-  while ((match = servicesChargesPattern.exec(htmlContent)) !== null) {
-    const month = parseInt(match[1]);
-    const value = match[2].trim();
+  // Method 2: Parse from static HTML (filled/saved HTML with static TD elements)
+  // Pattern: <tr class="actual-row" data-pg="ProductGroup"> followed by <tr class="budget-row">
+  if (parsedRecords.length === 0) {
+    const actualRowPattern = /<tr[^>]*class="actual-row"[^>]*data-pg="([^"]+)"[^>]*>[\s\S]*?<\/tr>\s*<tr[^>]*class="budget-row"[^>]*(?:data-pg="[^"]*")?[^>]*>([\s\S]*?)<\/tr>/gi;
     
-    if (value && !isNaN(parseFloat(value))) {
-      servicesChargesRecords.push({
-        month,
-        amountValue: Math.round(parseFloat(value) * 1000) // Convert k to full value
-      });
+    while ((match = actualRowPattern.exec(htmlContent)) !== null) {
+      const productGroup = match[1];
+      const budgetRowContent = match[2];
+      
+      // Skip Services Charges - handled separately
+      if (productGroup.toUpperCase() === 'SERVICES CHARGES') continue;
+      
+      // Extract monthly values from TD elements (first 12 TDs are months)
+      // Handle both plain text and formatted text in static HTML
+      const tdPattern = /<td[^>]*>([\s\S]*?)<\/td>/gi;
+      let tdMatch;
+      let month = 1;
+      
+      while ((tdMatch = tdPattern.exec(budgetRowContent)) !== null && month <= 12) {
+        let tdContent = tdMatch[1].trim();
+        // Strip HTML tags to get plain value
+        let value = tdContent.replace(/<[^>]*>/g, '').trim().replace(/,/g, '');
+        // Skip if empty or zero
+        if (value && !isNaN(parseFloat(value)) && parseFloat(value) !== 0) {
+          parsedRecords.push({
+            productGroup,
+            month,
+            value: Math.round(parseFloat(value) * 1000) // Convert MT to KGS
+          });
+        }
+        month++;
+      }
+    }
+  }
+  
+  // Parse Services Charges from static HTML if not found in inputs
+  if (servicesChargesRecords.length === 0) {
+    // Look for Services Charges budget row - now has proper class
+    const scPattern = /<tr[^>]*class="[^"]*services-charges-budget-row[^"]*"[^>]*>([\s\S]*?)<\/tr>/gi;
+    const scMatch = scPattern.exec(htmlContent);
+    
+    if (scMatch) {
+      const scRowContent = scMatch[1];
+      // Updated pattern to handle:
+      // 1. Input elements: <input ... value="100" ...>
+      // 2. Static spans: <span ...>100</span> <span>k</span>
+      // 3. Plain text: 100
+      const tdPattern = /<td[^>]*>(?:<div[^>]*>)?(?:<input[^>]*value="([^"]*)"[^>]*>|<span[^>]*>([^<]*)<\/span>|([^<\s][^<]*))/gi;
+      let tdMatch;
+      let month = 1;
+      
+      while ((tdMatch = tdPattern.exec(scRowContent)) !== null && month <= 12) {
+        // Get value from input value, span content, or plain text
+        const value = (tdMatch[1] || tdMatch[2] || tdMatch[3] || '').trim().replace(/,/g, '');
+        if (value && !isNaN(parseFloat(value)) && parseFloat(value) !== 0) {
+          servicesChargesRecords.push({
+            month,
+            amountValue: Math.round(parseFloat(value) * 1000)
+          });
+        }
+        month++;
+      }
     }
   }
   
@@ -400,41 +460,50 @@ router.post('/import-divisional-budget-html', asyncHandler(async (req, res) => {
     records: parsedRecords
   });
   
-  // Save Services Charges records (AMOUNT and MORM)
+  // Save Services Charges records (AMOUNT and MORM) using upsert
   let servicesChargesCount = 0;
   if (servicesChargesRecords.length > 0) {
-    // Delete existing Services Charges for this year
-    await divisionPool.query(`
-      DELETE FROM ${tables.divisionalBudget}
-      WHERE UPPER(division) = UPPER($1) 
-        AND year = $2 
-        AND UPPER(TRIM(product_group)) = 'SERVICES CHARGES'
-    `, [division, parseInt(budgetYear)]);
-    
     // Insert new Services Charges records
     for (const record of servicesChargesRecords) {
-      // Insert AMOUNT record
+      // Insert AMOUNT record with ON CONFLICT
       await divisionPool.query(`
         INSERT INTO ${tables.divisionalBudget} 
         (division, year, month, product_group, metric, value, material, process, uploaded_filename, uploaded_at)
-        VALUES ($1, $2, $3, 'Services Charges', 'AMOUNT', $4, '', '', 'HTML_Import', NOW())
+        VALUES ($1, $2, $3, 'Services Charges', 'AMOUNT', $4, '', '', 'Divisional_HTML_Import', NOW())
+        ON CONFLICT (UPPER(division), year, month, product_group, UPPER(metric))
+        DO UPDATE SET value = EXCLUDED.value, uploaded_filename = EXCLUDED.uploaded_filename, uploaded_at = NOW()
       `, [division, budgetYear, record.month, record.amountValue]);
       
       // Insert MORM record (same as AMOUNT for Services Charges - 100% margin)
       await divisionPool.query(`
         INSERT INTO ${tables.divisionalBudget} 
         (division, year, month, product_group, metric, value, material, process, uploaded_filename, uploaded_at)
-        VALUES ($1, $2, $3, 'Services Charges', 'MORM', $4, '', '', 'HTML_Import', NOW())
+        VALUES ($1, $2, $3, 'Services Charges', 'MORM', $4, '', '', 'Divisional_HTML_Import', NOW())
+        ON CONFLICT (UPPER(division), year, month, product_group, UPPER(metric))
+        DO UPDATE SET value = EXCLUDED.value, uploaded_filename = EXCLUDED.uploaded_filename, uploaded_at = NOW()
       `, [division, budgetYear, record.month, record.amountValue]);
       
-      servicesChargesCount++;
+      servicesChargesCount++;;
     }
   }
+  
+  // Calculate Services Charges total (sum of amountValue)
+  const servicesChargesTotal = servicesChargesRecords.reduce((sum, r) => sum + (r.amountValue || 0), 0);
   
   // Invalidate cache
   invalidateCache('aebf:*').catch(err => 
     logger.warn('Cache invalidation warning:', err.message)
   );
+  
+  // Calculate combined totals including Services Charges
+  const budgetTotals = result.budgetTotals || { volumeMT: 0, volumeKGS: 0, amount: 0, morm: 0 };
+  const combinedTotals = {
+    volumeMT: budgetTotals.volumeMT,
+    volumeKGS: budgetTotals.volumeKGS,
+    amount: budgetTotals.amount + servicesChargesTotal,
+    morm: budgetTotals.morm + servicesChargesTotal, // Services Charges MoRM = 100% of Amount
+    servicesCharges: servicesChargesTotal
+  };
   
   successResponse(res, {
     success: true,
@@ -446,6 +515,7 @@ router.post('/import-divisional-budget-html', asyncHandler(async (req, res) => {
     recordsInserted: result.recordsInserted,
     recordsProcessed: result.recordsProcessed,
     servicesChargesRecords: servicesChargesCount,
+    budgetTotals: combinedTotals,
     skippedRecords: result.skippedRecords,
     validationErrors: result.validationErrors,
     warnings: result.warnings || [],
@@ -477,24 +547,18 @@ router.post('/save-divisional-budget', validationRules.saveDivisionalBudget, asy
     records: records || []
   });
   
-  // Save Services Charges records separately (stored as AMOUNT, not KGS)
+  // Save Services Charges records separately (stored as AMOUNT, not KGS) using upsert
   let servicesChargesCount = 0;
   if (servicesChargesRecords && servicesChargesRecords.length > 0) {
-    // First delete existing Services Charges for this year
-    await divisionPool.query(`
-      DELETE FROM ${tables.divisionalBudget}
-      WHERE UPPER(division) = UPPER($1) 
-        AND year = $2 
-        AND UPPER(TRIM(product_group)) = 'SERVICES CHARGES'
-    `, [division, parseInt(budgetYear)]);
-    
     // Insert new Services Charges records
     for (const record of servicesChargesRecords) {
-      // Insert AMOUNT record
+      // Insert AMOUNT record with ON CONFLICT
       await divisionPool.query(`
         INSERT INTO ${tables.divisionalBudget} 
         (division, year, month, product_group, metric, value, material, process, uploaded_filename, uploaded_at)
-        VALUES ($1, $2, $3, $4, $5, $6, '', '', 'LIVE_Services_Charges', NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, '', '', 'Divisional_Live_Save', NOW())
+        ON CONFLICT (UPPER(division), year, month, product_group, UPPER(metric))
+        DO UPDATE SET value = EXCLUDED.value, uploaded_filename = EXCLUDED.uploaded_filename, uploaded_at = NOW()
       `, [
         division.toUpperCase(),
         parseInt(budgetYear),
@@ -508,7 +572,9 @@ router.post('/save-divisional-budget', validationRules.saveDivisionalBudget, asy
       await divisionPool.query(`
         INSERT INTO ${tables.divisionalBudget} 
         (division, year, month, product_group, metric, value, material, process, uploaded_filename, uploaded_at)
-        VALUES ($1, $2, $3, $4, $5, $6, '', '', 'LIVE_Services_Charges', NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, '', '', 'Divisional_Live_Save', NOW())
+        ON CONFLICT (UPPER(division), year, month, product_group, UPPER(metric))
+        DO UPDATE SET value = EXCLUDED.value, uploaded_filename = EXCLUDED.uploaded_filename, uploaded_at = NOW()
       `, [
         division.toUpperCase(),
         parseInt(budgetYear),

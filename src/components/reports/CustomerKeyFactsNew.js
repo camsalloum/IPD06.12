@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useFilter } from '../../contexts/FilterContext';
 import { useExcelData } from '../../contexts/ExcelDataContext';
-import UAEDirhamSymbol from '../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../dashboard/CurrencySymbol';
 
 /**
  * CustomerKeyFacts (Pro) — Volume by Customer (IMPROVED)
@@ -13,7 +13,7 @@ import UAEDirhamSymbol from '../dashboard/UAEDirhamSymbol';
  *  - ✅ Price–Volume–Mix (PVM) decomposition at portfolio and customer level
  *  - ✅ Materiality×Variance scoring to prioritize actions
  *  - ✅ Outlier detection (z-score) on YoY growth to surface anomalies
- *  - ✅ Clearer KPI labels (e.g., AED/MT for kilo rate)
+ *  - ✅ Clearer KPI labels (e.g., currency/MT for kilo rate)
  *  - ✅ Safer guards for missing/zero denominators
  */
 
@@ -75,9 +75,9 @@ const formatMt = (kgs) => {
 
 const formatAmount = (amount) => {
   if (isNil(amount)) return 'N/A';
-  if (amount >= 1_000_000) return <><UAEDirhamSymbol />{(amount / 1_000_000).toFixed(1)}M</>;
-  if (amount >= 1_000) return <><UAEDirhamSymbol />{(amount / 1_000).toFixed(1)}K</>;
-  return <><UAEDirhamSymbol />{amount.toFixed(0)}</>;
+  if (amount >= 1_000_000) return <><CurrencySymbol />{(amount / 1_000_000).toFixed(1)}M</>;
+  if (amount >= 1_000) return <><CurrencySymbol />{(amount / 1_000).toFixed(1)}K</>;
+  return <><CurrencySymbol />{amount.toFixed(0)}</>;
 };
 
 const formatAED = (value) => {
@@ -990,13 +990,13 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
                 <strong>Price-Volume Analysis:</strong><br/>
                 • Price Effect: {formatPct(comprehensiveInsights.pvm.priceEffect)}<br/>
                 • Volume Effect: {formatPct(comprehensiveInsights.pvm.volumeEffect)}<br/>
-                • Portfolio Kilo Rate: <UAEDirhamSymbol />{formatAED(comprehensiveInsights.volumeVsSalesPerformance.avgKiloRate)}/MT
+                • Portfolio Kilo Rate: <CurrencySymbol />{formatAED(comprehensiveInsights.volumeVsSalesPerformance.avgKiloRate)}/MT
                 ({hasPreviousYearData && comprehensiveInsights.volumeVsSalesPerformance.kiloRateYoY !== null ? `${formatPct(comprehensiveInsights.volumeVsSalesPerformance.kiloRateYoY)} YoY` : 'Budget comparison only'})
               </>
             ) : (
               <>
                 <strong>Price-Volume Analysis:</strong><br/>
-                • Portfolio Kilo Rate: <UAEDirhamSymbol />{formatAED(comprehensiveInsights.volumeVsSalesPerformance.avgKiloRate)}/MT<br/>
+                • Portfolio Kilo Rate: <CurrencySymbol />{formatAED(comprehensiveInsights.volumeVsSalesPerformance.avgKiloRate)}/MT<br/>
                 • Full Analysis: Requires previous year data for YoY comparison
               </>
             )}
@@ -1111,7 +1111,7 @@ const CustomerKeyFacts = ({ rep: repProp, rowsOverride, amountRowsOverride, onFi
             {comprehensiveInsights.topPerformers.kiloRate.map((c, index) => (
               <React.Fragment key={c.name}>
                 {index > 0 && <br/>}
-                • {formatCustomerName(c.name)}: <UAEDirhamSymbol />{formatAED(c.kiloRate)}/MT ({formatMt(c.volume)})
+                • {formatCustomerName(c.name)}: <CurrencySymbol />{formatAED(c.kiloRate)}/MT ({formatMt(c.volume)})
               </React.Fragment>
             ))}
           </div>

@@ -1,0 +1,141 @@
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs').promises;
+const { authenticate, requireRole } = require('../middleware/auth');
+const { authPool } = require('../database/config');
+
+// Configure multer for logo upload
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../uploads/logos');
+    try {
+      await fs.mkdir(uploadDir, { recursive: true });
+      cb(null, uploadDir);
+    } catch (error) {
+      cb(error);
+    }
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'company-logo-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  // Accept images only
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed'), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
+
+/**
+ * POST /api/settings/company-logo
+ * Upload company logo (Admin only)
+ */
+router.post('/company-logo', authenticate, requireRole('admin'), upload.single('logo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Delete old logo files (keep only the latest)
+    const uploadDir = path.join(__dirname, '../uploads/logos');
+    try {
+      const files = await fs.readdir(uploadDir);
+      for (const file of files) {
+        if (file !== req.file.filename && file.startsWith('company-logo-')) {
+          await fs.unlink(path.join(uploadDir, file));
+        }
+      }
+    } catch (error) {
+      console.error('Error cleaning up old logos:', error);
+    }
+
+    const logoUrl = `/uploads/logos/${req.file.filename}`;
+    
+    res.json({
+      success: true,
+      message: 'Logo uploaded successfully',
+      logoUrl: logoUrl
+    });
+  } catch (error) {
+    console.error('Logo upload error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/settings/company-logo
+ * Get current company logo
+ */
+router.get('/company-logo', async (req, res) => {
+  try {
+    const uploadDir = path.join(__dirname, '../uploads/logos');
+    
+    // Check if directory exists
+    try {
+      await fs.access(uploadDir);
+    } catch {
+      return res.json({ success: true, logoUrl: null });
+    }
+
+    // Get the latest logo file
+    const files = await fs.readdir(uploadDir);
+    const logoFiles = files.filter(file => file.startsWith('company-logo-'));
+    
+    if (logoFiles.length === 0) {
+      return res.json({ success: true, logoUrl: null });
+    }
+
+    // Sort by timestamp (newest first) and get the first one
+    logoFiles.sort().reverse();
+    const latestLogo = logoFiles[0];
+    
+    res.json({
+      success: true,
+      logoUrl: `/uploads/logos/${latestLogo}`
+    });
+  } catch (error) {
+    console.error('Get logo error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * DELETE /api/settings/company-logo
+ * Delete company logo (Admin only)
+ */
+router.delete('/company-logo', authenticate, requireRole('admin'), async (req, res) => {
+  try {
+    const uploadDir = path.join(__dirname, '../uploads/logos');
+    const files = await fs.readdir(uploadDir);
+    
+    for (const file of files) {
+      if (file.startsWith('company-logo-')) {
+        await fs.unlink(path.join(uploadDir, file));
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Logo deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete logo error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+module.exports = router;

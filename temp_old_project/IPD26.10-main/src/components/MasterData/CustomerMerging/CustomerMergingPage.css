@@ -1,0 +1,174 @@
+/* Customer Merging Page Styles */
+
+.customer-merging-page {
+  padding: 24px;
+  background: #f0f2f5;
+  min-height: 100vh;
+}
+
+.header-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header-card h1 {
+  color: white !important;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.header-card p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.header-card .ant-btn {
+  height: 40px;
+}
+
+.header-card .ant-btn-primary {
+  background: #52c41a;
+  border-color: #52c41a;
+  font-weight: 600;
+}
+
+.header-card .ant-btn-primary:hover {
+  background: #73d13d;
+  border-color: #73d13d;
+}
+
+/* Statistics Card */
+.ant-statistic {
+  text-align: center;
+}
+
+.ant-statistic-title {
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+.ant-statistic-content {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Tables */
+.ant-table {
+  background: white;
+  border-radius: 8px;
+}
+
+.ant-table-thead > tr > th {
+  background: #fafafa;
+  font-weight: 600;
+  color: #262626;
+}
+
+.ant-table-tbody > tr:hover {
+  background: #f5f5f5;
+}
+
+/* Tags */
+.ant-tag {
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+/* Progress */
+.ant-progress-line {
+  margin-bottom: 4px;
+}
+
+/* Badges */
+.ant-badge {
+  margin-left: 8px;
+}
+
+/* Tabs */
+.ant-tabs-tab {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.ant-tabs-tab-active {
+  font-weight: 600;
+}
+
+/* Alerts */
+.ant-alert {
+  border-radius: 8px;
+}
+
+/* Modals */
+.ant-modal-header {
+  background: #fafafa;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.ant-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.ant-modal label {
+  display: block;
+  font-weight: 500;
+  color: #595959;
+  margin-bottom: 4px;
+}
+
+/* Buttons */
+.ant-btn-primary {
+  border-radius: 6px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.3);
+}
+
+.ant-btn-primary:hover {
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.4);
+  transform: translateY(-1px);
+  transition: all 0.3s;
+}
+
+.ant-btn-danger {
+  border-radius: 6px;
+}
+
+/* Cards */
+.ant-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Empty State */
+.ant-empty {
+  padding: 40px 0;
+}
+
+.ant-empty-description {
+  font-size: 16px;
+  color: #8c8c8c;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .customer-merging-page {
+    padding: 12px;
+  }
+
+  .header-card h1 {
+    font-size: 20px;
+  }
+
+  .ant-statistic-content {
+    font-size: 20px;
+  }
+}

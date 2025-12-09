@@ -156,7 +156,9 @@ function generateDivisionalBudgetHtml({
     let scBudgetCells = '';
     for (let month = 1; month <= 12; month++) {
       const key = `Services Charges|${month}|AMOUNT`;
-      const budgetValue = servicesChargesBudget[key] || '';
+      const rawBudgetValue = servicesChargesBudget[key] || '';
+      // Convert from full AED to k (thousands) for display - user enters in k
+      const budgetValue = rawBudgetValue ? (parseFloat(rawBudgetValue) / 1000).toFixed(0) : '';
       scBudgetCells += `<td style="background-color: #fffbe6;">
           <div style="display: flex; align-items: center; justify-content: flex-end; gap: 2px;">
             <input type="text" data-group="Services Charges" data-month="${month}" data-metric="AMOUNT" placeholder="0" value="${budgetValue}" style="width: 50px; font-size: 11px;" />
@@ -166,7 +168,7 @@ function generateDivisionalBudgetHtml({
     }
     
     tableRowsHtml += `
-        <tr class="budget-row" style="background-color: #fffbe6;">
+        <tr class="budget-row services-charges-budget-row" data-pg="Services Charges" style="background-color: #fffbe6;">
           ${scBudgetCells}
           <td class="sc-budget-total" style="background-color: #fffbe6; text-align: center; font-weight: 700; font-size: 11px;">0</td>
         </tr>`;
@@ -1055,7 +1057,7 @@ function generateDivisionalBudgetHtml({
       const htmlContent = '<!DOCTYPE html>\\n<!-- IPD_BUDGET_SYSTEM_v1.0 :: TYPE=DIVISIONAL_BUDGET :: DO_NOT_EDIT_THIS_LINE -->\\n' + clonedDoc.documentElement.outerHTML;
       
       const now = new Date();
-      const dateStr = String(now.getDate()).padStart(2, '0') + String(now.getMonth() + 1).padStart(2, '0') + now.getFullYear();
+      const dateStr = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
       const timeStr = String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
       const filename = 'DRAFT_Divisional_' + formData.division + '_' + formData.budgetYear + '_' + dateStr + '_' + timeStr + '.html';
       
@@ -1088,23 +1090,54 @@ function generateDivisionalBudgetHtml({
       }
       
       recalculateTotals();
+      
+      // Convert chart canvas to static image BEFORE cloning (uses live chart)
+      let chartImageUrl = null;
+      const originalCanvas = document.getElementById('productGroupChart');
+      if (originalCanvas) {
+        try {
+          chartImageUrl = originalCanvas.toDataURL('image/png');
+        } catch (e) {
+          console.warn('Could not convert chart to image:', e);
+        }
+      }
+      
       const clonedDoc = cloneWorkingDocument();
       
       // Convert inputs to static text
       clonedDoc.querySelectorAll('input[data-month]').forEach(input => {
         const value = input.value || '0';
-        const td = input.parentElement;
-        // For Services Charges, keep the parent div if it has "k" suffix
-        if (td.querySelector('span')) {
-          const wrapper = td.querySelector('div');
-          if (wrapper) wrapper.innerHTML = value + ' <span style="font-size: 10px; color: #666;">k</span>';
+        
+        // For Services Charges, the structure is: td > div > input + span
+        // For regular inputs, the structure is: td > input
+        if (input.dataset.group === 'Services Charges') {
+          // Services Charges: parent is div, grandparent is td
+          const parentDiv = input.parentElement;
+          const td = parentDiv.parentElement;
+          td.innerHTML = '<span style="font-weight: 500;">' + value + '</span> <span style="font-size: 10px; color: #666;">k</span>';
+          td.style.textAlign = 'right';
+          td.style.fontWeight = '500';
+          td.style.padding = '6px 8px';
         } else {
+          // Regular product groups: parent is td
+          const td = input.parentElement;
           td.innerHTML = value;
+          td.style.textAlign = 'right';
+          td.style.fontWeight = '500';
+          td.style.padding = '6px 8px';
         }
-        td.style.textAlign = 'right';
-        td.style.fontWeight = '500';
-        td.style.padding = '6px 8px';
       });
+      
+      // Replace chart canvas with static image
+      const clonedCanvas = clonedDoc.getElementById('productGroupChart');
+      if (chartImageUrl && clonedCanvas) {
+        const img = clonedDoc.createElement('img');
+        img.src = chartImageUrl;
+        img.style.maxHeight = '350px';
+        img.style.width = '100%';
+        img.alt = 'Product Group Breakdown Chart';
+        clonedCanvas.parentNode.replaceChild(img, clonedCanvas);
+      }
       
       // Remove buttons
       const saveDraftBtn = clonedDoc.getElementById('saveDraftBtn');
@@ -1161,7 +1194,7 @@ function generateDivisionalBudgetHtml({
       const htmlContent = '<!DOCTYPE html>\\n<!-- IPD_BUDGET_SYSTEM_v1.0 :: TYPE=DIVISIONAL_BUDGET :: DO_NOT_EDIT_THIS_LINE -->\\n' + clonedDoc.documentElement.outerHTML;
       
       const now = new Date();
-      const dateStr = String(now.getDate()).padStart(2, '0') + String(now.getMonth() + 1).padStart(2, '0') + now.getFullYear();
+      const dateStr = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
       const timeStr = String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
       const filename = 'FINAL_Divisional_' + formData.division + '_' + formData.budgetYear + '_' + dateStr + '_' + timeStr + '.html';
       

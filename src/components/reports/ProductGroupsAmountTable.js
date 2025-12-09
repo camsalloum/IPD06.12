@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useFilter } from '../../contexts/FilterContext';
 import { formatCustomRangeDisplay } from '../../utils/periodHelpers';
 import './ProductGroupsAmountTable.css'; // Using dedicated CSS file
-import UAEDirhamSymbol from '../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../dashboard/CurrencySymbol';
 
 const ProductGroupsAmountTable = ({ amountData, rep }) => {
   const { columnOrder, basePeriodIndex } = useFilter();
@@ -83,7 +83,7 @@ const ProductGroupsAmountTable = ({ amountData, rep }) => {
     if (typeof value !== 'number') return value || '-';
     
     // Handle zero values
-    if (value === 0) return includeSymbol ? <><UAEDirhamSymbol />0</> : '0';
+    if (value === 0) return includeSymbol ? <><CurrencySymbol />0</> : '0';
     
     const absValue = Math.abs(value);
     let formattedNumber;
@@ -108,7 +108,7 @@ const ProductGroupsAmountTable = ({ amountData, rep }) => {
     const result = `${finalNumber}${unit}`;
     
     if (includeSymbol) {
-      return <><UAEDirhamSymbol />{result}</>;
+      return <><CurrencySymbol />{result}</>;
     }
     
     return result;
@@ -223,7 +223,7 @@ const ProductGroupsAmountTable = ({ amountData, rep }) => {
   if (!amountData || amountData.length === 0) {
     return (
       <div className="product-groups-amount-table">
-        <h3>Product Groups - <UAEDirhamSymbol /> Sales Comparison</h3>
+        <h3>Product Groups - <CurrencySymbol /> Sales Comparison</h3>
         <div className="no-data">No data available for {rep}</div>
       </div>
     );
@@ -232,7 +232,7 @@ const ProductGroupsAmountTable = ({ amountData, rep }) => {
   if (!columnOrder || columnOrder.length === 0) {
     return (
       <div className="product-groups-amount-table">
-        <h3>Product Groups - <UAEDirhamSymbol /> Sales Comparison</h3>
+        <h3>Product Groups - <CurrencySymbol /> Sales Comparison</h3>
         <div className="no-data">Please select columns to view data.</div>
       </div>
     );
@@ -242,7 +242,7 @@ const ProductGroupsAmountTable = ({ amountData, rep }) => {
 
   return (
     <div className="product-groups-amount-table">
-      <h3>Product Groups - <UAEDirhamSymbol /> Sales Comparison</h3>
+      <h3>Product Groups - <CurrencySymbol /> Sales Comparison</h3>
       <table className="amount-comparison-table">
         {renderTableHeader()}
         <tbody>

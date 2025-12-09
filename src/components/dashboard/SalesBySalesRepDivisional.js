@@ -1,7 +1,7 @@
 import React, { useRef, useState, useMemo, useEffect, useCallback } from 'react';
 import { useFilter } from '../../contexts/FilterContext';
 import { useExcelData } from '../../contexts/ExcelDataContext';
-import UAEDirhamSymbol from './UAEDirhamSymbol';
+import CurrencySymbol from './CurrencySymbol';
 import './SalesBySalesRepTable.css'; // Use the correct CSS file
 import { COLOR_SCHEMES } from './utils/FinancialConstants';
 import { getColumnColorPalette } from './utils/colorUtils';
@@ -657,7 +657,7 @@ const SalesBySalesRepDivisional = ({ hideHeader = false }) => {
         {!hideHeader && (
           <div className="sbsr-table-title">
             <h2>Sales by Sales Reps - {selectedDivision}</h2>
-            <div className="sbsr-table-subtitle">(<UAEDirhamSymbol />)</div>
+            <div className="sbsr-table-subtitle">(<CurrencySymbol />)</div>
             <div className="sbsr-table-options">
               <label className="option-checkbox">
                 <input

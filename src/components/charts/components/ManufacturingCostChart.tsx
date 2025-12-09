@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactECharts from 'echarts-for-react';
 import './ManufacturingCostTotals.css';
-import UAEDirhamSymbol from '../../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../../dashboard/CurrencySymbol';
 
 // Helper function to get UAE symbol as data URL for ECharts rich text
 const getUAESymbolImageDataURL = (color = '#222') => {
@@ -578,7 +578,7 @@ const ManufacturingCostChart = ({ tableData, selectedPeriods, computeCellValue, 
               }}>
                 <div style={{ fontSize: 14, color: textColor, fontWeight: 500, marginTop: 8 }}>{periodName}</div>
                 <div style={{ fontWeight: 'bold', fontSize: 22, color: textColor, marginTop: 8 }}>
-                  <UAEDirhamSymbol /> {formattedMillions}M
+                  <CurrencySymbol /> {formattedMillions}M
                 </div>
                 <div style={{
                   display: 'flex',
@@ -592,7 +592,7 @@ const ManufacturingCostChart = ({ tableData, selectedPeriods, computeCellValue, 
                   marginTop: 8
                 }}>
                   <div>{formattedPercent}%/Sls</div>
-                  <div><UAEDirhamSymbol /> {formattedPerKg}/kg</div>
+                  <div><CurrencySymbol /> {formattedPerKg}/kg</div>
                 </div>
               </div>
               {/* Variance badge between cards - sequential period comparison */}

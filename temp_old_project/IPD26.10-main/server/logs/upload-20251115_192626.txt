@@ -1,0 +1,63 @@
+[2025-11-15 19:26:26] [INFO] ========================================================================
+[2025-11-15 19:26:26] [INFO] AEBF Excel to SQL Transform & Upload Script
+[2025-11-15 19:26:26] [INFO] ========================================================================
+[2025-11-15 19:26:26] [INFO] Excel File: D:\Projects\IPD26.10\uploads\aebf-upload-1763220385648.xlsx
+[2025-11-15 19:26:26] [INFO] Division: FP
+[2025-11-15 19:26:26] [INFO] Upload Mode: replace
+[2025-11-15 19:26:26] [INFO] Uploaded By: cam
+[2025-11-15 19:26:26] [INFO] Test Mode: False
+[2025-11-15 19:26:26] [INFO] ========================================================================
+[2025-11-15 19:26:26] [INFO] Checking prerequisites...
+[2025-11-15 19:26:26] [SUCCESS] Prerequisites check passed
+[2025-11-15 19:26:26] [INFO] Testing database connection...
+[2025-11-15 19:26:27] [SUCCESS] Database connection successful
+[2025-11-15 19:26:27] [INFO] PostgreSQL version: PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit 
+[2025-11-15 19:26:27] [INFO] Reading Excel file (first sheet)...
+[2025-11-15 19:26:30] [INFO] Excel has 4812 total rows
+[2025-11-15 19:26:30] [SUCCESS] Read 4812 rows from Excel (filtered to 4812 valid rows)
+[2025-11-15 19:26:30] [INFO] Upload type: Actual (separate file upload, not combined with Budget)
+[2025-11-15 19:26:30] [INFO] Validating Excel structure...
+[2025-11-15 19:26:30] [SUCCESS] Excel structure validation passed
+[2025-11-15 19:26:30] [INFO] Total rows: 4812
+[2025-11-15 19:26:30] [INFO] Transforming Excel data to SQL format...
+[2025-11-15 19:26:31] [SUCCESS] Transformed 4812 rows
+[2025-11-15 19:26:31] [INFO] Generating QC summary...
+[2025-11-15 19:26:32] [INFO] QC Summary:
+[2025-11-15 19:26:32] [INFO]   Total Records: 4812
+[2025-11-15 19:26:32] [INFO]   Years: 2025
+[2025-11-15 19:26:32] [INFO]   Months: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+[2025-11-15 19:26:32] [INFO]   Values Types: AMOUNT, KGS, MORM
+[2025-11-15 19:26:32] [INFO]   Total AMOUNT: 109113000
+[2025-11-15 19:26:32] [INFO]   Total KGS: 9705000
+[2025-11-15 19:26:32] [INFO]   Total MORM: 42294234.9993
+[2025-11-15 19:26:32] [INFO] Creating backup before REPLACE operation...
+[2025-11-15 19:26:32] [INFO] REPLACE mode will delete ALL existing data for division FP, type Budget
+[2025-11-15 19:26:33] [SUCCESS] Backup created: 4824  records backed up (ALL existing Budget data)
+[2025-11-15 19:26:33] [INFO] Deleting ALL existing data for REPLACE mode...
+[2025-11-15 19:26:33] [INFO] WARNING: This will delete ALL FP Actual data, not just overlapping months
+[2025-11-15 19:26:33] [INFO] Records before delete: 4824 
+[2025-11-15 19:26:34] [SUCCESS] Records deleted: 4824 
+[2025-11-15 19:26:34] [SUCCESS] Records remaining: 0 
+[2025-11-15 19:26:34] [INFO] Uploading data in INSERT mode (batch size: 1000)...
+[2025-11-15 19:26:34] [INFO] Processing batch 1 of 5 (1000 rows)...
+[2025-11-15 19:26:35] [SUCCESS] Batch 1 completed successfully
+[2025-11-15 19:26:35] [INFO] Processing batch 2 of 5 (1000 rows)...
+[2025-11-15 19:26:35] [SUCCESS] Batch 2 completed successfully
+[2025-11-15 19:26:35] [INFO] Processing batch 3 of 5 (1000 rows)...
+[2025-11-15 19:26:36] [SUCCESS] Batch 3 completed successfully
+[2025-11-15 19:26:36] [INFO] Processing batch 4 of 5 (1000 rows)...
+[2025-11-15 19:26:37] [SUCCESS] Batch 4 completed successfully
+[2025-11-15 19:26:37] [INFO] Processing batch 5 of 5 (812 rows)...
+[2025-11-15 19:26:37] [SUCCESS] Batch 5 completed successfully
+[2025-11-15 19:26:37] [SUCCESS] INSERT completed: 4812 rows processed
+[2025-11-15 19:26:37] [INFO] Running post-upload QC verification...
+[2025-11-15 19:26:38] [INFO] Post-upload QC Results:
+[2025-11-15 19:26:38] [INFO]  AMOUNT      |         1608 | 109112999.9996  KGS         |         1596 |   9705000.0000  MORM        |         1608 |  42294234.9992 
+[2025-11-15 19:26:38] [INFO] Writing audit log...
+[2025-11-15 19:26:38] [SUCCESS] Audit log written successfully
+[2025-11-15 19:26:38] [INFO] ========================================================================
+[2025-11-15 19:26:38] [SUCCESS] Upload completed successfully!
+[2025-11-15 19:26:38] [INFO] Total records processed: 4812
+[2025-11-15 19:26:38] [INFO] Mode: replace
+[2025-11-15 19:26:38] [INFO] Log file: logs\upload-20251115_192626.txt
+[2025-11-15 19:26:38] [INFO] ========================================================================

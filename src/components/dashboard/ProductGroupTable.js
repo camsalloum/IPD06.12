@@ -4,7 +4,7 @@ import { useFilter } from '../../contexts/FilterContext';
 import { useExcelData } from '../../contexts/ExcelDataContext';
 import { COLOR_SCHEMES } from './utils/FinancialConstants';
 import { getColumnColorPalette } from './utils/colorUtils';
-import UAEDirhamSymbol from './UAEDirhamSymbol';
+import CurrencySymbol from './CurrencySymbol';
 import './ProductGroupTableStyles.css';
 
 const ProductGroupTable = React.forwardRef(({ hideHeader = false, ...props }, ref) => {
@@ -451,7 +451,7 @@ const ProductGroupTable = React.forwardRef(({ hideHeader = false, ...props }, re
         {!hideHeader && (
           <div className="pg-table-title">
             <h2>Product Group - {selectedDivision || ''}</h2>
-            <div className="pg-table-subtitle">(<UAEDirhamSymbol />)</div>
+            <div className="pg-table-subtitle">(<CurrencySymbol />)</div>
           </div>
         )}
         <div className="pg-table-empty-state" style={{ textAlign: 'center', color: '#666' }}>
@@ -479,7 +479,7 @@ const ProductGroupTable = React.forwardRef(({ hideHeader = false, ...props }, re
         {!hideHeader && (
           <div className="pg-table-title">
             <h2>Product Group Analysis - {selectedDivision}</h2>
-            <div className="pg-table-subtitle">(<UAEDirhamSymbol />)</div>
+            <div className="pg-table-subtitle">(<CurrencySymbol />)</div>
             <div className="pg-table-options">
               <label className="option-checkbox">
                 <input 

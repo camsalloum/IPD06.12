@@ -1,0 +1,49 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20251031174608
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26200.0)
+Host Application: powershell -ExecutionPolicy Bypass -File upload-to-github.ps1 -RepoUrl https://github.com/camS74/IPD22.10.git
+Process ID: 38076
+PSVersion: 5.1.26100.6899
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6899
+BuildVersion: 10.0.26100.6899
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\Projects\IPD26.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of '.claude/settings.local.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/dashboard/MultiChartHTMLExport.js', LF will be replaced by CRLF the next
+ time Git touches it
+warning: in the working copy of 'src/components/dashboard/PLTableStyles - Copy.css', LF will be replaced by CRLF the nex
+t time Git touches it
+warning: in the working copy of 'src/components/dashboard/PLTableStyles.css', LF will be replaced by CRLF the next time
+Git touches it
+warning: in the working copy of 'src/components/dashboard/TableView.js', LF will be replaced by CRLF the next time Git t
+ouches it
+warning: in the working copy of 'src/contexts/FilterContext.js', LF will be replaced by CRLF the next time Git touches i
+t
+warning: in the working copy of 'FP - Comprehensive Report - 2025-10-31 (10).html', LF will be replaced by CRLF the next
+ time Git touches it
+warning: in the working copy of 'FP - Comprehensive Report - 2025-10-31 (9).html', LF will be replaced by CRLF the next
+time Git touches it
+warning: in the working copy of 'PLTableStyles (2).css', LF will be replaced by CRLF the next time Git touches it
+error: invalid path 'nul'
+error: unable to add 'nul' to index
+fatal: adding files failed
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+Windows PowerShell transcript end
+End time: 20251031174630
+**********************

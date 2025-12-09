@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { CurrencyProvider } from './contexts/CurrencyContext';
 import { ExcelDataProvider } from './contexts/ExcelDataContext';
 import { SalesDataProvider } from './contexts/SalesDataContext';
 import { SalesRepReportsProvider } from './contexts/SalesRepReportsContext';
@@ -59,8 +60,9 @@ function AppContent() {
     >
       <AntdApp>
         <div className="App">
-          <AuthProvider>
-            <Router>
+          <CurrencyProvider>
+            <AuthProvider>
+              <Router>
               <Routes>
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
@@ -102,6 +104,7 @@ function AppContent() {
               </Routes>
             </Router>
           </AuthProvider>
+        </CurrencyProvider>
         </div>
       </AntdApp>
     </ConfigProvider>

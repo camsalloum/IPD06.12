@@ -1,0 +1,51 @@
+[2025-11-13 16:45:03] [INFO] ========================================================================
+[2025-11-13 16:45:03] [INFO] AEBF Excel to SQL Transform & Upload Script
+[2025-11-13 16:45:03] [INFO] ========================================================================
+[2025-11-13 16:45:03] [INFO] Excel File: D:\Projects\IPD26.10\uploads\aebf-upload-1763037902528.xlsx
+[2025-11-13 16:45:03] [INFO] Division: FP
+[2025-11-13 16:45:03] [INFO] Upload Mode: replace
+[2025-11-13 16:45:03] [INFO] Uploaded By: cam
+[2025-11-13 16:45:03] [INFO] Test Mode: False
+[2025-11-13 16:45:03] [INFO] ========================================================================
+[2025-11-13 16:45:03] [INFO] Checking prerequisites...
+[2025-11-13 16:45:03] [SUCCESS] Prerequisites check passed
+[2025-11-13 16:45:03] [INFO] Testing database connection...
+[2025-11-13 16:45:04] [SUCCESS] Database connection successful
+[2025-11-13 16:45:04] [INFO] PostgreSQL version: PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit 
+[2025-11-13 16:45:04] [INFO] Reading Excel file (first sheet)...
+[2025-11-13 16:45:06] [INFO] Excel has 51 total rows
+[2025-11-13 16:45:06] [SUCCESS] Read 51 rows from Excel (filtered to 10 valid rows)
+[2025-11-13 16:45:06] [INFO] Upload type: Actual (separate file upload, not combined with Budget)
+[2025-11-13 16:45:06] [INFO] Validating Excel structure...
+[2025-11-13 16:45:06] [SUCCESS] Excel structure validation passed
+[2025-11-13 16:45:06] [INFO] Total rows: 10
+[2025-11-13 16:45:06] [INFO] Transforming Excel data to SQL format...
+[2025-11-13 16:45:06] [SUCCESS] Transformed 10 rows
+[2025-11-13 16:45:06] [INFO] Generating QC summary...
+[2025-11-13 16:45:06] [INFO] QC Summary:
+[2025-11-13 16:45:06] [INFO]   Total Records: 10
+[2025-11-13 16:45:06] [INFO]   Years: 2020
+[2025-11-13 16:45:06] [INFO]   Months: 1
+[2025-11-13 16:45:06] [INFO]   Values Types: AMOUNT, KGS, MORM
+[2025-11-13 16:45:06] [INFO]   Total AMOUNT: 231909
+[2025-11-13 16:45:06] [INFO]   Total KGS: 27632.3
+[2025-11-13 16:45:06] [INFO]   Total MORM: 91939.544
+[2025-11-13 16:45:06] [INFO] Creating backup before REPLACE operation...
+[2025-11-13 16:45:07] [SUCCESS] Backup created: 463  records
+[2025-11-13 16:45:07] [INFO] Deleting existing data for REPLACE mode...
+[2025-11-13 16:45:07] [SUCCESS] Existing data deleted for Division=FP, Type=Actual, Years=(2020), Months=(1)
+[2025-11-13 16:45:07] [INFO] Uploading data in INSERT mode (batch size: 1000)...
+[2025-11-13 16:45:07] [INFO] Processing batch 1 of 1 (10 rows)...
+[2025-11-13 16:45:08] [SUCCESS] Batch 1 completed successfully
+[2025-11-13 16:45:08] [SUCCESS] INSERT completed: 10 rows processed
+[2025-11-13 16:45:08] [INFO] Running post-upload QC verification...
+[2025-11-13 16:45:08] [INFO] Post-upload QC Results:
+[2025-11-13 16:45:08] [INFO]  AMOUNT      |            3 |  231909.0000  KGS         |            4 |   27632.3000  MORM        |            3 |   91939.5440 
+[2025-11-13 16:45:08] [INFO] Writing audit log...
+[2025-11-13 16:45:09] [WARNING] Failed to write audit log: SQL execution error: ERROR:  column "records_affected" of relation "aebf_upload_audit" does not exist
+[2025-11-13 16:45:09] [INFO] ========================================================================
+[2025-11-13 16:45:09] [SUCCESS] Upload completed successfully!
+[2025-11-13 16:45:09] [INFO] Total records processed: 10
+[2025-11-13 16:45:09] [INFO] Mode: replace
+[2025-11-13 16:45:09] [INFO] Log file: logs\upload-20251113_164503.txt
+[2025-11-13 16:45:09] [INFO] ========================================================================

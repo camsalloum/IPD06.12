@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as echarts from 'echarts';
-import UAEDirhamSymbol from '../../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../../dashboard/CurrencySymbol';
 import './BarChart.css';
 import './SalesVolumeChart.css';
 
-// Note: BarChart uses SVG UAEDirhamSymbol component, no font loading needed
+// Note: BarChart uses SVG CurrencySymbol component, no font loading needed
 
 // Helper function to get UAE symbol as data URL for ECharts rich text
 const getUAESymbolImageDataURL = (color = '#222') => {
@@ -426,7 +426,7 @@ const BarChart = ({ data, periods, basePeriod, hideHeader = false, hideSalesPerK
             Sales and Volume
           </span>
           <span className="sales-volume-chart-subtitle">
-            (<UAEDirhamSymbol />)
+            (<CurrencySymbol />)
           </span>
           <span className="sales-volume-chart-note">
             % variance based on sequential period comparison (current vs previous period)
@@ -475,7 +475,7 @@ const BarChart = ({ data, periods, basePeriod, hideHeader = false, hideSalesPerK
             {!hideSalesPerKg && (
               <>
                 <div className="sales-volume-overlay-label green">
-                  Sales <UAEDirhamSymbol /> per Kg
+                  Sales <CurrencySymbol /> per Kg
                 </div>
                 {periods.map((period, idx) => {
                   const periodKey = createPeriodKey(period);

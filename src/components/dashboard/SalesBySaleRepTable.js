@@ -6,7 +6,7 @@ import { useSalesData } from '../../contexts/SalesDataContext';
 import { useSalesRepReports } from '../../contexts/SalesRepReportsContext';
 import SalesRepReport from '../reports/SalesRepReport';
 import SalesRepHTMLExport from './SalesRepHTMLExport';
-import UAEDirhamSymbol from './UAEDirhamSymbol';
+import CurrencySymbol from './CurrencySymbol';
 import './SalesBySalesRepTable.css'; // Use dedicated CSS file
 import { getColumnColorPalette } from './utils/colorUtils';
 
@@ -1939,7 +1939,7 @@ const SalesRepTabContent = ({ rep }) => {
         </tbody>
       </table>
       <div className="table-separator" />
-      <div className="sales-rep-subtitle">Product Groups - <UAEDirhamSymbol /> Sales Amount Comparison</div>
+      <div className="sales-rep-subtitle">Product Groups - <CurrencySymbol /> Sales Amount Comparison</div>
       <table className="financial-table">
         {renderAmountHeaderWithBlanks()}
         <tbody>
@@ -2002,7 +2002,7 @@ const SalesRepTabContent = ({ rep }) => {
         </tbody>
       </table>
       <div className="table-separator" />
-      <div className="sales-rep-subtitle">Product Groups - <UAEDirhamSymbol /> Margin over RM Comparison</div>
+      <div className="sales-rep-subtitle">Product Groups - <CurrencySymbol /> Margin over RM Comparison</div>
       <table className="financial-table">
         {renderAmountHeaderWithBlanks()}
         <tbody>

@@ -61,12 +61,23 @@ router.get('/company', async (req, res) => {
       settings[row.setting_key] = row.setting_value;
     });
 
+    // Parse currency if it's stored as JSON string
+    let currency = settings.company_currency || null;
+    if (currency && typeof currency === 'string') {
+      try {
+        currency = JSON.parse(currency);
+      } catch (e) {
+        currency = null;
+      }
+    }
+
     res.json({
       success: true,
       settings: {
         companyName: settings.company_name || 'Your Company',
         logoUrl: settings.company_logo_url || null,
-        divisions: settings.divisions || []
+        divisions: settings.divisions || [],
+        currency: currency
       }
     });
   } catch (error) {
@@ -77,11 +88,11 @@ router.get('/company', async (req, res) => {
 
 /**
  * POST /api/settings/company
- * Update company name and logo (Admin only)
+ * Update company name, logo, and currency (Admin only)
  */
 router.post('/company', authenticate, requireRole('admin'), upload.single('logo'), async (req, res) => {
   try {
-    const { companyName } = req.body;
+    const { companyName, currency } = req.body;
     
     // Update company name
     if (companyName) {
@@ -91,6 +102,28 @@ router.post('/company', authenticate, requireRole('admin'), upload.single('logo'
          ON CONFLICT (setting_key)
          DO UPDATE SET setting_value = $1, updated_by = $2, updated_at = NOW()`,
         [JSON.stringify(companyName), req.user.userId]
+      );
+    }
+
+    // Update currency if provided
+    if (currency) {
+      // Parse currency if it's a string
+      let currencyData = currency;
+      if (typeof currency === 'string') {
+        try {
+          currencyData = JSON.parse(currency);
+        } catch (e) {
+          // If it's not JSON, treat as country name
+          currencyData = currency;
+        }
+      }
+      
+      await authPool.query(
+        `INSERT INTO company_settings (setting_key, setting_value, updated_by)
+         VALUES ('company_currency', $1, $2)
+         ON CONFLICT (setting_key)
+         DO UPDATE SET setting_value = $1, updated_by = $2, updated_at = NOW()`,
+        [JSON.stringify(currencyData), req.user.userId]
       );
     }
 
@@ -131,13 +164,24 @@ router.post('/company', authenticate, requireRole('admin'), upload.single('logo'
       settings[row.setting_key] = row.setting_value;
     });
 
+    // Parse currency for response
+    let currencyResponse = settings.company_currency || null;
+    if (currencyResponse && typeof currencyResponse === 'string') {
+      try {
+        currencyResponse = JSON.parse(currencyResponse);
+      } catch (e) {
+        currencyResponse = null;
+      }
+    }
+
     res.json({
       success: true,
       message: 'Company settings updated successfully',
       settings: {
         companyName: settings.company_name || 'Your Company',
         logoUrl: settings.company_logo_url || null,
-        divisions: settings.divisions || []
+        divisions: settings.divisions || [],
+        currency: currencyResponse
       }
     });
   } catch (error) {

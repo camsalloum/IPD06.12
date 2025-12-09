@@ -345,8 +345,8 @@ router.post('/submit-final', async (req, res) => {
       const pricingMap = {};
       pricingResult.rows.forEach(row => {
         pricingMap[row.product_group.toLowerCase()] = {
-          sellingPrice: row.asp_round ? Math.round(parseFloat(row.asp_round)) : null,
-          morm: row.morm_round ? Math.round(parseFloat(row.morm_round)) : null
+          sellingPrice: row.asp_round ? parseFloat(row.asp_round) : null,
+          morm: row.morm_round ? parseFloat(row.morm_round) : null
         };
       });
       
@@ -388,6 +388,7 @@ router.post('/submit-final', async (req, res) => {
       
       // Insert final budget (KGS, Amount, MoRM)
       let insertedKGS = 0, insertedAmount = 0, insertedMoRM = 0;
+      let totalKGS = 0, totalAmount = 0, totalMoRM = 0;
       
       logger.info(`📝 Processing ${draftResult.rows.length} draft records...`);
       
@@ -440,6 +441,7 @@ router.post('/submit-final', async (req, res) => {
                 draftRow.countryname, draftRow.productgroup, kgsValue,
                 materialProcess.material, materialProcess.process]);
             insertedKGS++;
+            totalKGS += kgsValue;
           } catch (insertError) {
             logger.error(`❌ Error inserting KGS record ${i + 1}:`, insertError);
             logger.error('Insert parameters:', {
@@ -453,6 +455,7 @@ router.post('/submit-final', async (req, res) => {
         
           // Insert Amount
           if (pricing.sellingPrice !== null) {
+            const amountValue = kgsValue * pricing.sellingPrice;
             await client.query(`
               INSERT INTO ${tables.salesRepBudget} (
                 division, budget_year, month, type, salesrepname,
@@ -460,13 +463,15 @@ router.post('/submit-final', async (req, res) => {
                 values_type, values, material, process
               ) VALUES ($1, $2, $3, 'Budget', $4, $5, $6, $7, 'Amount', $8, $9, $10)
             `, [division, budgetYear, draftRow.month, salesRep, draftRow.customername,
-                draftRow.countryname, draftRow.productgroup, kgsValue * pricing.sellingPrice,
+                draftRow.countryname, draftRow.productgroup, amountValue,
                 materialProcess.material, materialProcess.process]);
             insertedAmount++;
+            totalAmount += amountValue;
           }
           
           // Insert MoRM
           if (pricing.morm !== null) {
+            const mormValue = kgsValue * pricing.morm;
             await client.query(`
               INSERT INTO ${tables.salesRepBudget} (
                 division, budget_year, month, type, salesrepname,
@@ -474,9 +479,10 @@ router.post('/submit-final', async (req, res) => {
                 values_type, values, material, process
               ) VALUES ($1, $2, $3, 'Budget', $4, $5, $6, $7, 'MoRM', $8, $9, $10)
             `, [division, budgetYear, draftRow.month, salesRep, draftRow.customername,
-                draftRow.countryname, draftRow.productgroup, kgsValue * pricing.morm,
+                draftRow.countryname, draftRow.productgroup, mormValue,
                 materialProcess.material, materialProcess.process]);
             insertedMoRM++;
+            totalMoRM += mormValue;
           }
         } catch (rowError) {
           logger.error(`❌ Error processing draft row ${i + 1}:`, rowError);
@@ -504,7 +510,10 @@ router.post('/submit-final', async (req, res) => {
         kgs: insertedKGS,
         amount: insertedAmount,
         morm: insertedMoRM,
-        total: insertedKGS + insertedAmount + insertedMoRM
+        total: insertedKGS + insertedAmount + insertedMoRM,
+        totalKGS,
+        totalAmount,
+        totalMoRM
       });
       
       res.json({
@@ -515,6 +524,11 @@ router.post('/submit-final', async (req, res) => {
           amount: insertedAmount,
           morm: insertedMoRM,
           total: insertedKGS + insertedAmount + insertedMoRM
+        },
+        valueTotals: {
+          kgs: totalKGS,
+          amount: totalAmount,
+          morm: totalMoRM
         },
         pricingYear,
         warnings: warnings.length > 0 ? warnings : undefined

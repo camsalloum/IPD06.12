@@ -2,6 +2,247 @@ import React, { useState, useEffect, useCallback } from 'react';
 import countryCoordinates from './countryCoordinates';
 import { useExcelData } from '../../contexts/ExcelDataContext';
 import './CountryReference.css';
+import UAEDirhamSymbol from './UAEDirhamSymbol';
+
+// Currency mapping for countries - code, name, and symbol
+const currencyMapping = {
+  // UAE
+  'United Arab Emirates': { code: 'AED', name: 'UAE Dirham', symbol: 'AED' },
+  'UAE': { code: 'AED', name: 'UAE Dirham', symbol: 'AED' },
+  
+  // Arabian Peninsula
+  'Saudi Arabia': { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼' },
+  'Kingdom Of Saudi Arabia': { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼' },
+  'Kuwait': { code: 'KWD', name: 'Kuwaiti Dinar', symbol: 'د.ك' },
+  'Qatar': { code: 'QAR', name: 'Qatari Riyal', symbol: '﷼' },
+  'Bahrain': { code: 'BHD', name: 'Bahraini Dinar', symbol: '.د.ب' },
+  'Oman': { code: 'OMR', name: 'Omani Rial', symbol: '﷼' },
+  'Yemen': { code: 'YER', name: 'Yemeni Rial', symbol: '﷼' },
+  
+  // Levant
+  'Iraq': { code: 'IQD', name: 'Iraqi Dinar', symbol: 'ع.د' },
+  'Lebanon': { code: 'LBP', name: 'Lebanese Pound', symbol: 'ل.ل' },
+  'Jordan': { code: 'JOD', name: 'Jordanian Dinar', symbol: 'د.ا' },
+  'Syria': { code: 'SYP', name: 'Syrian Pound', symbol: '£S' },
+  'Syrian Arab Republic': { code: 'SYP', name: 'Syrian Pound', symbol: '£S' },
+  'Palestine': { code: 'ILS', name: 'Israeli Shekel', symbol: '₪' },
+  'Israel': { code: 'ILS', name: 'Israeli Shekel', symbol: '₪' },
+  
+  // North Africa
+  'Egypt': { code: 'EGP', name: 'Egyptian Pound', symbol: 'E£' },
+  'Libya': { code: 'LYD', name: 'Libyan Dinar', symbol: 'ل.د' },
+  'Tunisia': { code: 'TND', name: 'Tunisian Dinar', symbol: 'د.ت' },
+  'Algeria': { code: 'DZD', name: 'Algerian Dinar', symbol: 'د.ج' },
+  'Morocco': { code: 'MAD', name: 'Moroccan Dirham', symbol: 'د.م.' },
+  'Sudan': { code: 'SDG', name: 'Sudanese Pound', symbol: 'ج.س.' },
+  'South Sudan': { code: 'SSP', name: 'South Sudanese Pound', symbol: '£' },
+  'Djibouti': { code: 'DJF', name: 'Djiboutian Franc', symbol: 'Fdj' },
+  'Mauritania': { code: 'MRU', name: 'Mauritanian Ouguiya', symbol: 'UM' },
+  
+  // Sub-Saharan Africa
+  'South Africa': { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
+  'Botswana': { code: 'BWP', name: 'Botswana Pula', symbol: 'P' },
+  'Namibia': { code: 'NAD', name: 'Namibian Dollar', symbol: 'N$' },
+  'Zimbabwe': { code: 'ZWL', name: 'Zimbabwean Dollar', symbol: 'Z$' },
+  'Kenya': { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
+  'Nigeria': { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
+  'Ghana': { code: 'GHS', name: 'Ghanaian Cedi', symbol: 'GH₵' },
+  'Senegal': { code: 'XOF', name: 'CFA Franc', symbol: 'CFA' },
+  'Sierra Leone': { code: 'SLL', name: 'Sierra Leonean Leone', symbol: 'Le' },
+  'Cameroon': { code: 'XAF', name: 'Central African CFA', symbol: 'FCFA' },
+  'Congo': { code: 'XAF', name: 'Central African CFA', symbol: 'FCFA' },
+  'Republic of Congo': { code: 'XAF', name: 'Central African CFA', symbol: 'FCFA' },
+  'Democratic Republic of Congo': { code: 'CDF', name: 'Congolese Franc', symbol: 'FC' },
+  'DR Congo': { code: 'CDF', name: 'Congolese Franc', symbol: 'FC' },
+  'Uganda': { code: 'UGX', name: 'Ugandan Shilling', symbol: 'USh' },
+  'Rwanda': { code: 'RWF', name: 'Rwandan Franc', symbol: 'FRw' },
+  'Tanzania': { code: 'TZS', name: 'Tanzanian Shilling', symbol: 'TSh' },
+  'Somalia': { code: 'SOS', name: 'Somali Shilling', symbol: 'S' },
+  'Ethiopia': { code: 'ETB', name: 'Ethiopian Birr', symbol: 'Br' },
+  'Eritrea': { code: 'ERN', name: 'Eritrean Nakfa', symbol: 'Nfk' },
+  'Angola': { code: 'AOA', name: 'Angolan Kwanza', symbol: 'Kz' },
+  'Togo': { code: 'XOF', name: 'CFA Franc', symbol: 'CFA' },
+  'Niger': { code: 'XOF', name: 'CFA Franc', symbol: 'CFA' },
+  'Burundi': { code: 'BIF', name: 'Burundian Franc', symbol: 'FBu' },
+  'Ivory Coast': { code: 'XOF', name: 'CFA Franc', symbol: 'CFA' },
+  "Cote D'Ivoire": { code: 'XOF', name: 'CFA Franc', symbol: 'CFA' },
+  'Zambia': { code: 'ZMW', name: 'Zambian Kwacha', symbol: 'ZK' },
+  'Madagascar': { code: 'MGA', name: 'Malagasy Ariary', symbol: 'Ar' },
+  'Mali': { code: 'XOF', name: 'CFA Franc', symbol: 'CFA' },
+  'Mozambique': { code: 'MZN', name: 'Mozambican Metical', symbol: 'MT' },
+  'Gambia': { code: 'GMD', name: 'Gambian Dalasi', symbol: 'D' },
+  'Guinea': { code: 'GNF', name: 'Guinean Franc', symbol: 'FG' },
+  'Guinea-Bissau': { code: 'XOF', name: 'CFA Franc', symbol: 'CFA' },
+  'Liberia': { code: 'LRD', name: 'Liberian Dollar', symbol: 'L$' },
+  'Central African Republic': { code: 'XAF', name: 'Central African CFA', symbol: 'FCFA' },
+  'Malawi': { code: 'MWK', name: 'Malawian Kwacha', symbol: 'MK' },
+  'Lesotho': { code: 'LSL', name: 'Lesotho Loti', symbol: 'L' },
+  'Eswatini': { code: 'SZL', name: 'Swazi Lilangeni', symbol: 'E' },
+  'Swaziland': { code: 'SZL', name: 'Swazi Lilangeni', symbol: 'E' },
+  'Seychelles': { code: 'SCR', name: 'Seychellois Rupee', symbol: '₨' },
+  'Mauritius': { code: 'MUR', name: 'Mauritian Rupee', symbol: '₨' },
+  'Comoros': { code: 'KMF', name: 'Comorian Franc', symbol: 'CF' },
+  'Benin': { code: 'XOF', name: 'CFA Franc', symbol: 'CFA' },
+  'Burkina Faso': { code: 'XOF', name: 'CFA Franc', symbol: 'CFA' },
+  'Cape Verde': { code: 'CVE', name: 'Cape Verdean Escudo', symbol: '$' },
+  'Gabon': { code: 'XAF', name: 'Central African CFA', symbol: 'FCFA' },
+  'Equatorial Guinea': { code: 'XAF', name: 'Central African CFA', symbol: 'FCFA' },
+  'Chad': { code: 'XAF', name: 'Central African CFA', symbol: 'FCFA' },
+  'Sao Tome and Principe': { code: 'STN', name: 'São Tomé Dobra', symbol: 'Db' },
+  
+  // South Asia
+  'India': { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
+  'Pakistan': { code: 'PKR', name: 'Pakistani Rupee', symbol: '₨' },
+  'Bangladesh': { code: 'BDT', name: 'Bangladeshi Taka', symbol: '৳' },
+  'Sri Lanka': { code: 'LKR', name: 'Sri Lankan Rupee', symbol: 'Rs' },
+  'Nepal': { code: 'NPR', name: 'Nepalese Rupee', symbol: '₨' },
+  'Maldives': { code: 'MVR', name: 'Maldivian Rufiyaa', symbol: 'Rf' },
+  'Bhutan': { code: 'BTN', name: 'Bhutanese Ngultrum', symbol: 'Nu.' },
+  'Afghanistan': { code: 'AFN', name: 'Afghan Afghani', symbol: '؋' },
+  
+  // Southeast Asia
+  'Indonesia': { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp' },
+  'Malaysia': { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM' },
+  'Singapore': { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
+  'Thailand': { code: 'THB', name: 'Thai Baht', symbol: '฿' },
+  'Philippines': { code: 'PHP', name: 'Philippine Peso', symbol: '₱' },
+  'Vietnam': { code: 'VND', name: 'Vietnamese Dong', symbol: '₫' },
+  'Myanmar': { code: 'MMK', name: 'Myanmar Kyat', symbol: 'K' },
+  'Cambodia': { code: 'KHR', name: 'Cambodian Riel', symbol: '៛' },
+  'Laos': { code: 'LAK', name: 'Lao Kip', symbol: '₭' },
+  'Brunei': { code: 'BND', name: 'Brunei Dollar', symbol: 'B$' },
+  'Timor-Leste': { code: 'USD', name: 'US Dollar', symbol: '$' },
+  
+  // East Asia
+  'China': { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+  'Japan': { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+  'South Korea': { code: 'KRW', name: 'South Korean Won', symbol: '₩' },
+  'North Korea': { code: 'KPW', name: 'North Korean Won', symbol: '₩' },
+  'Taiwan': { code: 'TWD', name: 'New Taiwan Dollar', symbol: 'NT$' },
+  'Hong Kong': { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
+  'Macau': { code: 'MOP', name: 'Macanese Pataca', symbol: 'MOP$' },
+  'Mongolia': { code: 'MNT', name: 'Mongolian Tugrik', symbol: '₮' },
+  
+  // Central Asia
+  'Kazakhstan': { code: 'KZT', name: 'Kazakhstani Tenge', symbol: '₸' },
+  'Uzbekistan': { code: 'UZS', name: 'Uzbekistani Som', symbol: 'сўм' },
+  'Turkmenistan': { code: 'TMT', name: 'Turkmenistani Manat', symbol: 'm' },
+  'Kyrgyzstan': { code: 'KGS', name: 'Kyrgyzstani Som', symbol: 'с' },
+  'Tajikistan': { code: 'TJS', name: 'Tajikistani Somoni', symbol: 'SM' },
+  
+  // Europe
+  'Germany': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'France': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Italy': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Spain': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Netherlands': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Belgium': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Austria': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Portugal': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Greece': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Finland': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Ireland': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Luxembourg': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Malta': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Cyprus': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Slovakia': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Slovenia': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Estonia': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Latvia': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Lithuania': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Croatia': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'United Kingdom': { code: 'GBP', name: 'British Pound', symbol: '£' },
+  'UK': { code: 'GBP', name: 'British Pound', symbol: '£' },
+  'Switzerland': { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
+  'Sweden': { code: 'SEK', name: 'Swedish Krona', symbol: 'kr' },
+  'Norway': { code: 'NOK', name: 'Norwegian Krone', symbol: 'kr' },
+  'Denmark': { code: 'DKK', name: 'Danish Krone', symbol: 'kr' },
+  'Poland': { code: 'PLN', name: 'Polish Zloty', symbol: 'zł' },
+  'Czech Republic': { code: 'CZK', name: 'Czech Koruna', symbol: 'Kč' },
+  'Czechia': { code: 'CZK', name: 'Czech Koruna', symbol: 'Kč' },
+  'Hungary': { code: 'HUF', name: 'Hungarian Forint', symbol: 'Ft' },
+  'Romania': { code: 'RON', name: 'Romanian Leu', symbol: 'lei' },
+  'Bulgaria': { code: 'BGN', name: 'Bulgarian Lev', symbol: 'лв' },
+  'Russia': { code: 'RUB', name: 'Russian Ruble', symbol: '₽' },
+  'Ukraine': { code: 'UAH', name: 'Ukrainian Hryvnia', symbol: '₴' },
+  'Belarus': { code: 'BYN', name: 'Belarusian Ruble', symbol: 'Br' },
+  'Moldova': { code: 'MDL', name: 'Moldovan Leu', symbol: 'L' },
+  'Serbia': { code: 'RSD', name: 'Serbian Dinar', symbol: 'дин.' },
+  'Bosnia and Herzegovina': { code: 'BAM', name: 'Convertible Mark', symbol: 'KM' },
+  'North Macedonia': { code: 'MKD', name: 'Macedonian Denar', symbol: 'ден' },
+  'Macedonia': { code: 'MKD', name: 'Macedonian Denar', symbol: 'ден' },
+  'Albania': { code: 'ALL', name: 'Albanian Lek', symbol: 'L' },
+  'Montenegro': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Kosovo': { code: 'EUR', name: 'Euro', symbol: '€' },
+  'Iceland': { code: 'ISK', name: 'Icelandic Króna', symbol: 'kr' },
+  'Turkey': { code: 'TRY', name: 'Turkish Lira', symbol: '₺' },
+  'Georgia': { code: 'GEL', name: 'Georgian Lari', symbol: '₾' },
+  'Armenia': { code: 'AMD', name: 'Armenian Dram', symbol: '֏' },
+  'Azerbaijan': { code: 'AZN', name: 'Azerbaijani Manat', symbol: '₼' },
+  
+  // Americas
+  'United States': { code: 'USD', name: 'US Dollar', symbol: '$' },
+  'USA': { code: 'USD', name: 'US Dollar', symbol: '$' },
+  'Canada': { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+  'Mexico': { code: 'MXN', name: 'Mexican Peso', symbol: '$' },
+  'Brazil': { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
+  'Argentina': { code: 'ARS', name: 'Argentine Peso', symbol: '$' },
+  'Chile': { code: 'CLP', name: 'Chilean Peso', symbol: '$' },
+  'Colombia': { code: 'COP', name: 'Colombian Peso', symbol: '$' },
+  'Peru': { code: 'PEN', name: 'Peruvian Sol', symbol: 'S/' },
+  'Venezuela': { code: 'VES', name: 'Venezuelan Bolívar', symbol: 'Bs.' },
+  'Ecuador': { code: 'USD', name: 'US Dollar', symbol: '$' },
+  'Bolivia': { code: 'BOB', name: 'Bolivian Boliviano', symbol: 'Bs.' },
+  'Paraguay': { code: 'PYG', name: 'Paraguayan Guarani', symbol: '₲' },
+  'Uruguay': { code: 'UYU', name: 'Uruguayan Peso', symbol: '$U' },
+  'Panama': { code: 'PAB', name: 'Panamanian Balboa', symbol: 'B/.' },
+  'Costa Rica': { code: 'CRC', name: 'Costa Rican Colón', symbol: '₡' },
+  'Guatemala': { code: 'GTQ', name: 'Guatemalan Quetzal', symbol: 'Q' },
+  'Honduras': { code: 'HNL', name: 'Honduran Lempira', symbol: 'L' },
+  'El Salvador': { code: 'USD', name: 'US Dollar', symbol: '$' },
+  'Nicaragua': { code: 'NIO', name: 'Nicaraguan Córdoba', symbol: 'C$' },
+  'Dominican Republic': { code: 'DOP', name: 'Dominican Peso', symbol: 'RD$' },
+  'Cuba': { code: 'CUP', name: 'Cuban Peso', symbol: '₱' },
+  'Jamaica': { code: 'JMD', name: 'Jamaican Dollar', symbol: 'J$' },
+  'Haiti': { code: 'HTG', name: 'Haitian Gourde', symbol: 'G' },
+  'Puerto Rico': { code: 'USD', name: 'US Dollar', symbol: '$' },
+  'Trinidad and Tobago': { code: 'TTD', name: 'Trinidad Dollar', symbol: 'TT$' },
+  'Barbados': { code: 'BBD', name: 'Barbadian Dollar', symbol: 'Bds$' },
+  'Bahamas': { code: 'BSD', name: 'Bahamian Dollar', symbol: 'B$' },
+  'Guyana': { code: 'GYD', name: 'Guyanese Dollar', symbol: 'G$' },
+  'Suriname': { code: 'SRD', name: 'Surinamese Dollar', symbol: '$' },
+  'Belize': { code: 'BZD', name: 'Belize Dollar', symbol: 'BZ$' },
+  
+  // Oceania
+  'Australia': { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
+  'New Zealand': { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' },
+  'Papua New Guinea': { code: 'PGK', name: 'Papua New Guinean Kina', symbol: 'K' },
+  'Fiji': { code: 'FJD', name: 'Fijian Dollar', symbol: 'FJ$' },
+  'Solomon Islands': { code: 'SBD', name: 'Solomon Islands Dollar', symbol: 'SI$' },
+  'Vanuatu': { code: 'VUV', name: 'Vanuatu Vatu', symbol: 'VT' },
+  'Samoa': { code: 'WST', name: 'Samoan Tala', symbol: 'WS$' },
+  'Tonga': { code: 'TOP', name: 'Tongan Paʻanga', symbol: 'T$' },
+  
+  // Iran
+  'Iran': { code: 'IRR', name: 'Iranian Rial', symbol: '﷼' },
+};
+
+// Helper function to get currency for a country
+const getCurrencyForCountry = (countryName) => {
+  // Try exact match first
+  if (currencyMapping[countryName]) {
+    return currencyMapping[countryName];
+  }
+  // Try case-insensitive match
+  const normalizedName = countryName.toUpperCase();
+  for (const [key, value] of Object.entries(currencyMapping)) {
+    if (key.toUpperCase() === normalizedName) {
+      return value;
+    }
+  }
+  // Default unknown currency
+  return { code: '—', name: 'Unknown', symbol: '—' };
+};
 
 // Import the regional mapping from KPIExecutiveSummary.js
 const regionalMapping = {
@@ -886,6 +1127,7 @@ const CountryReference = () => {
             <tr>
               <th>Status</th>
               <th>Country Name</th>
+              <th>Currency</th>
               <th>Region</th>
               <th>Market Type</th>
               <th>Longitude</th>
@@ -905,6 +1147,9 @@ const CountryReference = () => {
               const isUnmatched = inExcel && (!coords || coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1]));
               // Market type logic
               const marketType = getMarketType(countryName);
+              // Get currency info
+              const currency = getCurrencyForCountry(countryName);
+              const isUAE = countryName === 'United Arab Emirates' || countryName === 'UAE';
               return (
                 <tr 
                   key={countryName} 
@@ -919,6 +1164,18 @@ const CountryReference = () => {
                       <div className="excel-name">{selectedDivision === 'FP' ? 'Database' : 'Excel'}: "{originalName}"</div>
                     )}
                     {isUnmatched && <div className="unmatched-warning">No coordinates found</div>}
+                  </td>
+                  <td className="currency-cell" style={{ textAlign: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                      <span style={{ fontWeight: 600, fontSize: '13px' }}>
+                        {isUAE ? (
+                          <UAEDirhamSymbol style={{ width: '1.1em', height: '1.1em', verticalAlign: 'middle' }} />
+                        ) : (
+                          <span>{currency.symbol}</span>
+                        )}
+                      </span>
+                      <span style={{ fontSize: '10px', color: '#888' }}>{currency.code}</span>
+                    </div>
                   </td>
                   <td className={`region-cell ${region === 'Unassigned' ? 'unassigned' : region.toLowerCase().replace(/\s+/g, '-')}`}>{region}</td>
                   <td className="market-type-cell">{marketType}</td>

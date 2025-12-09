@@ -2,7 +2,7 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { useFilter } from '../../contexts/FilterContext';
 import { useExcelData } from '../../contexts/ExcelDataContext';
-import UAEDirhamSymbol from './UAEDirhamSymbol';
+import CurrencySymbol from './CurrencySymbol';
 import './SalesByCustomerTableNew.css';
 import { COLOR_SCHEMES } from './utils/FinancialConstants';
 import { getColumnColorPalette } from './utils/colorUtils';
@@ -854,7 +854,7 @@ const SalesByCustomerTableNew = ({ hideHeader = false }) => {
             <h2>Top 20 Customers - {selectedDivision}</h2>
             <div className="table-subtitle">
               <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
-                (<UAEDirhamSymbol />)
+                (<CurrencySymbol />)
               </div>
             </div>
             <div className="table-options">

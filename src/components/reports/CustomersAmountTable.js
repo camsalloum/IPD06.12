@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useFilter } from '../../contexts/FilterContext';
 import { useExcelData } from '../../contexts/ExcelDataContext';
 import { formatCustomRangeDisplay } from '../../utils/periodHelpers';
-import UAEDirhamSymbol from '../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../dashboard/CurrencySymbol';
 
 const CustomersAmountTable = ({ rep }) => {
   const { columnOrder, basePeriodIndex } = useFilter();
@@ -521,7 +521,7 @@ const CustomersAmountTable = ({ rep }) => {
         padding: '20px',
         background: 'white'
       }}>
-        Customer Sales - <UAEDirhamSymbol /> Sales Comparison
+        Customer Sales - <CurrencySymbol /> Sales Comparison
       </h3>
       
       <div style={{ overflowX: 'auto' }}>

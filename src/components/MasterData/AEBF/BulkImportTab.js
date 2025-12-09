@@ -11,7 +11,7 @@ import {
   SearchOutlined, TeamOutlined, UserOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
-import UAEDirhamSymbol from '../../dashboard/UAEDirhamSymbol';
+import CurrencySymbol from '../../dashboard/CurrencySymbol';
 
 const { Dragger } = Upload;
 const { Title, Text } = Typography;
@@ -715,7 +715,7 @@ const BulkImportTab = ({ selectedDivision, budgetYear, message, modal }) => {
                 <Statistic 
                   title="Total Amount" 
                   value={formatNumber(totals.totalAmount)} 
-                  prefix={<UAEDirhamSymbol />}
+                  prefix={<CurrencySymbol />}
                 />
               </Card>
             </Col>
@@ -724,7 +724,7 @@ const BulkImportTab = ({ selectedDivision, budgetYear, message, modal }) => {
                 <Statistic 
                   title="Total MoRM" 
                   value={formatNumber(totals.totalMoRM)} 
-                  prefix={<UAEDirhamSymbol />}
+                  prefix={<CurrencySymbol />}
                 />
               </Card>
             </Col>

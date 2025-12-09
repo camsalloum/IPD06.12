@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useExcelData } from '../../contexts/ExcelDataContext';
-import UAEDirhamSymbol from './UAEDirhamSymbol';
+import CurrencySymbol from './CurrencySymbol';
 import './MaterialPercentageManager.css';
 
 // Supported divisions - dynamically fetched from backend if needed
@@ -390,7 +390,7 @@ const ProductGroupPricingManager = () => {
         <h3>
           Product Group Pricing - {selectedDivision}{' '}
           <span className="currency-caption">
-            (<UAEDirhamSymbol /> / Kg)
+            (<CurrencySymbol /> / Kg)
           </span>
         </h3>
         <div className="header-actions" style={{ gap: '12px' }}>

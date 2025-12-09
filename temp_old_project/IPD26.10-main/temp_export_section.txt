@@ -1,0 +1,10 @@
+At line:1 char:202
++ ... ); if ( -eq -1) {  = .Length }; .Substring(, 
+[Math]::Min(15000,  - ))
++                                                              
+         ~
+Missing expression after unary operator '-'.
+    + CategoryInfo          : ParserError: (:) [], ParentConta 
+   insErrorRecordException
+    + FullyQualifiedErrorId : MissingExpressionAfterOperator
+ 

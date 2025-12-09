@@ -1,5 +1,5 @@
 import React from 'react';
-import UAEDirhamSymbol from '../UAEDirhamSymbol';
+import CurrencySymbol from '../CurrencySymbol';
 
 /**
  * Format AED currency with symbol for display
@@ -15,7 +15,7 @@ export const formatAEDSymbol = (value, options = {}) => {
   if (value == null || isNaN(value)) {
     return (
       <>
-        {useSymbol && <UAEDirhamSymbol />}
+        {useSymbol && <CurrencySymbol />}
         0.00
       </>
     );
@@ -24,7 +24,7 @@ export const formatAEDSymbol = (value, options = {}) => {
   const formatted = value.toFixed(dp);
   return (
     <>
-      {useSymbol && <UAEDirhamSymbol />}
+      {useSymbol && <CurrencySymbol />}
       {formatted}
     </>
   );
@@ -44,7 +44,7 @@ export const formatAEDPerKg = (value, options = {}) => {
   if (value == null || isNaN(value)) {
     return (
       <>
-        {useSymbol && <UAEDirhamSymbol />}
+        {useSymbol && <CurrencySymbol />}
         0.00/kg
       </>
     );
@@ -53,7 +53,7 @@ export const formatAEDPerKg = (value, options = {}) => {
   const formatted = value.toFixed(dp);
   return (
     <>
-      {useSymbol && <UAEDirhamSymbol />}
+      {useSymbol && <CurrencySymbol />}
       {formatted}/kg
     </>
   );
@@ -90,7 +90,7 @@ export const formatAEDLarge = (value, options = {}) => {
   if (value == null || isNaN(value)) {
     return (
       <>
-        {useSymbol && <UAEDirhamSymbol />}
+        {useSymbol && <CurrencySymbol />}
         0.00M
       </>
     );
@@ -107,7 +107,7 @@ export const formatAEDLarge = (value, options = {}) => {
   
   return (
     <>
-      {useSymbol && <UAEDirhamSymbol />}
+      {useSymbol && <CurrencySymbol />}
       {formatted}
     </>
   );

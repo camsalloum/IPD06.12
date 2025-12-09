@@ -1,0 +1,43 @@
+**********************
+PowerShell transcript start
+Start time: 20251128172458
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26200.0)
+Host Application: C:\Program Files\PowerShell\7\pwsh.dll D:\Projects\IPD26.10\upload-to-github.ps1
+Process ID: 3932
+PSVersion: 7.5.4
+PSEdition: Core
+GitCommitId: 7.5.4
+OS: Microsoft Windows 10.0.26200
+Platform: Win32NT
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1, 6.0, 7.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+WSManStackVersion: 3.0
+**********************
+[INFO] Working directory: D:\Projects\IPD26.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+warning: in the working copy of 'server/routes/aebf.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/MasterData/AEBF/BudgetTab.js', LF will be replaced by CRLF the next time
+ Git touches it
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+Enumerating objects: 23, done.
+Counting objects: 100% (23/23), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (12/12), done.
+Writing objects: 100% (12/12), 5.03 KiB | 343.00 KiB/s, done.
+Total 12 (delta 9), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (9/9), completed with 9 local objects.
+To https://github.com/camsalloum/IPD26.10.git
+   79bb171..f8bab0e  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+PowerShell transcript end
+End time: 20251128172507
+**********************

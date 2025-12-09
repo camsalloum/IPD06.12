@@ -9,7 +9,7 @@ import RowConfigurationService from './utils/RowConfigurationService';
 import StylingService from './utils/StylingService';
 import DataValidator from './utils/DataValidator';
 import { FINANCIAL_ROWS } from './utils/FinancialConstants';
-import UAEDirhamSymbol from './UAEDirhamSymbol';
+import CurrencySymbol from './CurrencySymbol';
 
 // Helper function for safely removing DOM elements
 const safelyRemoveElement = (element) => {
@@ -211,7 +211,7 @@ const TableView = ({ hideHeader = false }) => {
           <div className="pl-table-header">
             <div className="pl-header-center">
               <h2 className="pl-table-title">Profit and Loss Statement</h2>
-              <div className="pl-table-subtitle">(<UAEDirhamSymbol />)</div>
+              <div className="pl-table-subtitle">(<CurrencySymbol />)</div>
             </div>
           </div>
         </>
@@ -277,7 +277,7 @@ const TableView = ({ hideHeader = false }) => {
                     % of Sls
                   </th>
                   <th style={{...getColumnHeaderStyle(column)}}>
-                    <UAEDirhamSymbol /> / Kg
+                    <CurrencySymbol /> / Kg
                   </th>
                 </React.Fragment>
               ))}

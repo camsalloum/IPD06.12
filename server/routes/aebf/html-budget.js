@@ -174,49 +174,227 @@ router.post('/html-budget-customers-all', queryLimiter, cacheMiddleware({ ttl: C
 /**
  * POST /html-budget-customers
  * Get customer actual sales data for a specific sales rep
+ * Includes merge rules, budget data, and pricing data
  * 
  * @route POST /api/aebf/html-budget-customers
  * @body {string} division - Division (FP or HC)
  * @body {number} actualYear - Actual year for data retrieval
  * @body {string} salesRep - Sales rep name
- * @returns {object} 200 - Customer data for specified sales rep
+ * @returns {object} 200 - Customer data with monthlyActual, budgetData, pricingData
  */
-router.post('/html-budget-customers', queryLimiter, cacheMiddleware({ ttl: CacheTTL.MEDIUM }), validationRules.htmlBudgetCustomers, asyncHandler(async (req, res) => {
+router.post('/html-budget-customers', queryLimiter, validationRules.htmlBudgetCustomers, asyncHandler(async (req, res) => {
   const { division, actualYear, salesRep } = req.body;
   
   await ensureHtmlBudgetIndexes(division);
-    
-    const divisionPool = getPoolForDivision(division);
-    const tables = getTableNames(division);
-    
-    const query = `
-      SELECT 
-        TRIM(customername) as customer,
-        TRIM(countryname) as country,
-        TRIM(productgroup) as productgroup,
-        month,
-        SUM(CASE WHEN UPPER(values_type) = 'KGS' THEN values ELSE 0 END) / 1000.0 as mt_value
-      FROM public.${tables.dataExcel}
-      WHERE UPPER(division) = UPPER($1)
-        AND year = $2
-        AND UPPER(TRIM(salesrepname)) = UPPER(TRIM($3))
-        AND UPPER(type) = 'ACTUAL'
-      GROUP BY TRIM(customername), TRIM(countryname), TRIM(productgroup), month
-      HAVING SUM(CASE WHEN UPPER(values_type) = 'KGS' THEN values ELSE 0 END) > 0
-      ORDER BY TRIM(customername), TRIM(productgroup), month
-    `;
-    
-    const result = await divisionPool.query(query, [
-      division,
-      parseInt(actualYear),
-      salesRep
-    ]);
-    
-    successResponse(res, {
-      customers: result.rows,
-      actualYear: parseInt(actualYear),
-      salesRep
+  
+  // Helper functions
+  const norm = (s) => (s || '').toString().trim().toLowerCase();
+  const toProperCase = (str) => {
+    if (!str) return '';
+    return str.toLowerCase().replace(/(?:^|\s|[-/])\w/g, (match) => match.toUpperCase());
+  };
+  
+  // Check if salesRep is a group (load config)
+  const path = require('path');
+  const fs = require('fs');
+  const SALES_REP_CONFIG_FILE = path.join(__dirname, '..', '..', 'data', 'sales-reps-config.json');
+  let config = {};
+  try {
+    if (fs.existsSync(SALES_REP_CONFIG_FILE)) {
+      config = JSON.parse(fs.readFileSync(SALES_REP_CONFIG_FILE, 'utf8'));
+    }
+  } catch (err) {
+    logger.warn('Error loading sales rep config:', err.message);
+  }
+  
+  const divisionConfig = config[division] || { groups: {} };
+  const isGroup = divisionConfig.groups && divisionConfig.groups[salesRep];
+  const salesRepsToQuery = isGroup 
+    ? divisionConfig.groups[salesRep].map(r => r.toString().trim().toUpperCase())
+    : [salesRep.toString().trim().toUpperCase()];
+  
+  if (salesRepsToQuery.length === 0) {
+    return res.json({ success: true, data: [] });
+  }
+  
+  // Fetch merge rules for the division
+  const mergeRules = await DivisionMergeRulesService.listRules(division);
+  const activeMergeRules = mergeRules.filter(r => r.status === 'ACTIVE' && r.is_active === true);
+  
+  // Build customer merge map
+  const customerMergeMap = new Map();
+  activeMergeRules.forEach(rule => {
+    const mergedName = rule.merged_customer_name;
+    const originalCustomers = Array.isArray(rule.original_customers) 
+      ? rule.original_customers 
+      : (typeof rule.original_customers === 'string' 
+          ? JSON.parse(rule.original_customers) 
+          : []);
+    originalCustomers.forEach(original => {
+      customerMergeMap.set(norm(original), mergedName);
     });
+  });
+  
+  const divisionPool = getPoolForDivision(division);
+  const tables = getTableNames(division);
+  
+  // Query Actual sales data with KGS, AMOUNT, and MORM
+  const query = `
+    SELECT
+      TRIM(customername) as customer,
+      TRIM(countryname) as country,
+      TRIM(productgroup) as productgroup,
+      month,
+      SUM(CASE WHEN UPPER(values_type) = 'KGS' THEN values ELSE 0 END) / 1000.0 as mt_value,
+      SUM(CASE WHEN UPPER(values_type) = 'AMOUNT' THEN values ELSE 0 END) as amount_value,
+      SUM(CASE WHEN UPPER(values_type) = 'MORM' THEN values ELSE 0 END) as morm_value
+    FROM public.${tables.dataExcel}
+    WHERE UPPER(division) = UPPER($1)
+      AND year = $2
+      AND UPPER(type) = 'ACTUAL'
+      AND TRIM(UPPER(salesrepname)) = ANY($3::text[])
+      AND customername IS NOT NULL AND TRIM(customername) != ''
+      AND countryname IS NOT NULL AND TRIM(countryname) != ''
+      AND productgroup IS NOT NULL AND TRIM(productgroup) != ''
+      AND UPPER(TRIM(productgroup)) != 'SERVICES CHARGES'
+    GROUP BY TRIM(customername), TRIM(countryname), TRIM(productgroup), month
+    ORDER BY TRIM(customername), TRIM(countryname), TRIM(productgroup), month
+  `;
+  
+  const result = await divisionPool.query(query, [division, parseInt(actualYear), salesRepsToQuery]);
+  
+  // Transform to table structure with monthlyActual
+  const customerMap = {};
+  result.rows.forEach(row => {
+    const normalizedCustomer = norm(row.customer);
+    const displayCustomerName = customerMergeMap.get(normalizedCustomer) || toProperCase(row.customer);
+    const displayCountry = toProperCase(row.country);
+    const displayProductGroup = toProperCase(row.productgroup);
+    
+    const key = `${displayCustomerName}|${displayCountry}|${displayProductGroup}`;
+    if (!customerMap[key]) {
+      customerMap[key] = {
+        customer: displayCustomerName,
+        country: displayCountry,
+        productGroup: displayProductGroup,
+        monthlyActual: {},
+        monthlyActualAmount: {},
+        monthlyActualMorm: {},
+      };
+    }
+    const existingMt = customerMap[key].monthlyActual[row.month] || 0;
+    const existingAmount = customerMap[key].monthlyActualAmount[row.month] || 0;
+    const existingMorm = customerMap[key].monthlyActualMorm[row.month] || 0;
+    customerMap[key].monthlyActual[row.month] = existingMt + (parseFloat(row.mt_value) || 0);
+    customerMap[key].monthlyActualAmount[row.month] = existingAmount + (parseFloat(row.amount_value) || 0);
+    customerMap[key].monthlyActualMorm[row.month] = existingMorm + (parseFloat(row.morm_value) || 0);
+  });
+  
+  // Convert to array with all 12 months
+  const data = Object.values(customerMap).map(item => {
+    const monthlyActual = {};
+    const monthlyActualAmount = {};
+    const monthlyActualMorm = {};
+    for (let month = 1; month <= 12; month++) {
+      monthlyActual[month] = item.monthlyActual[month] || 0;
+      monthlyActualAmount[month] = item.monthlyActualAmount[month] || 0;
+      monthlyActualMorm[month] = item.monthlyActualMorm[month] || 0;
+    }
+    return { ...item, monthlyActual, monthlyActualAmount, monthlyActualMorm };
+  });
+  
+  // Load budget data from sales_rep_budget table
+  const budgetYear = parseInt(actualYear) + 1;
+  const budgetQuery = `
+    SELECT 
+      TRIM(customername) as customer,
+      TRIM(countryname) as country,
+      TRIM(productgroup) as productgroup,
+      month,
+      values / 1000.0 as mt_value
+    FROM ${tables.salesRepBudget}
+    WHERE UPPER(division) = UPPER($1)
+      AND budget_year = $2
+      AND UPPER(TRIM(salesrepname)) = ANY($3::text[])
+      AND UPPER(type) = 'BUDGET'
+      AND UPPER(values_type) = 'KGS'
+    ORDER BY TRIM(customername), TRIM(countryname), TRIM(productgroup), month
+  `;
+  
+  const budgetResult = await divisionPool.query(budgetQuery, [division, budgetYear, salesRepsToQuery]);
+  
+  // Build budget map and track budget-only customers
+  const budgetMap = {};
+  const budgetOnlyCustomers = new Set();
+  
+  budgetResult.rows.forEach(row => {
+    const normalizedCustomer = norm(row.customer);
+    const displayCustomerName = customerMergeMap.get(normalizedCustomer) || toProperCase(row.customer);
+    const displayCountry = toProperCase(row.country);
+    const displayProductGroup = toProperCase(row.productgroup);
+    
+    const key = `${displayCustomerName}|${displayCountry}|${displayProductGroup}|${row.month}`;
+    budgetMap[key] = parseFloat(row.mt_value) || 0;
+    budgetOnlyCustomers.add(`${displayCustomerName}|${displayCountry}|${displayProductGroup}`);
+  });
+  
+  // Add budget-only customers to data array
+  budgetOnlyCustomers.forEach(customerKey => {
+    const normalizedBudgetKey = customerKey.toLowerCase();
+    const exists = data.some(item => {
+      const itemKey = `${item.customer}|${item.country}|${item.productGroup}`.toLowerCase();
+      return itemKey === normalizedBudgetKey;
+    });
+    
+    if (!exists) {
+      const [customer, country, productGroup] = customerKey.split('|');
+      const monthlyActual = {};
+      for (let month = 1; month <= 12; month++) {
+        monthlyActual[month] = 0;
+      }
+      data.push({ customer, country, productGroup, monthlyActual });
+    }
+  });
+  
+  // Sort data
+  data.sort((a, b) => {
+    const nameCompare = a.customer.localeCompare(b.customer);
+    if (nameCompare !== 0) return nameCompare;
+    const countryCompare = a.country.localeCompare(b.country);
+    if (countryCompare !== 0) return countryCompare;
+    return a.productGroup.localeCompare(b.productGroup);
+  });
+  
+  // Load pricing data
+  const pricingYear = parseInt(actualYear);
+  const pricingQuery = `
+    SELECT 
+      TRIM(product_group) as product_group,
+      COALESCE(asp_round, 0) as selling_price,
+      COALESCE(morm_round, 0) as morm
+    FROM ${tables.pricingRounding}
+    WHERE UPPER(division) = UPPER($1) AND year = $2
+  `;
+  const pricingResult = await divisionPool.query(pricingQuery, [division, pricingYear]);
+  
+  const pricingMap = {};
+  pricingResult.rows.forEach(row => {
+    pricingMap[row.product_group.toLowerCase()] = {
+      sellingPrice: parseFloat(row.selling_price) || 0,
+      morm: parseFloat(row.morm) || 0
+    };
+  });
+  
+  // Return in legacy format for frontend compatibility
+  res.json({
+    success: true,
+    data,
+    budgetData: budgetMap,
+    pricingData: pricingMap,
+    pricingYear,
+    salesRep,
+    isGroup: !!isGroup,
+  });
 }));
 
 /**
@@ -234,8 +412,14 @@ router.post('/save-html-budget', queryLimiter, validationRules.saveHtmlBudget, a
   const { division, budgetYear, salesRep, budgetData } = req.body;
   
   await ensureSalesRepBudgetColumns(division);
-    
-    const result = await saveLiveSalesRepBudget(division, budgetYear, salesRep, budgetData);
+  
+  const divisionPool = getPoolForDivision(division);
+  const result = await saveLiveSalesRepBudget(divisionPool, {
+    division,
+    budgetYear,
+    salesRep,
+    records: budgetData
+  });
     
     // Invalidate cache after saving
     invalidateCache('aebf:*').catch(err => 
@@ -247,44 +431,378 @@ router.post('/save-html-budget', queryLimiter, validationRules.saveHtmlBudget, a
 
 /**
  * POST /export-html-budget-form
- * Export HTML budget form data (placeholder for future implementation)
+ * Export HTML budget form data - generates interactive HTML file
  * 
  * @route POST /api/aebf/export-html-budget-form
  * @body {string} division - Division (FP or HC)
- * @body {number} budgetYear - Budget year
+ * @body {number} actualYear - Actual year (budget year is actualYear + 1)
  * @body {string} salesRep - Sales rep name
- * @returns {object} 200 - Export result (placeholder)
+ * @body {array} tableData - Table data for export
+ * @body {array} customRowsData - Custom rows data
+ * @body {object} budgetData - Budget data
+ * @body {array} mergedCustomers - Merged customers list
+ * @body {array} countries - Countries list
+ * @body {array} productGroups - Product groups list
+ * @returns {object} 200 - HTML content for download
  */
-router.post('/export-html-budget-form', validationRules.budgetSalesRepRecap, asyncHandler(async (req, res) => {
-  const { division, budgetYear, salesRep } = req.body;
+router.post('/export-html-budget-form', validationRules.htmlBudgetCustomers, asyncHandler(async (req, res) => {
+  const { 
+    division, 
+    actualYear, 
+    salesRep,
+    tableData = [],
+    customRowsData = [],
+    budgetData = {},
+    mergedCustomers = [],
+    countries = [],
+    productGroups = [],
+    currency = { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' } // Default to AED
+  } = req.body;
+  
+  const budgetYear = actualYear + 1;
+  const divisionCode = (division || 'FP').split('-')[0].toUpperCase();
+  
+  logger.info(`[export-html-budget-form] Generating HTML for ${salesRep}, ${divisionCode}, Budget Year ${budgetYear}`);
+  
+  // Get pricing data from database
+  let pricingData = {};
+  try {
+    const divisionPool = getPoolForDivision(division);
+    const tables = getTableNames(division);
     
-    // Placeholder - implement export logic
-    successResponse(res, {
-      message: 'Export functionality to be implemented',
-      division,
-      budgetYear,
-      salesRep
+    const pricingResult = await divisionPool.query(`
+      SELECT 
+        LOWER(TRIM(product_group)) as product_group,
+        COALESCE(asp_round, 0) as selling_price,
+        COALESCE(morm_round, 0) as morm
+      FROM public.${tables.pricingRounding}
+      WHERE UPPER(division) = UPPER($1)
+        AND year = $2
+        AND product_group IS NOT NULL
+        AND TRIM(product_group) != ''
+    `, [divisionCode, parseInt(actualYear)]);
+    
+    pricingResult.rows.forEach(row => {
+      pricingData[row.product_group] = {
+        sellingPrice: parseFloat(row.selling_price) || 0,
+        morm: parseFloat(row.morm) || 0
+      };
     });
+    
+    logger.debug(`[export-html-budget-form] Loaded ${Object.keys(pricingData).length} pricing records`);
+  } catch (error) {
+    logger.warn(`[export-html-budget-form] Could not load pricing data: ${error.message}`);
+  }
+  
+  // Generate the HTML
+  const { generateSalesRepHtmlExport } = require('../../utils/salesRepHtmlExport');
+  
+  const htmlContent = await generateSalesRepHtmlExport({
+    division: divisionCode,
+    actualYear,
+    salesRep,
+    tableData,
+    customRowsData,
+    budgetData,
+    mergedCustomers,
+    countries,
+    productGroups,
+    pricingData,
+    currency
+  });
+  
+  // Return raw HTML with proper content type for blob download
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${divisionCode}_Budget_${budgetYear}_${salesRep.replace(/[^a-zA-Z0-9]/g, '_')}.html"`);
+  res.send(htmlContent);
 }));
 
 /**
  * POST /import-budget-html
- * Import HTML budget data (placeholder for future implementation)
+ * Import HTML budget data - parses HTML file and saves to database
+ * Based on original implementation from aebf-legacy.js
  * 
  * @route POST /api/aebf/import-budget-html
- * @body {string} division - Division (FP or HC)
- * @body {number} budgetYear - Budget year
- * @body {array} budgetData - Array of budget records to import
- * @returns {object} 200 - Import result (placeholder)
+ * @body {string} htmlContent - HTML content to parse
+ * @body {string} currentDivision - Current selected division for validation
+ * @body {string} currentSalesRep - Current selected sales rep for validation (optional)
+ * @returns {object} 200 - Import result with record counts and totals
  */
-router.post('/import-budget-html', validationRules.saveHtmlBudget, asyncHandler(async (req, res) => {
-  const { division, budgetYear, budgetData } = req.body;
+router.post('/import-budget-html', validationRules.importHtmlBudget, asyncHandler(async (req, res) => {
+  const { htmlContent, currentDivision, currentSalesRep } = req.body;
+  
+  logger.info('[import-budget-html] Request received, HTML length: ' + htmlContent.length);
+  
+  // ============================================================================
+  // VALIDATION STEP 0: File Signature Check
+  // ============================================================================
+  const signaturePattern = /<!--\s*IPD_BUDGET_SYSTEM_v[\d.]+\s*::\s*TYPE=(SALES_REP_BUDGET|DIVISIONAL_BUDGET)\s*::/;
+  const signatureMatch = htmlContent.match(signaturePattern);
+  
+  if (!signatureMatch) {
+    logger.warn('[import-budget-html] File missing IPD Budget System signature - may be legacy or modified file');
+  } else if (signatureMatch[1] !== 'SALES_REP_BUDGET') {
+    throw ErrorCreators.validationError('Wrong file type. This appears to be a Divisional Budget file. Please use the Divisional Budget import instead.');
+  } else {
+    logger.info('[import-budget-html] Valid IPD Budget System signature detected');
+  }
+  
+  // ============================================================================
+  // VALIDATION STEP 1: Extract and Parse Data from savedBudgetData script
+  // ============================================================================
+  let metadata = null;
+  let budgetData = null;
+  
+  // Look for <script id="savedBudgetData"> containing budgetMetadata and savedBudget
+  const scriptTagMatch = htmlContent.match(/<script[^>]*id=["']savedBudgetData["'][^>]*>([\s\S]*?)<\/script>/i);
+  
+  if (scriptTagMatch && scriptTagMatch[1]) {
+    const scriptContent = scriptTagMatch[1];
     
-    // Placeholder - implement import logic
-    successResponse(res, {
-      message: 'Import functionality to be implemented',
-      recordsImported: budgetData.length
-    });
+    // Extract budgetMetadata and savedBudget from the script content
+    const metaMatch = scriptContent.match(/const\s+budgetMetadata\s*=\s*(\{[\s\S]*?\});/);
+    const dataMatch = scriptContent.match(/const\s+savedBudget\s*=\s*(\[[\s\S]*?\]);/);
+    
+    if (metaMatch && dataMatch) {
+      try {
+        metadata = JSON.parse(metaMatch[1]);
+      } catch (e) {
+        logger.error('[import-budget-html] Failed to parse budgetMetadata:', e.message);
+        throw ErrorCreators.validationError('Failed to parse budget metadata from file.');
+      }
+      
+      try {
+        budgetData = JSON.parse(dataMatch[1]);
+      } catch (e) {
+        logger.error('[import-budget-html] Failed to parse savedBudget:', e.message);
+        throw ErrorCreators.validationError('Failed to parse budget data from file.');
+      }
+    }
+  }
+  
+  // Fallback: try older format without script id
+  if (!metadata || !budgetData) {
+    const metadataMatch = htmlContent.match(/const budgetMetadata = (\{[\s\S]*?\});/);
+    const budgetDataMatch = htmlContent.match(/const savedBudget = (\[[\s\S]*?\]);/);
+    
+    if (metadataMatch && budgetDataMatch) {
+      try {
+        metadata = JSON.parse(metadataMatch[1]);
+        budgetData = JSON.parse(budgetDataMatch[1]);
+      } catch (e) {
+        logger.error('[import-budget-html] Failed to parse fallback format:', e.message);
+      }
+    }
+  }
+  
+  if (!metadata || !budgetData) {
+    throw ErrorCreators.validationError('Invalid HTML file format. Missing budget metadata or saved budget data. Please re-export using the in-app "Save Final" button.');
+  }
+  
+  logger.info('[import-budget-html] Parsed metadata:', { division: metadata.division, salesRep: metadata.salesRep, budgetYear: metadata.budgetYear });
+  logger.info('[import-budget-html] Budget records count:', budgetData.length);
+  
+  // ============================================================================
+  // VALIDATION STEP 2: Division Mismatch Check
+  // ============================================================================
+  if (currentDivision && metadata.division) {
+    const currentDivisionNormalized = currentDivision.trim().toUpperCase();
+    const fileDivisionNormalized = metadata.division.trim().toUpperCase();
+    
+    if (currentDivisionNormalized !== fileDivisionNormalized) {
+      throw ErrorCreators.validationError(
+        `Division Mismatch!\n\nYou are in division: ${currentDivision}\nBut this file is for: ${metadata.division}\n\nPlease switch to the correct division and try again.`
+      );
+    }
+  }
+  
+  // ============================================================================
+  // VALIDATION STEP 3: Check for Draft File
+  // ============================================================================
+  const draftCheck = htmlContent.match(/const draftMetadata = ({[^;]+});/);
+  if (draftCheck) {
+    try {
+      const draftMeta = JSON.parse(draftCheck[1]);
+      if (draftMeta.isDraft === true) {
+        throw ErrorCreators.validationError('Cannot upload draft file! This is a work-in-progress draft. Please open the file, complete your budget, and click "Save Final" before uploading.');
+      }
+    } catch (e) {
+      if (e.message.includes('Cannot upload draft')) throw e;
+      logger.debug('[import-budget-html] Draft check parse error (ignored):', e.message);
+    }
+  }
+  
+  // ============================================================================
+  // VALIDATION STEP 4: Validate Metadata Structure
+  // ============================================================================
+  const validationErrors = [];
+  
+  if (!metadata.division || typeof metadata.division !== 'string') {
+    validationErrors.push('Invalid or missing division');
+  }
+  if (!metadata.salesRep || typeof metadata.salesRep !== 'string') {
+    validationErrors.push('Invalid or missing sales rep name');
+  }
+  if (!metadata.budgetYear || typeof metadata.budgetYear !== 'number' || metadata.budgetYear < 2020 || metadata.budgetYear > 2100) {
+    validationErrors.push('Invalid or missing budget year (must be between 2020-2100)');
+  }
+  if (!metadata.version || metadata.version !== '1.0') {
+    validationErrors.push('Unsupported file version. Please re-export from the system.');
+  }
+  if (!metadata.dataFormat || metadata.dataFormat !== 'budget_import') {
+    validationErrors.push('Invalid data format. This file may not be a budget export.');
+  }
+  
+  if (validationErrors.length > 0) {
+    throw ErrorCreators.validationError('File validation failed:\n' + validationErrors.join('\n'));
+  }
+  
+  // ============================================================================
+  // VALIDATION STEP 5: Validate Budget Data Structure
+  // ============================================================================
+  if (!Array.isArray(budgetData)) {
+    throw ErrorCreators.validationError('Invalid budget data format. Expected an array of records.');
+  }
+  if (budgetData.length === 0) {
+    throw ErrorCreators.validationError('No budget data found in file. The file appears to be empty.');
+  }
+  if (budgetData.length > 10000) {
+    throw ErrorCreators.validationError(`Too many records (${budgetData.length}). Maximum allowed is 10,000.`);
+  }
+  
+  // ============================================================================
+  // VALIDATION STEP 6: Validate Individual Records
+  // ============================================================================
+  const recordErrors = [];
+  const validRecords = [];
+  
+  budgetData.forEach((record, index) => {
+    const errors = [];
+    
+    if (!record.customer || typeof record.customer !== 'string' || record.customer.trim() === '') {
+      errors.push('Missing or invalid customer name');
+    }
+    if (!record.country || typeof record.country !== 'string' || record.country.trim() === '') {
+      errors.push('Missing or invalid country');
+    }
+    if (!record.productGroup || typeof record.productGroup !== 'string' || record.productGroup.trim() === '') {
+      errors.push('Missing or invalid product group');
+    }
+    if (!record.month || typeof record.month !== 'number' || record.month < 1 || record.month > 12) {
+      errors.push('Invalid month (must be 1-12)');
+    }
+    if (record.value === undefined || record.value === null) {
+      errors.push('Missing value');
+    } else if (typeof record.value !== 'number' || isNaN(record.value)) {
+      errors.push('Invalid value (must be a number)');
+    } else if (record.value < 0) {
+      errors.push('Negative values not allowed');
+    } else if (record.value === 0) {
+      errors.push('Zero values not allowed');
+    } else if (record.value > 1000000000) {
+      errors.push('Value too large (max 1 billion KGS)');
+    }
+    
+    if (errors.length > 0) {
+      recordErrors.push({ index: index + 1, customer: record.customer || 'Unknown', month: record.month || 'Unknown', errors });
+    } else {
+      validRecords.push(record);
+    }
+  });
+  
+  // If more than 10% of records have errors, reject the file
+  const errorRate = recordErrors.length / budgetData.length;
+  if (errorRate > 0.1) {
+    throw ErrorCreators.validationError(`Too many invalid records (${recordErrors.length} out of ${budgetData.length}). Please check your file and try again.`);
+  }
+  
+  if (recordErrors.length > 0) {
+    logger.warn(`[import-budget-html] Skipping ${recordErrors.length} invalid records out of ${budgetData.length}`);
+  }
+  
+  logger.info(`[import-budget-html] Validation passed: ${validRecords.length} valid records`);
+  
+  // ============================================================================
+  // Save to Database
+  // ============================================================================
+  await ensureSalesRepBudgetColumns(metadata.division);
+  
+  const divisionPool = getPoolForDivision(metadata.division);
+  const tables = getTableNames(metadata.division);
+  
+  // Check existing budget
+  const existingQuery = `
+    SELECT COUNT(*) as count, MAX(uploaded_at) as last_upload, MAX(uploaded_filename) as last_filename
+    FROM ${tables.salesRepBudget}
+    WHERE UPPER(division) = UPPER($1)
+      AND UPPER(salesrepname) = UPPER($2)
+      AND budget_year = $3
+      AND UPPER(type) = 'BUDGET'
+  `;
+  
+  const existingResult = await divisionPool.query(existingQuery, [metadata.division, metadata.salesRep, metadata.budgetYear]);
+  const existingBudget = {
+    recordCount: parseInt(existingResult.rows[0]?.count || 0, 10),
+    lastUpload: existingResult.rows[0]?.last_upload,
+    lastFilename: existingResult.rows[0]?.last_filename
+  };
+  
+  // Values in savedBudget are already in KGS (MT * 1000 from export)
+  // Store them directly without additional conversion
+  const normalizedRecords = validRecords.map(r => ({
+    customer: r.customer,
+    country: r.country,
+    productGroup: r.productGroup,
+    month: r.month,
+    value: r.value  // Already in KGS - no conversion needed
+  }));
+  
+  // Save using the service
+  const result = await saveLiveSalesRepBudget(divisionPool, {
+    division: metadata.division,
+    budgetYear: metadata.budgetYear,
+    salesRep: metadata.salesRep,
+    records: normalizedRecords
+  });
+  
+  // Calculate totals
+  const pricingYear = metadata.budgetYear - 1;
+  const pricingQuery = `
+    SELECT LOWER(TRIM(product_group)) as product_group, COALESCE(asp_round, 0) as selling_price, COALESCE(morm_round, 0) as morm
+    FROM ${tables.pricingRounding}
+    WHERE UPPER(division) = UPPER($1) AND year = $2 AND product_group IS NOT NULL
+  `;
+  const pricingResult = await divisionPool.query(pricingQuery, [metadata.division, pricingYear]);
+  const pricingMap = {};
+  pricingResult.rows.forEach(row => {
+    pricingMap[row.product_group] = { sellingPrice: parseFloat(row.selling_price) || 0, morm: parseFloat(row.morm) || 0 };
+  });
+  
+  let totalMT = 0, totalAmount = 0, totalMoRM = 0;
+  normalizedRecords.forEach(record => {
+    totalMT += record.value / 1000;  // Convert KGS to MT for display
+    const pricing = pricingMap[(record.productGroup || '').toLowerCase().trim()] || { sellingPrice: 0, morm: 0 };
+    totalAmount += record.value * pricing.sellingPrice;
+    totalMoRM += record.value * pricing.morm;
+  });
+  
+  // Invalidate cache
+  invalidateCache('aebf:*').catch(err => logger.warn('Cache invalidation warning:', err.message));
+  
+  // Return response directly (not wrapped in successResponse) to match frontend expectations
+  res.json({
+    success: true,
+    message: 'Budget imported successfully',
+    metadata: { division: metadata.division, salesRep: metadata.salesRep, budgetYear: metadata.budgetYear },
+    existingBudget,
+    recordsDeleted: existingBudget.recordCount,
+    recordsInserted: { total: normalizedRecords.length, kgs: result?.insertedKGS || normalizedRecords.length, amount: result?.insertedAmount || normalizedRecords.length, morm: result?.insertedMoRM || normalizedRecords.length },
+    totals: { mt: totalMT, amount: totalAmount, morm: totalMoRM },
+    pricingYear,
+    skippedRecords: recordErrors.length,
+    errors: recordErrors.slice(0, 10),
+    warnings: []
+  });
 }));
 
 /**

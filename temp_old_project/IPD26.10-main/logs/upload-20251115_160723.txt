@@ -1,0 +1,40 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20251115160723
+Username: GROUPHARWAL\camille
+RunAs User: GROUPHARWAL\camille
+Configuration Name: 
+Machine: IPL271 (Microsoft Windows NT 10.0.26200.0)
+Host Application: powershell -ExecutionPolicy Bypass -File upload-to-github.ps1 -RepoUrl https://github.com/camS74/IPD26.10.git
+Process ID: 22484
+PSVersion: 5.1.26100.6899
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6899
+BuildVersion: 10.0.26100.6899
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[INFO] Working directory: D:\Projects\IPD26.10
+[ OK ] Commit identity: camS74 <46988482+camS74@users.noreply.github.com>
+[ OK ] Current branch: main
+[INFO] Staging & committing pending changes...
+
+[ OK ] Remote 'origin' already set.
+[INFO] Pushing to origin/main...
+Enumerating objects: 10, done.
+Counting objects: 100% (10/10), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (6/6), done.
+Writing objects: 100% (6/6), 179.13 KiB | 8.96 MiB/s, done.
+Total 6 (delta 4), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (4/4), completed with 4 local objects.
+To https://github.com/camS74/IPD26.10.git
+   fe4388e..04f3faa  main -> main
+branch 'main' set up to track 'origin/main'.
+[ OK ] Push complete. GitHub repo is up to date.
+**********************
+Windows PowerShell transcript end
+End time: 20251115160732
+**********************
